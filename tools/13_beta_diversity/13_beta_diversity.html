@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Step 13 — Beta Diversity | mbX Pro</title>
+<style>
+:root {
+  --bg: #fafbfc; --fg: #1f2328; --muted: #57606a; --link: #0969da;
+  --code-bg: #0d1117; --code-fg: #f0f6fc; --inline-bg: #eef1f4;
+  --border: #d0d7de; --accent: #218bff;
+  --btn-bg: #ffffff; --btn-fg: #1f2328; --btn-bg-hover: #f3f5f7;
+  --btn-ok-bg: #1f883d; --btn-ok-fg: #ffffff;
+  --table-stripe: #f6f8fa; --callout-bg: #fff8dc; --callout-border: #e1c468;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1117; --fg: #c9d1d9; --muted: #8b949e; --link: #58a6ff;
+    --code-bg: #161b22; --code-fg: #c9d1d9; --inline-bg: #1c2128;
+    --border: #30363d; --btn-bg: #21262d; --btn-fg: #c9d1d9;
+    --btn-bg-hover: #30363d; --table-stripe: #161b22;
+    --callout-bg: #2d2a14; --callout-border: #6d5c1b;
+  }
+}
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  line-height: 1.65; max-width: 960px; margin: 0 auto;
+  padding: 48px 24px 96px; font-size: 16px;
+}
+h1, h2, h3, h4 { font-weight: 600; line-height: 1.25; margin-top: 2em; margin-bottom: 0.5em; }
+h1 { font-size: 2.1em; margin-top: 0; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h2 { font-size: 1.5em; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h3 { font-size: 1.2em; }
+h4 { font-size: 1.0em; color: var(--muted); }
+p { margin: 0.6em 0 1em; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+ul, ol { padding-left: 1.5em; }
+hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
+pre {
+  position: relative; background: var(--code-bg); color: var(--code-fg);
+  padding: 18px; border-radius: 8px; overflow-x: auto;
+  font-size: 0.92em; line-height: 1.5; margin: 1em 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+pre code { background: transparent; padding: 0; color: inherit; font-size: 1em; }
+code {
+  background: var(--inline-bg); padding: 0.15em 0.4em; border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9em;
+}
+.copy-btn {
+  position: absolute; top: 10px; right: 10px;
+  background: var(--btn-bg); color: var(--btn-fg);
+  border: 1px solid var(--border); border-radius: 6px;
+  padding: 5px 11px; font-size: 12px; font-family: inherit;
+  cursor: pointer; opacity: 0.85;
+  transition: background 120ms, opacity 120ms, color 120ms; z-index: 2;
+}
+.copy-btn:hover { background: var(--btn-bg-hover); opacity: 1; }
+.copy-btn.copied { background: var(--btn-ok-bg); color: var(--btn-ok-fg); border-color: var(--btn-ok-bg); }
+table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: 0.95em; }
+th, td { border: 1px solid var(--border); padding: 8px 12px; vertical-align: top; text-align: left; }
+th { background: var(--inline-bg); font-weight: 600; }
+tbody tr:nth-child(even) td { background: var(--table-stripe); }
+.toc {
+  background: var(--inline-bg); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px 22px; margin: 1em 0 2em; font-size: 0.95em;
+}
+.toc strong { display: block; margin-bottom: 6px; }
+.toc ol { margin: 0; padding-left: 1.4em; }
+.toc li { margin: 2px 0; }
+blockquote {
+  border-left: 4px solid var(--accent); margin: 1.2em 0; padding: 4px 18px;
+  color: var(--muted); background: var(--inline-bg); border-radius: 4px;
+}
+.doc-footer {
+  margin-top: 4em; padding-top: 1.5em; border-top: 1px solid var(--border);
+  color: var(--muted); font-size: 0.9em;
+}
+</style>
+</head>
+<body>
+<div class="toc"><strong>Contents</strong><ol><li><a href="#why-this-step-matters">Why this step matters</a></li><li><a href="#what-the-script-does-in-one-sentence">What the script does in one sentence</a></li><li><a href="#the-algorithm-step-by-step">The algorithm, step by step</a></li><li><a href="#default-parameters-and-why-they-are-what-they-are">Default parameters and why they are what they are</a></li><li><a href="#when-and-why-we-fall-back-to-defaults">When and why we fall back to defaults</a></li><li><a href="#what-the-output-file-looks-like">What the output file looks like</a></li><li><a href="#takeaway">Takeaway</a></li><li><a href="#sources">Sources</a></li></ol></div>
+<h1>Step 13 — Beta Diversity</h1>
+<p><strong>Script:</strong> <code>scripts/mbx_beta_diversity_run.sh</code></p>
+<p><strong>Companion files in this folder:</strong>
+- <code>13_beta_diversity.html</code> — same content with copy buttons.
+- <code>13_beta_diversity.pptx</code> — slide deck for the talk.</p>
+<hr />
+<h2 id="why-this-step-matters">Why this step matters</h2>
+<p>Step 12 told us how diverse each <em>single</em> sample is. The complementary
+question — and the one most microbiome papers actually lead with — is
+<strong>how different are the samples from each other?</strong> That's <strong>beta
+diversity</strong>.</p>
+<p>Beta diversity matters because researchers usually care about
+<em>comparisons</em>: did the treatment group's communities shift away from the
+control group's communities in a way you wouldn't see by chance? The
+answer comes in three pieces:</p>
+<ol>
+<li><strong>A distance matrix</strong> — for every pair of samples, a number that says
+   how different their communities are.</li>
+<li><strong>An ordination</strong> — a 2-D or 3-D projection (PCoA) of that distance
+   matrix so a human can see the clustering.</li>
+<li><strong>A statistical test</strong> — does the between-group dissimilarity exceed
+   the within-group dissimilarity by more than chance allows?</li>
+</ol>
+<p>Like Step 12, the algorithm is robust precisely because we report <strong>four
+different distance metrics</strong> and <strong>two different significance tests</strong> —
+so the finding can't be dismissed as an artifact of metric choice.</p>
+<hr />
+<h2 id="what-the-script-does-in-one-sentence">What the script does in one sentence</h2>
+<p>It rarefies the feature table to Step 11's depth, computes four
+distance matrices (Bray-Curtis, Jaccard, weighted UniFrac, unweighted
+UniFrac), runs PERMANOVA + PERMDISP + pairwise PERMANOVA + Adonis on
+each, produces PCoA plots, distance heatmaps, and UPGMA dendrograms, and
+writes the results as both QZVs (for interactive inspection) and XLSXs
+(for the report).</p>
+<hr />
+<h2 id="the-algorithm-step-by-step">The algorithm, step by step</h2>
+<h3>1. Gate on Step 11</h3>
+<p><strong>First</strong>, same gate as Step 12: <code>READY_FOR_DIVERSITY=yes</code> or <code>--force</code>.
+Step 13 also reads <code>12_alpha_diversity_results/mbx_alpha_diversity_info.txt</code>
+to inherit the rarefied table path (so we don't rarefy twice).</p>
+<h3>2. Compute the four distance matrices</h3>
+<p><strong>Then</strong> for each of four metrics, the script runs
+<code>qiime diversity beta</code> (non-phylogenetic) or <code>qiime diversity
+beta-phylogenetic</code> (phylogenetic):</p>
+<ul>
+<li><strong>Bray-Curtis dissimilarity</strong> — <code>1 − 2 Σ min(a_i, b_i) / Σ (a_i + b_i)</code>.
+  Sensitive to abundance differences; the most-reported metric in
+  microbiome papers.</li>
+<li><strong>Jaccard distance</strong> — <code>1 − |A ∩ B| / |A ∪ B|</code>. Presence/absence only;
+  asks "do these two samples share the same taxa, ignoring how much?"</li>
+<li><strong>Weighted UniFrac</strong> — sums the branch lengths of the phylogenetic
+  tree weighted by abundance differences between the two samples.
+  Phylogeny + abundance.</li>
+<li><strong>Unweighted UniFrac</strong> — same but binary (presence/absence) — pure
+  phylogenetic dissimilarity.</li>
+</ul>
+<p>The four metrics span (abundance vs presence) × (non-phylogenetic vs
+phylogenetic). A finding consistent across all four is essentially
+unambiguous.</p>
+<h3>3. For every categorical variable: PERMANOVA + PERMDISP</h3>
+<p><strong>For every categorical metadata variable</strong>, on each of the four
+distance matrices, the script runs:</p>
+<ul>
+<li><strong>PERMANOVA</strong> (<code>qiime diversity beta-group-significance</code>) —
+  permutational multivariate ANOVA. Tests whether the <strong>centroid</strong> of
+  each group's samples differs significantly in the distance space.
+  Returns an F statistic, an R², and a p-value computed by permuting
+  group labels 999 times.</li>
+<li><strong>PERMDISP</strong> — tests whether the <em>dispersion</em> of each group differs.
+  This matters because PERMANOVA can spuriously reject the null when
+  groups have different variances (one tight cluster vs one diffuse
+  cloud — PERMANOVA sees the centroids as different even when they
+  aren't). PERMDISP catches this artifact.</li>
+<li><strong>Pairwise PERMANOVA</strong> when the variable has &gt; 2 groups — tells the
+  user <em>which</em> group pairs differ.</li>
+</ul>
+<h3>4. Adonis (multivariable, with covariates)</h3>
+<p><strong>Then</strong> the script runs <code>qiime diversity adonis</code> once per distance
+matrix, modelling the metadata as a formula. The user gets:</p>
+<ul>
+<li><strong>Type-III sums of squares</strong> so the order of variables doesn't change
+  the test.</li>
+<li><strong>Univariate Adonis</strong> rows per variable (just that variable vs
+  distance).</li>
+<li><strong>Multivariate Adonis</strong> with all variables together — the "after
+  controlling for everything else" version.</li>
+</ul>
+<p>This catches the common case where a confounder (e.g. sex, age, batch)
+drives apparent treatment-group differences.</p>
+<h3>5. PCoAs + distance heatmaps + UPGMA dendrograms</h3>
+<p><strong>For visualisation</strong>, the script runs <code>qiime diversity pcoa</code> on each
+distance matrix and exports both the QIIME2 Emperor 3-D interactive
+viewer (<code>emperor_&lt;Metric&gt;.qzv</code>) and a 2-D PNG/SVG with samples
+colour-coded by treatment group.</p>
+<p>It also produces:</p>
+<ul>
+<li><strong>Distance heatmap</strong> per metric — the full pairwise distance matrix
+  shown as a heatmap with samples grouped by treatment.</li>
+<li><strong>UPGMA dendrogram</strong> per metric — hierarchical-clustering view that
+  shows how samples cluster from the distance matrix.</li>
+<li><strong>Boxplot of distance-to-centroid</strong> per metric per variable — the
+  visual version of the PERMDISP test.</li>
+</ul>
+<h3>6. Write <code>mbx_beta_diversity_info.txt</code></h3>
+<p><strong>Finally</strong> the cross-step contract records every artifact + result file,
+the rarefaction depth used, the four-metric × N-variable combinations
+that ran, and <code>STATUS=COMPLETE</code>.</p>
+<hr />
+<h2 id="default-parameters-and-why-they-are-what-they-are">Default parameters and why they are what they are</h2>
+<table>
+<thead>
+<tr>
+<th>Default</th>
+<th>Value</th>
+<th>Why this default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Distance metrics</td>
+<td><strong>Bray-Curtis, Jaccard, weighted UniFrac, unweighted UniFrac</strong></td>
+<td>The four that span (abundance vs presence) × (non-phylogenetic vs phylogenetic).</td>
+</tr>
+<tr>
+<td>Rarefaction depth</td>
+<td>from Step 11</td>
+<td>Single source of truth; inherited via Step 12's info file.</td>
+</tr>
+<tr>
+<td>PERMANOVA permutations</td>
+<td><strong>999</strong></td>
+<td>QIIME2 default; gives a stable p-value with reasonable speed.</td>
+</tr>
+<tr>
+<td>PERMDISP permutations</td>
+<td><strong>999</strong></td>
+<td>Same.</td>
+</tr>
+<tr>
+<td>PERMANOVA test</td>
+<td><strong><code>--p-pairwise</code></strong> when &gt; 2 groups</td>
+<td>We always want the pairwise breakdown when it's meaningful.</td>
+</tr>
+<tr>
+<td>Adonis SS type</td>
+<td><strong>Type III</strong></td>
+<td>Order-independent — robust to how the user listed variables in the metadata.</td>
+</tr>
+<tr>
+<td>PCoA dimensions</td>
+<td>top 3 components</td>
+<td>Enough for the 2-D PNG + Emperor's 3-D view.</td>
+</tr>
+<tr>
+<td>Plot formats</td>
+<td>PNG + SVG always; PDF on <code>--publication-figures</code></td>
+<td>Publication-ready by default.</td>
+</tr>
+<tr>
+<td>Seed</td>
+<td><code>MBX_SEED</code></td>
+<td>Permutation tests are reproducible only with a fixed seed.</td>
+</tr>
+<tr>
+<td>Threads</td>
+<td><code>MBX_THREADS</code></td>
+<td>Single source of truth.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="when-and-why-we-fall-back-to-defaults">When and why we fall back to defaults</h2>
+<table>
+<thead>
+<tr>
+<th>Fallback</th>
+<th>When it triggers</th>
+<th>Why this fallback exists</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Refuse to run</strong></td>
+<td><code>READY_FOR_DIVERSITY=no</code> from Step 11</td>
+<td>Same gate as Step 12.</td>
+</tr>
+<tr>
+<td><strong>Skip UniFrac metrics</strong></td>
+<td>Tree missing</td>
+<td>Bray-Curtis and Jaccard still run; UniFrac logged as skipped.</td>
+</tr>
+<tr>
+<td><strong>Skip a comparison</strong></td>
+<td>Variable has singleton groups after NA filter</td>
+<td>PERMANOVA needs ≥ 2 obs per group.</td>
+</tr>
+<tr>
+<td><strong>Flag PERMDISP-significant cells in the report</strong></td>
+<td>PERMDISP p &lt; 0.05 (different variances)</td>
+<td>PERMANOVA's null is sensitive to dispersion; the report says "the significant PERMANOVA may reflect dispersion, not centroid difference".</td>
+</tr>
+<tr>
+<td><strong>Re-use distance matrices</strong></td>
+<td>A previous run produced them</td>
+<td>Caching saves wall-clock on re-runs.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="what-the-output-file-looks-like">What the output file looks like</h2>
+<p><code>PERMANOVA_results_&lt;Variable&gt;.xlsx</code>:</p>
+<table>
+<thead>
+<tr>
+<th>metric</th>
+<th>n_groups</th>
+<th>F</th>
+<th>R²</th>
+<th>p_value</th>
+<th>p_adj_BH</th>
+<th>significant</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bray-Curtis</td>
+<td>3</td>
+<td>4.81</td>
+<td>0.174</td>
+<td>0.001</td>
+<td>0.001</td>
+<td>TRUE</td>
+</tr>
+<tr>
+<td>Jaccard</td>
+<td>3</td>
+<td>2.92</td>
+<td>0.118</td>
+<td>0.014</td>
+<td>0.018</td>
+<td>TRUE</td>
+</tr>
+<tr>
+<td>weighted UniFrac</td>
+<td>3</td>
+<td>5.66</td>
+<td>0.197</td>
+<td>0.001</td>
+<td>0.001</td>
+<td>TRUE</td>
+</tr>
+<tr>
+<td>unweighted UniFrac</td>
+<td>3</td>
+<td>3.41</td>
+<td>0.131</td>
+<td>0.005</td>
+<td>0.007</td>
+<td>TRUE</td>
+</tr>
+</tbody>
+</table>
+<p>A finding shared across all four metrics — and supported by Adonis after
+adjusting for confounders — is essentially unambiguous.</p>
+<hr />
+<h2 id="takeaway">Takeaway</h2>
+<blockquote>
+<p>Step 13 answers the comparative question (how different are these
+samples from each other?) four times — abundance vs presence,
+phylogenetic vs not — and tests significance two different ways
+(PERMANOVA for centroid; PERMDISP for dispersion). Adonis with Type-III
+SS rules out confounders. PCoA + heatmaps + dendrograms make the
+finding visual. A signal that survives all four metrics and Adonis
+is publication-grade.</p>
+</blockquote>
+<hr />
+<h2 id="sources">Sources</h2>
+<ul>
+<li>The script: <code>mbXPro/scripts/mbx_beta_diversity_run.sh</code></li>
+<li>PERMANOVA: Anderson (2001), <em>A new method for non-parametric
+  multivariate analysis of variance</em>, Austral Ecology 26:32–46.</li>
+<li>PERMDISP: Anderson (2006), <em>Distance-based tests for homogeneity of
+  multivariate dispersions</em>, Biometrics 62:245–253.</li>
+<li>Bray-Curtis: Bray &amp; Curtis (1957), <em>An ordination of upland forest
+  communities of southern Wisconsin</em>, Ecol Monogr 27:325.</li>
+<li>UniFrac: Lozupone &amp; Knight (2005), <em>UniFrac: a new phylogenetic method
+  for comparing microbial communities</em>, AEM 71:8228–8235.</li>
+<li>QIIME2 <code>q2-diversity</code> plugin:
+  https://docs.qiime2.org/2025.4/plugins/available/diversity/</li>
+</ul>
+<div class="doc-footer">
+  mbX Pro 1.5.0 · <a href="README.md">Markdown source</a> · <a href="#">Back to top</a>
+</div>
+<script>
+(function () {
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text);
+    }
+    return new Promise(function (resolve, reject) {
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.setAttribute('readonly', '');
+      ta.style.position = 'absolute'; ta.style.left = '-9999px';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy') ? resolve() : reject(new Error('copy failed')); }
+      catch (e) { reject(e); }
+      finally { document.body.removeChild(ta); }
+    });
+  }
+  document.querySelectorAll('pre').forEach(function (pre) {
+    var btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'copy-btn';
+    btn.textContent = 'Copy';
+    btn.setAttribute('aria-label', 'Copy code to clipboard');
+    btn.addEventListener('click', function () {
+      var code = pre.querySelector('code');
+      var text = (code ? code.innerText : pre.innerText) || '';
+      copyText(text).then(function () {
+        btn.textContent = 'Copied'; btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      }).catch(function () {
+        btn.textContent = 'Copy failed';
+        setTimeout(function () { btn.textContent = 'Copy'; }, 1600);
+      });
+    });
+    pre.appendChild(btn);
+  });
+})();
+</script>
+</body>
+</html>

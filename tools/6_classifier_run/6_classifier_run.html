@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Step 6 — Classifier Run | mbX Pro</title>
+<style>
+:root {
+  --bg: #fafbfc; --fg: #1f2328; --muted: #57606a; --link: #0969da;
+  --code-bg: #0d1117; --code-fg: #f0f6fc; --inline-bg: #eef1f4;
+  --border: #d0d7de; --accent: #218bff;
+  --btn-bg: #ffffff; --btn-fg: #1f2328; --btn-bg-hover: #f3f5f7;
+  --btn-ok-bg: #1f883d; --btn-ok-fg: #ffffff;
+  --table-stripe: #f6f8fa; --callout-bg: #fff8dc; --callout-border: #e1c468;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1117; --fg: #c9d1d9; --muted: #8b949e; --link: #58a6ff;
+    --code-bg: #161b22; --code-fg: #c9d1d9; --inline-bg: #1c2128;
+    --border: #30363d; --btn-bg: #21262d; --btn-fg: #c9d1d9;
+    --btn-bg-hover: #30363d; --table-stripe: #161b22;
+    --callout-bg: #2d2a14; --callout-border: #6d5c1b;
+  }
+}
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  line-height: 1.65; max-width: 960px; margin: 0 auto;
+  padding: 48px 24px 96px; font-size: 16px;
+}
+h1, h2, h3, h4 { font-weight: 600; line-height: 1.25; margin-top: 2em; margin-bottom: 0.5em; }
+h1 { font-size: 2.1em; margin-top: 0; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h2 { font-size: 1.5em; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h3 { font-size: 1.2em; }
+h4 { font-size: 1.0em; color: var(--muted); }
+p { margin: 0.6em 0 1em; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+ul, ol { padding-left: 1.5em; }
+hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
+pre {
+  position: relative; background: var(--code-bg); color: var(--code-fg);
+  padding: 18px; border-radius: 8px; overflow-x: auto;
+  font-size: 0.92em; line-height: 1.5; margin: 1em 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+pre code { background: transparent; padding: 0; color: inherit; font-size: 1em; }
+code {
+  background: var(--inline-bg); padding: 0.15em 0.4em; border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9em;
+}
+.copy-btn {
+  position: absolute; top: 10px; right: 10px;
+  background: var(--btn-bg); color: var(--btn-fg);
+  border: 1px solid var(--border); border-radius: 6px;
+  padding: 5px 11px; font-size: 12px; font-family: inherit;
+  cursor: pointer; opacity: 0.85;
+  transition: background 120ms, opacity 120ms, color 120ms; z-index: 2;
+}
+.copy-btn:hover { background: var(--btn-bg-hover); opacity: 1; }
+.copy-btn.copied { background: var(--btn-ok-bg); color: var(--btn-ok-fg); border-color: var(--btn-ok-bg); }
+table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: 0.95em; }
+th, td { border: 1px solid var(--border); padding: 8px 12px; vertical-align: top; text-align: left; }
+th { background: var(--inline-bg); font-weight: 600; }
+tbody tr:nth-child(even) td { background: var(--table-stripe); }
+.toc {
+  background: var(--inline-bg); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px 22px; margin: 1em 0 2em; font-size: 0.95em;
+}
+.toc strong { display: block; margin-bottom: 6px; }
+.toc ol { margin: 0; padding-left: 1.4em; }
+.toc li { margin: 2px 0; }
+blockquote {
+  border-left: 4px solid var(--accent); margin: 1.2em 0; padding: 4px 18px;
+  color: var(--muted); background: var(--inline-bg); border-radius: 4px;
+}
+.doc-footer {
+  margin-top: 4em; padding-top: 1.5em; border-top: 1px solid var(--border);
+  color: var(--muted); font-size: 0.9em;
+}
+</style>
+</head>
+<body>
+<div class="toc"><strong>Contents</strong><ol><li><a href="#why-this-step-matters">Why this step matters</a></li><li><a href="#what-the-script-does-in-one-sentence">What the script does in one sentence</a></li><li><a href="#the-algorithm-step-by-step">The algorithm, step by step</a></li><li><a href="#default-parameters-and-why-they-are-what-they-are">Default parameters and why they are what they are</a></li><li><a href="#when-and-why-we-fall-back-to-defaults">When and why we fall back to defaults</a></li><li><a href="#what-the-output-file-looks-like">What the output file looks like</a></li><li><a href="#takeaway">Takeaway</a></li><li><a href="#sources">Sources</a></li></ol></div>
+<h1>Step 6 — Classifier Run</h1>
+<p><strong>Script:</strong> <code>scripts/mbx_classifier_run.sh</code></p>
+<p><strong>Companion files in this folder:</strong>
+- <code>6_classifier_run.html</code> — same content with copy buttons on every code block.
+- <code>6_classifier_run.pptx</code> — slide deck for the talk.</p>
+<hr />
+<h2 id="why-this-step-matters">Why this step matters</h2>
+<p>Step 5 set the table — decided region-specific vs full-length, downloaded
+or staged the reference data, sha256-verified anything that came from
+Zenodo. Step 6 is where the actual <strong>taxonomic classification</strong> runs:
+given an ASV sequence, <em>what organism does it come from?</em></p>
+<p>The answer has to be defensible, reproducible, and <strong>fall back gracefully</strong>
+if the Zenodo download Step 5 thought was good turns out to be unloadable
+in <code>classify-sklearn</code>. That last part is the trick. Zenodo verifies file
+integrity by sha256 — but sha256 only proves "the bits are what we
+expected", not "the bits are loadable in the user's exact sklearn
+build". A subtle pickle incompatibility (sklearn 1.4.0 vs 1.4.2, say) can
+slip through the sha check and only fail when <code>classify-sklearn</code>
+actually tries to load the model.</p>
+<p>Step 6's job is to <strong>handle that gracefully</strong> — detect the failure, delete
+the bad artifact, train a fresh classifier locally, retry, and only fail
+the pipeline if local training also fails. The user shouldn't have to
+know any of this happened unless they want to.</p>
+<hr />
+<h2 id="what-the-script-does-in-one-sentence">What the script does in one sentence</h2>
+<p>It reads Step 5's run-info to know the mode + source, then runs three
+QIIME2 commands (extract-reads → fit-classifier-naive-bayes →
+classify-sklearn) — skipping the first two when a pre-trained classifier
+was downloaded, and falling back to local training if the downloaded
+classifier turns out to be unloadable.</p>
+<hr />
+<h2 id="the-algorithm-step-by-step">The algorithm, step by step</h2>
+<h3>1. Parse the Step 5 info file</h3>
+<p><strong>First</strong> the script reads <code>5_classifier_working_dir/mbx_classifier_run_info.txt</code>
+and pulls out <code>CLASSIFIER_MODE</code>, <code>CLASSIFIER_SOURCE</code>, and every path it
+needs. No CLI arguments — the script gets everything from Step 5's
+canonical output.</p>
+<h3>2. Decide which sub-steps to run</h3>
+<p><strong>Then</strong> the script decides which of the three QIIME2 commands to actually
+execute, based on the source:</p>
+<table>
+<thead>
+<tr>
+<th><code>CLASSIFIER_SOURCE</code></th>
+<th>extract-reads</th>
+<th>fit-classifier</th>
+<th>classify-sklearn</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>local-training</code> (region-specific)</td>
+<td>RUN</td>
+<td>RUN</td>
+<td>RUN</td>
+</tr>
+<tr>
+<td><code>local-training</code> (full-length)</td>
+<td>SKIP</td>
+<td>RUN</td>
+<td>RUN</td>
+</tr>
+<tr>
+<td><code>zenodo</code> or <code>cached</code></td>
+<td>SKIP</td>
+<td>SKIP</td>
+<td>RUN</td>
+</tr>
+</tbody>
+</table>
+<p>A <code>zenodo</code> source skips the two expensive sub-steps entirely — that's where
+the 30–90 minutes of saving comes from.</p>
+<h3>3. (region-specific only) Extract-reads from the GG2 backbone</h3>
+<p><strong>For region-specific local training</strong>, the script runs:</p>
+<pre><code>qiime feature-classifier extract-reads \
+  --i-sequences   gg2.backbone.full-length.fna.qza \
+  --p-f-primer    &lt;forward primer from Step 0&gt; \
+  --p-r-primer    &lt;reverse primer from Step 0&gt; \
+  --p-min-length  &lt;min ASV length from Step 5&gt; \
+  --p-max-length  &lt;max ASV length from Step 5&gt; \
+  --o-reads       gg2_extracted_reads.qza
+</code></pre>
+<p>This slices the GG2 backbone to <strong>just the V-region the user actually
+sequenced</strong>, at the same length distribution Step 4 produced. The
+resulting reference is much smaller — training on it is faster and
+species-level accuracy goes up a few points.</p>
+<h3>4. (local training only) Fit the Naive Bayes classifier</h3>
+<p><strong>Then</strong> the script runs:</p>
+<pre><code>qiime feature-classifier fit-classifier-naive-bayes \
+  --i-reference-reads     &lt;extracted_reads or full-length backbone&gt;.qza \
+  --i-reference-taxonomy  gg2.backbone.tax.qza \
+  --o-classifier          gg2_trained_classifier.qza
+</code></pre>
+<p>This is the expensive step — 30–90 minutes of CPU + ~15 GB RAM peak. We
+only run it when we don't have a pre-trained artifact from Zenodo.</p>
+<h3>5. Run classify-sklearn — and handle failure</h3>
+<p><strong>Now the actual classification:</strong></p>
+<pre><code>qiime feature-classifier classify-sklearn \
+  --i-classifier      &lt;pre-trained or freshly-trained&gt;.qza \
+  --i-reads           representative_sequences.qza \
+  --p-n-jobs          &lt;MBX_THREADS&gt;  \
+  --o-classification  taxonomy.qza
+</code></pre>
+<p>This is where the <strong>fall-back gets interesting</strong>:</p>
+<ul>
+<li>If the source was <code>zenodo</code> AND <code>classify-sklearn</code> fails, the script
+  catches the failure, <strong>deletes the downloaded artifact</strong>, updates
+  <code>CLASSIFIER_SOURCE</code> to <code>local-training-fallback</code>, <strong>re-runs Step 5's
+  local-training prep</strong>, then re-runs <code>fit-classifier-naive-bayes</code> and
+  <code>classify-sklearn</code>. The user sees a single retry message; the pipeline
+  keeps going.</li>
+<li>If local training was already the source and <code>classify-sklearn</code> fails,
+  the script aborts with a detailed error. That failure is almost always a
+  GG2 version mismatch or a corrupted reference — nothing the script can
+  fix automatically.</li>
+</ul>
+<h3>6. Tabulate</h3>
+<p><strong>Finally</strong> the script runs <code>qiime metadata tabulate</code> on the classification
+result to produce <code>taxonomy.qzv</code> — an interactive HTML table the user can
+open in a browser. Every ASV gets its assigned taxonomy string and a
+confidence score.</p>
+<h3>7. Idempotency</h3>
+<p>All three QIIME2 commands write to disk; the script checks for those
+outputs before running each. So a partial run that died after
+extract-reads is safe to re-run — it'll skip the expensive completed
+step and pick up where it left off.</p>
+<hr />
+<h2 id="default-parameters-and-why-they-are-what-they-are">Default parameters and why they are what they are</h2>
+<table>
+<thead>
+<tr>
+<th>Default</th>
+<th>Value</th>
+<th>Why this default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>extract-reads <code>--p-f-primer</code> / <code>--p-r-primer</code></td>
+<td>from Step 0</td>
+<td>We use exactly the primers Step 0 detected. If Step 0 was wrong, we'd rather see that here than mask it.</td>
+</tr>
+<tr>
+<td>extract-reads <code>--p-min-length</code> / <code>--p-max-length</code></td>
+<td>from Step 5 (the ASV length distribution)</td>
+<td>The trained classifier should see the same length range it'll classify.</td>
+</tr>
+<tr>
+<td>fit-classifier <code>--p-classify-with</code></td>
+<td>Naive Bayes (Multinomial)</td>
+<td>The QIIME2-default classifier. Faster than scikit-learn's vanilla MultinomialNB on the same problem, and better calibrated for amplicon data.</td>
+</tr>
+<tr>
+<td>classify-sklearn <code>--p-n-jobs</code></td>
+<td><code>MBX_THREADS</code> (orchestrator-exported)</td>
+<td>Scales near-linearly. Single source of truth for parallelism.</td>
+</tr>
+<tr>
+<td>classify-sklearn <code>--p-confidence</code></td>
+<td><strong>0.7</strong> (QIIME2 default)</td>
+<td>Below this confidence the taxonomy string is truncated to the deepest defensible level.</td>
+</tr>
+<tr>
+<td>classify-sklearn <code>--p-pre-dispatch</code></td>
+<td><code>'2*n_jobs'</code></td>
+<td>sklearn's default; balances memory vs throughput.</td>
+</tr>
+<tr>
+<td>Skip extract-reads</td>
+<td>when <code>CLASSIFIER_MODE = full-length</code></td>
+<td>Full-length training doesn't need a region extracted.</td>
+</tr>
+<tr>
+<td>Skip fit-classifier</td>
+<td>when <code>CLASSIFIER_SOURCE ∈ {zenodo, cached}</code></td>
+<td>A pre-trained classifier already exists; training again would produce the same artifact for 30–90 min of wasted compute.</td>
+</tr>
+<tr>
+<td>Reuse on existing outputs</td>
+<td>always</td>
+<td>Step 6 is idempotent — re-running is safe and cheap when outputs already exist.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="when-and-why-we-fall-back-to-defaults">When and why we fall back to defaults</h2>
+<table>
+<thead>
+<tr>
+<th>Fallback</th>
+<th>When it triggers</th>
+<th>Why this fallback exists</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Skip extract-reads</strong></td>
+<td><code>CLASSIFIER_MODE = full-length</code></td>
+<td>Full-length mode trains on the whole backbone — no slice needed.</td>
+</tr>
+<tr>
+<td><strong>Skip fit-classifier</strong></td>
+<td><code>CLASSIFIER_SOURCE ∈ {zenodo, cached}</code></td>
+<td>A pre-trained artifact exists; rebuilding would produce the same result.</td>
+</tr>
+<tr>
+<td><strong>Reuse cached intermediate</strong></td>
+<td>A previous run already produced <code>gg2_extracted_reads.qza</code> or <code>gg2_trained_classifier.qza</code> for the same parameters</td>
+<td>Saves wall-clock when the user reruns Step 6 after a downstream failure.</td>
+</tr>
+<tr>
+<td><strong><code>local-training-fallback</code></strong></td>
+<td><code>classify-sklearn</code> failed on a <code>zenodo</code> artifact</td>
+<td>The bits matched the sha256 but the classifier won't load — usually a subtle scikit-learn pickle issue. Script deletes the bad file, retrains locally, retries.</td>
+</tr>
+<tr>
+<td><strong>Use orchestrator <code>MBX_THREADS</code></strong></td>
+<td><code>mbXPro --threads N</code> was set</td>
+<td>One source of truth for parallelism.</td>
+</tr>
+<tr>
+<td><strong>Hard fail on local-training failure</strong></td>
+<td>Local training fitting failed</td>
+<td>This is almost always GG2 corruption or a missing reference — nothing the script can fix automatically. We error loudly so the user can re-download.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="what-the-output-file-looks-like">What the output file looks like</h2>
+<p><code>taxonomy.qza</code> is a zip archive containing one row per ASV:</p>
+<pre><code>Feature ID        Taxon                                                              Confidence
+ASV_001    d__Bacteria;p__Bacillota;c__Bacilli;o__Lactobacillales;f__Lactobacillaceae;g__Lactobacillus  0.9912
+ASV_002    d__Bacteria;p__Bacteroidota;c__Bacteroidia;o__Bacteroidales;f__Bacteroidaceae;g__Bacteroides  0.9847
+ASV_003    d__Bacteria;p__Pseudomonadota;c__Gammaproteobacteria;o__Enterobacterales  0.6334
+ASV_004    Unassigned                                                                  0.0142
+...
+</code></pre>
+<ul>
+<li>The taxonomy string follows the GG2 nomenclature, with <code>d__</code> /
+  <code>p__</code> / <code>c__</code> / <code>o__</code> / <code>f__</code> / <code>g__</code> / <code>s__</code> prefixes.</li>
+<li>ASVs whose top hit is below the <code>--p-confidence</code> cutoff get the
+  string truncated to the deepest level above the cutoff.</li>
+<li>Anything that no GG2 reference matched is labelled <code>Unassigned</code>.</li>
+</ul>
+<p>The companion <code>taxonomy.qzv</code> opens this same data in a browser as a
+searchable, sortable table.</p>
+<hr />
+<h2 id="takeaway">Takeaway</h2>
+<blockquote>
+<p>Step 6 is the actual classification execution. The interesting part isn't
+the QIIME2 commands — those are standard — it's the <strong>fall-back logic</strong>:
+if a Zenodo-sourced classifier fails to load (subtle sklearn pickle
+mismatch), the script automatically deletes it, regresses to local
+training, retries, and surfaces the whole event in <code>CLASSIFIER_SOURCE =
+local-training-fallback</code> so the final report can explain what happened.
+The pipeline doesn't abort because of an upstream cache mismatch.</p>
+</blockquote>
+<hr />
+<h2 id="sources">Sources</h2>
+<ul>
+<li>The script: <code>mbXPro/scripts/mbx_classifier_run.sh</code></li>
+<li>QIIME2 <code>q2-feature-classifier</code> plugin:
+  https://docs.qiime2.org/2025.4/plugins/available/feature-classifier/</li>
+<li>Naive Bayes classifier methodology: Bokulich et al. (2018),
+  <em>Optimizing taxonomic classification of marker-gene amplicon sequences
+  with QIIME 2's q2-feature-classifier plugin</em>, Microbiome 6:90.</li>
+<li>Greengenes2 nomenclature: McDonald et al. (2024), Nature Biotechnology
+  42:715–718.</li>
+</ul>
+<div class="doc-footer">
+  mbX Pro 1.5.0 · <a href="README.md">Markdown source</a> · <a href="#">Back to top</a>
+</div>
+<script>
+(function () {
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text);
+    }
+    return new Promise(function (resolve, reject) {
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.setAttribute('readonly', '');
+      ta.style.position = 'absolute'; ta.style.left = '-9999px';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy') ? resolve() : reject(new Error('copy failed')); }
+      catch (e) { reject(e); }
+      finally { document.body.removeChild(ta); }
+    });
+  }
+  document.querySelectorAll('pre').forEach(function (pre) {
+    var btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'copy-btn';
+    btn.textContent = 'Copy';
+    btn.setAttribute('aria-label', 'Copy code to clipboard');
+    btn.addEventListener('click', function () {
+      var code = pre.querySelector('code');
+      var text = (code ? code.innerText : pre.innerText) || '';
+      copyText(text).then(function () {
+        btn.textContent = 'Copied'; btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      }).catch(function () {
+        btn.textContent = 'Copy failed';
+        setTimeout(function () { btn.textContent = 'Copy'; }, 1600);
+      });
+    });
+    pre.appendChild(btn);
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Step 17 — Networks | mbX Pro</title>
+<style>
+:root {
+  --bg: #fafbfc; --fg: #1f2328; --muted: #57606a; --link: #0969da;
+  --code-bg: #0d1117; --code-fg: #f0f6fc; --inline-bg: #eef1f4;
+  --border: #d0d7de; --accent: #218bff;
+  --btn-bg: #ffffff; --btn-fg: #1f2328; --btn-bg-hover: #f3f5f7;
+  --btn-ok-bg: #1f883d; --btn-ok-fg: #ffffff;
+  --table-stripe: #f6f8fa; --callout-bg: #fff8dc; --callout-border: #e1c468;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1117; --fg: #c9d1d9; --muted: #8b949e; --link: #58a6ff;
+    --code-bg: #161b22; --code-fg: #c9d1d9; --inline-bg: #1c2128;
+    --border: #30363d; --btn-bg: #21262d; --btn-fg: #c9d1d9;
+    --btn-bg-hover: #30363d; --table-stripe: #161b22;
+    --callout-bg: #2d2a14; --callout-border: #6d5c1b;
+  }
+}
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  line-height: 1.65; max-width: 960px; margin: 0 auto;
+  padding: 48px 24px 96px; font-size: 16px;
+}
+h1, h2, h3, h4 { font-weight: 600; line-height: 1.25; margin-top: 2em; margin-bottom: 0.5em; }
+h1 { font-size: 2.1em; margin-top: 0; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h2 { font-size: 1.5em; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h3 { font-size: 1.2em; }
+h4 { font-size: 1.0em; color: var(--muted); }
+p { margin: 0.6em 0 1em; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+ul, ol { padding-left: 1.5em; }
+hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
+pre {
+  position: relative; background: var(--code-bg); color: var(--code-fg);
+  padding: 18px; border-radius: 8px; overflow-x: auto;
+  font-size: 0.92em; line-height: 1.5; margin: 1em 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+pre code { background: transparent; padding: 0; color: inherit; font-size: 1em; }
+code {
+  background: var(--inline-bg); padding: 0.15em 0.4em; border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9em;
+}
+.copy-btn {
+  position: absolute; top: 10px; right: 10px;
+  background: var(--btn-bg); color: var(--btn-fg);
+  border: 1px solid var(--border); border-radius: 6px;
+  padding: 5px 11px; font-size: 12px; font-family: inherit;
+  cursor: pointer; opacity: 0.85;
+  transition: background 120ms, opacity 120ms, color 120ms; z-index: 2;
+}
+.copy-btn:hover { background: var(--btn-bg-hover); opacity: 1; }
+.copy-btn.copied { background: var(--btn-ok-bg); color: var(--btn-ok-fg); border-color: var(--btn-ok-bg); }
+table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: 0.95em; }
+th, td { border: 1px solid var(--border); padding: 8px 12px; vertical-align: top; text-align: left; }
+th { background: var(--inline-bg); font-weight: 600; }
+tbody tr:nth-child(even) td { background: var(--table-stripe); }
+.toc {
+  background: var(--inline-bg); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px 22px; margin: 1em 0 2em; font-size: 0.95em;
+}
+.toc strong { display: block; margin-bottom: 6px; }
+.toc ol { margin: 0; padding-left: 1.4em; }
+.toc li { margin: 2px 0; }
+blockquote {
+  border-left: 4px solid var(--accent); margin: 1.2em 0; padding: 4px 18px;
+  color: var(--muted); background: var(--inline-bg); border-radius: 4px;
+}
+.doc-footer {
+  margin-top: 4em; padding-top: 1.5em; border-top: 1px solid var(--border);
+  color: var(--muted); font-size: 0.9em;
+}
+</style>
+</head>
+<body>
+<div class="toc"><strong>Contents</strong><ol><li><a href="#why-this-step-matters">Why this step matters</a></li><li><a href="#what-the-script-does-in-one-sentence">What the script does in one sentence</a></li><li><a href="#the-algorithm-step-by-step">The algorithm, step by step</a></li><li><a href="#default-parameters-and-why-they-are-what-they-are">Default parameters and why they are what they are</a></li><li><a href="#when-and-why-we-fall-back-to-defaults">When and why we fall back to defaults</a></li><li><a href="#what-the-output-file-looks-like">What the output file looks like</a></li><li><a href="#takeaway">Takeaway</a></li><li><a href="#sources">Sources</a></li></ol></div>
+<h1>Step 17 — Co-occurrence Networks</h1>
+<p><strong>Script:</strong> <code>scripts/mbx_network_run.sh</code></p>
+<p><strong>Companion files in this folder:</strong>
+- <code>17_networks.html</code> — same content with copy buttons.
+- <code>17_networks.pptx</code> — slide deck for the talk.</p>
+<hr />
+<h2 id="why-this-step-matters">Why this step matters</h2>
+<p>Every step up to now has treated taxa <strong>independently</strong> — even ANCOMBC2,
+which fits one model per taxon. But communities aren't lists; they're
+<strong>networks of co-occurrence and co-exclusion</strong>. Two taxa that consistently
+rise and fall together may share a niche, depend on each other's
+metabolic byproducts, or compete for the same substrate. Two taxa that
+consistently substitute for each other may be ecological alternatives —
+where one thrives, the other can't.</p>
+<p>Co-occurrence networks make this structure visible. A node is a taxon; an
+edge is a statistically supported positive (co-occurrence) or negative
+(co-exclusion) correlation. The shape of the graph — its hubs, its
+modules, its density — captures community structure that no per-taxon
+test can see.</p>
+<p>The trick is doing it <strong>compositionally</strong>. The same problem ANCOMBC2 solved
+for differential abundance shows up here: raw correlations on relative
+abundances are biased toward spurious negative correlations (because if
+one taxon goes up, the rest have to go down by the same total). Step 17
+solves it the standard way: <strong>CLR transform + Spearman correlation</strong>
+(Gloor et al. 2017), which removes the compositional constraint and uses
+rank correlation for robustness to the heavy tails microbiome data
+carries.</p>
+<hr />
+<h2 id="what-the-script-does-in-one-sentence">What the script does in one sentence</h2>
+<p>For every (taxonomic level × categorical variable), it CLR-transforms the
+abundance table, computes Spearman correlations between every pair of
+taxa, adjusts the resulting p-values with Benjamini-Hochberg, filters
+edges by <code>|ρ| ≥ ρ_threshold AND q ≤ q_threshold</code>, builds an igraph object,
+detects modules via Louvain, identifies hub taxa, and exports per-group
+network files plus a multi-panel comparison plot.</p>
+<hr />
+<h2 id="the-algorithm-step-by-step">The algorithm, step by step</h2>
+<h3>1. Gate on Steps 7 + 8</h3>
+<p><strong>First</strong>, same gate as Step 16 — read the metadata + the seven cleaned
+XLSX paths from <code>8_cleaned_files/mbx_ezclean_info.txt</code>. Disk-discovery
+fallback if the info file is missing (rare).</p>
+<h3>2. For every (level × variable), build one <strong>global</strong> and N <strong>per-group</strong> networks</h3>
+<p><strong>For each level requested</strong> (genus, family, species by default — those
+are the levels biologists actually interpret as ecological units):</p>
+<ul>
+<li>One <strong>global</strong> network using all samples — the "ecological backbone".</li>
+<li>One <strong>per-group</strong> network for each level of the categorical variable,
+  <em>only when</em> the group has at least <code>--min-group-n</code> samples (default 5).
+  Below that, the correlations are too noisy to be informative.</li>
+</ul>
+<h3>3. Prevalence filter</h3>
+<p><strong>Drop taxa present in fewer than <code>--prevalence-threshold</code> fraction of
+samples</strong> (default 30 %). Rare taxa add noise without contributing signal
+to the correlation matrix.</p>
+<h3>4. Pseudocount + CLR transform</h3>
+<p><strong>Add a small pseudocount</strong> (<code>pseudocount = 1</code>) to handle zeros, then
+apply the <strong>Centred Log-Ratio</strong> (CLR) transform per sample:</p>
+<pre><code>CLR(x_i) = log( x_i / g(x) )
+</code></pre>
+<p>where <code>g(x)</code> is the geometric mean of the sample's relative abundances.
+The CLR transform removes the unit-sum constraint of compositional data:
+two CLR values can both go up at the same time. From this point on, the
+data behaves like normal continuous variables.</p>
+<h3>5. Spearman correlation matrix</h3>
+<p><strong>Compute the Spearman rank correlation</strong> between every pair of taxa.
+Rank-based is preferred over Pearson because the CLR transform is
+log-distributed and heavy-tailed; Spearman handles that without an
+explicit normality assumption.</p>
+<h3>6. Benjamini-Hochberg FDR</h3>
+<p><strong>For each pairwise p-value, compute the BH-adjusted q-value across the
+entire correlation matrix</strong> (<code>p × (p − 1) / 2</code> tests). FDR control is
+necessary because we're testing thousands of pairs.</p>
+<h3>7. Edge filtering</h3>
+<p><strong>Keep an edge only if BOTH:</strong></p>
+<ul>
+<li><code>|ρ| ≥ --rho-threshold</code> (default 0.30) — the effect size is large enough
+  to mean something biologically.</li>
+<li><code>q ≤ --q-threshold</code> (default 0.05) — the BH-adjusted p-value is
+  significant.</li>
+</ul>
+<p>Both filters are necessary. A very low |ρ| with a tiny q (because N is
+large) is a real but biologically trivial correlation. A high |ρ| with a
+non-significant q is suggestive but underpowered.</p>
+<h3>8. Build the graph and compute node metrics</h3>
+<p><strong>Construct an undirected igraph</strong> with one node per taxon and one edge
+per surviving pair. Compute per-node:</p>
+<ul>
+<li><strong>Degree</strong> — how many edges this taxon has.</li>
+<li><strong>Betweenness centrality</strong> — how often this taxon lies on the shortest
+  path between two other taxa.</li>
+<li><strong>Hub score</strong> — eigenvector-based "this taxon is connected to
+  well-connected taxa".</li>
+</ul>
+<h3>9. Module detection via Louvain</h3>
+<p><strong>Run the Louvain algorithm</strong> (a greedy modularity-maximization heuristic)
+to partition the graph into communities. The output <code>modules.tsv</code> says
+which module each taxon belongs to. Modules often correspond to
+ecological guilds.</p>
+<h3>10. Hub identification</h3>
+<p><strong>Pick the top 10 % of taxa by combined <code>degree + betweenness +
+hub_score</code></strong>, normalised. These are the network's "keystone-suspect"
+taxa — taxa whose removal would most disconnect the graph.</p>
+<h3>11. Group comparison</h3>
+<p><strong>When per-group networks exist</strong>, the script computes:</p>
+<ul>
+<li><strong>Number of nodes / edges per group</strong>.</li>
+<li><strong>Density</strong> (<code>edges / (n × (n − 1) / 2)</code>).</li>
+<li><strong>Modularity</strong> (the Louvain quality score).</li>
+<li><strong>Hub-overlap Jaccard</strong> across groups — do the same taxa show up as
+  hubs in every group, or do hubs change with treatment?</li>
+</ul>
+<p>These go into <code>group_comparison.xlsx</code> and a multi-panel plot.</p>
+<h3>12. Visualisation</h3>
+<p><strong>For each network</strong>:</p>
+<ul>
+<li><strong>Layout</strong> — Fruchterman-Reingold with a fixed RNG seed
+  (<code>MBX_PLOT_SEED</code>) so re-runs give identical layouts.</li>
+<li><strong>Edge colour</strong> — red for negative <code>ρ</code> (co-exclusion), blue for positive
+  (co-occurrence).</li>
+<li><strong>Node size</strong> — proportional to degree.</li>
+<li><strong>Module colour</strong> — one colour per Louvain module.</li>
+</ul>
+<p>Exported as <strong>PNG + PDF + GraphML</strong>. The GraphML can be opened in
+Cytoscape for interactive exploration.</p>
+<h3>13. Write <code>mbx_networks_info.txt</code></h3>
+<p><strong>Finally</strong> the cross-step contract records every graph path + every
+metric XLSX, plus <code>STATUS=COMPLETE</code>.</p>
+<hr />
+<h2 id="default-parameters-and-why-they-are-what-they-are">Default parameters and why they are what they are</h2>
+<table>
+<thead>
+<tr>
+<th>Default</th>
+<th>Value</th>
+<th>Why this default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Approach</td>
+<td><strong>CLR + Spearman</strong></td>
+<td>The standard lightweight compositional-aware approach (Gloor et al. 2017). SparCC is Python-only; SpiecEasi pulls heavy Bioconductor deps.</td>
+</tr>
+<tr>
+<td>Levels run</td>
+<td><strong>genus, family, species</strong></td>
+<td>The levels biologists interpret as ecological units. Higher levels are too coarse.</td>
+</tr>
+<tr>
+<td>Per-group minimum N</td>
+<td><strong>5</strong></td>
+<td>Below five, the correlation estimates are too noisy.</td>
+</tr>
+<tr>
+<td>Prevalence threshold</td>
+<td><strong>0.30</strong></td>
+<td>Drop taxa present in &lt; 30 % of samples; they add noise without signal.</td>
+</tr>
+<tr>
+<td>Pseudocount</td>
+<td><strong>1</strong></td>
+<td>Standard for CLR on count data; small enough to barely affect the transform but eliminates <code>log(0)</code>.</td>
+</tr>
+<tr>
+<td>ρ threshold</td>
+<td><strong>0.30</strong></td>
+<td>Below this, the effect is biologically negligible even when statistically significant.</td>
+</tr>
+<tr>
+<td>q threshold</td>
+<td><strong>0.05</strong></td>
+<td>Standard FDR cut.</td>
+</tr>
+<tr>
+<td>Multiple-testing correction</td>
+<td><strong>Benjamini-Hochberg</strong></td>
+<td>Standard FDR control.</td>
+</tr>
+<tr>
+<td>Module detection</td>
+<td><strong>Louvain</strong></td>
+<td>Fast, greedy modularity maximisation; widely used.</td>
+</tr>
+<tr>
+<td>Hub-detection metric</td>
+<td><strong>degree + betweenness + hub_score, top 10 %</strong></td>
+<td>Combines three orthogonal notions of "central".</td>
+</tr>
+<tr>
+<td>Layout</td>
+<td><strong>Fruchterman-Reingold, seeded</strong></td>
+<td>Reproducible across re-runs (<code>MBX_PLOT_SEED</code>).</td>
+</tr>
+<tr>
+<td>Plot formats</td>
+<td><strong>PNG + PDF + GraphML</strong></td>
+<td>GraphML opens in Cytoscape for interactive exploration.</td>
+</tr>
+<tr>
+<td>Threads</td>
+<td><strong><code>MBX_THREADS</code></strong></td>
+<td>Single source of truth.</td>
+</tr>
+<tr>
+<td>Seed</td>
+<td><strong><code>MBX_SEED</code></strong></td>
+<td>Single source of truth.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="when-and-why-we-fall-back-to-defaults">When and why we fall back to defaults</h2>
+<table>
+<thead>
+<tr>
+<th>Fallback</th>
+<th>When it triggers</th>
+<th>Why this fallback exists</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Skip per-group network</strong></td>
+<td>Group has &lt; <code>--min-group-n</code> samples</td>
+<td>Too noisy to interpret. The global network still runs.</td>
+</tr>
+<tr>
+<td><strong>Skip a level</strong></td>
+<td>After prevalence filter, &lt; 5 taxa remain</td>
+<td>Nothing to correlate.</td>
+</tr>
+<tr>
+<td><strong>Disk-discovery for cleaned XLSX</strong></td>
+<td>Step 8 info file missing</td>
+<td>Find the seven cleaned XLSX by their canonical filename pattern.</td>
+</tr>
+<tr>
+<td><strong>Hub list = top 5 %</strong> instead of 10 %</td>
+<td>User opted in via <code>--hubs-fraction</code></td>
+<td>Stricter hub definition for sparse networks.</td>
+</tr>
+<tr>
+<td><strong>Re-use cached correlation matrix</strong></td>
+<td>Previous run produced it</td>
+<td>Saves the matrix computation on re-runs.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="what-the-output-file-looks-like">What the output file looks like</h2>
+<p><code>network_summary.xlsx</code> per network:</p>
+<table>
+<thead>
+<tr>
+<th>metric</th>
+<th>value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>n_nodes</td>
+<td>142</td>
+</tr>
+<tr>
+<td>n_edges</td>
+<td>487</td>
+</tr>
+<tr>
+<td>density</td>
+<td>0.049</td>
+</tr>
+<tr>
+<td>n_modules</td>
+<td>6</td>
+</tr>
+<tr>
+<td>modularity</td>
+<td>0.418</td>
+</tr>
+<tr>
+<td>n_positive_edges</td>
+<td>312</td>
+</tr>
+<tr>
+<td>n_negative_edges</td>
+<td>175</td>
+</tr>
+</tbody>
+</table>
+<p><code>hub_taxa.xlsx</code>:</p>
+<table>
+<thead>
+<tr>
+<th>taxon</th>
+<th>degree</th>
+<th>betweenness</th>
+<th>hub_score</th>
+<th>combined</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bacteroides</td>
+<td>24</td>
+<td>0.082</td>
+<td>0.81</td>
+<td>1.00 (rank 1)</td>
+</tr>
+<tr>
+<td>Faecalibacterium</td>
+<td>19</td>
+<td>0.067</td>
+<td>0.74</td>
+<td>0.83</td>
+</tr>
+<tr>
+<td>Bilophila.wadsworthia</td>
+<td>17</td>
+<td>0.039</td>
+<td>0.62</td>
+<td>0.71</td>
+</tr>
+<tr>
+<td>...</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Plus <code>edges.tsv</code>, <code>nodes.tsv</code>, <code>modules.tsv</code>, <code>network.graphml</code>, and the
+<code>network_plot.{png,pdf}</code>. When per-group networks ran,
+<code>group_comparison.xlsx</code> + <code>multi_panel_plot.{png,pdf}</code> show side-by-side.</p>
+<hr />
+<h2 id="takeaway">Takeaway</h2>
+<blockquote>
+<p>Step 17 is the only step that treats the community as a <strong>network</strong>
+rather than a list. CLR + Spearman handles the compositional problem
+correctly without heavy Bioconductor dependencies. Louvain modules
+often correspond to ecological guilds; hub taxa are the
+keystone-suspect species worth following up on. The group-comparison
+plot is the "did treatment change the network's structure?" answer.</p>
+</blockquote>
+<hr />
+<h2 id="sources">Sources</h2>
+<ul>
+<li>The script: <code>mbXPro/scripts/mbx_network_run.sh</code></li>
+<li>CLR + Spearman for microbiome networks: Gloor et al. (2017),
+  <em>Microbiome datasets are compositional: and this is not optional</em>,
+  Front Microbiol 8:2224.</li>
+<li>Louvain modularity: Blondel et al. (2008), <em>Fast unfolding of
+  communities in large networks</em>, J Stat Mech P10008.</li>
+<li>igraph: Csárdi &amp; Nepusz (2006), <em>The igraph software package for
+  complex network research</em>, InterJournal 1695.</li>
+<li>Fruchterman-Reingold layout: Fruchterman &amp; Reingold (1991), <em>Graph
+  drawing by force-directed placement</em>, Softw Pract Exp 21:1129.</li>
+<li>Cytoscape: Shannon et al. (2003), <em>Cytoscape: a software environment
+  for integrated models of biomolecular interaction networks</em>, Genome
+  Res 13:2498.</li>
+</ul>
+<div class="doc-footer">
+  mbX Pro 1.5.0 · <a href="README.md">Markdown source</a> · <a href="#">Back to top</a>
+</div>
+<script>
+(function () {
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text);
+    }
+    return new Promise(function (resolve, reject) {
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.setAttribute('readonly', '');
+      ta.style.position = 'absolute'; ta.style.left = '-9999px';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy') ? resolve() : reject(new Error('copy failed')); }
+      catch (e) { reject(e); }
+      finally { document.body.removeChild(ta); }
+    });
+  }
+  document.querySelectorAll('pre').forEach(function (pre) {
+    var btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'copy-btn';
+    btn.textContent = 'Copy';
+    btn.setAttribute('aria-label', 'Copy code to clipboard');
+    btn.addEventListener('click', function () {
+      var code = pre.querySelector('code');
+      var text = (code ? code.innerText : pre.innerText) || '';
+      copyText(text).then(function () {
+        btn.textContent = 'Copied'; btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      }).catch(function () {
+        btn.textContent = 'Copy failed';
+        setTimeout(function () { btn.textContent = 'Copy'; }, 1600);
+      });
+    });
+    pre.appendChild(btn);
+  });
+})();
+</script>
+</body>
+</html>

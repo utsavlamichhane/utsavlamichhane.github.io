@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Step 7 — Taxonomy CSVs | mbX Pro</title>
+<style>
+:root {
+  --bg: #fafbfc; --fg: #1f2328; --muted: #57606a; --link: #0969da;
+  --code-bg: #0d1117; --code-fg: #f0f6fc; --inline-bg: #eef1f4;
+  --border: #d0d7de; --accent: #218bff;
+  --btn-bg: #ffffff; --btn-fg: #1f2328; --btn-bg-hover: #f3f5f7;
+  --btn-ok-bg: #1f883d; --btn-ok-fg: #ffffff;
+  --table-stripe: #f6f8fa; --callout-bg: #fff8dc; --callout-border: #e1c468;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1117; --fg: #c9d1d9; --muted: #8b949e; --link: #58a6ff;
+    --code-bg: #161b22; --code-fg: #c9d1d9; --inline-bg: #1c2128;
+    --border: #30363d; --btn-bg: #21262d; --btn-fg: #c9d1d9;
+    --btn-bg-hover: #30363d; --table-stripe: #161b22;
+    --callout-bg: #2d2a14; --callout-border: #6d5c1b;
+  }
+}
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  line-height: 1.65; max-width: 960px; margin: 0 auto;
+  padding: 48px 24px 96px; font-size: 16px;
+}
+h1, h2, h3, h4 { font-weight: 600; line-height: 1.25; margin-top: 2em; margin-bottom: 0.5em; }
+h1 { font-size: 2.1em; margin-top: 0; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h2 { font-size: 1.5em; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h3 { font-size: 1.2em; }
+h4 { font-size: 1.0em; color: var(--muted); }
+p { margin: 0.6em 0 1em; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+ul, ol { padding-left: 1.5em; }
+hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
+pre {
+  position: relative; background: var(--code-bg); color: var(--code-fg);
+  padding: 18px; border-radius: 8px; overflow-x: auto;
+  font-size: 0.92em; line-height: 1.5; margin: 1em 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+pre code { background: transparent; padding: 0; color: inherit; font-size: 1em; }
+code {
+  background: var(--inline-bg); padding: 0.15em 0.4em; border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9em;
+}
+.copy-btn {
+  position: absolute; top: 10px; right: 10px;
+  background: var(--btn-bg); color: var(--btn-fg);
+  border: 1px solid var(--border); border-radius: 6px;
+  padding: 5px 11px; font-size: 12px; font-family: inherit;
+  cursor: pointer; opacity: 0.85;
+  transition: background 120ms, opacity 120ms, color 120ms; z-index: 2;
+}
+.copy-btn:hover { background: var(--btn-bg-hover); opacity: 1; }
+.copy-btn.copied { background: var(--btn-ok-bg); color: var(--btn-ok-fg); border-color: var(--btn-ok-bg); }
+table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: 0.95em; }
+th, td { border: 1px solid var(--border); padding: 8px 12px; vertical-align: top; text-align: left; }
+th { background: var(--inline-bg); font-weight: 600; }
+tbody tr:nth-child(even) td { background: var(--table-stripe); }
+.toc {
+  background: var(--inline-bg); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px 22px; margin: 1em 0 2em; font-size: 0.95em;
+}
+.toc strong { display: block; margin-bottom: 6px; }
+.toc ol { margin: 0; padding-left: 1.4em; }
+.toc li { margin: 2px 0; }
+blockquote {
+  border-left: 4px solid var(--accent); margin: 1.2em 0; padding: 4px 18px;
+  color: var(--muted); background: var(--inline-bg); border-radius: 4px;
+}
+.doc-footer {
+  margin-top: 4em; padding-top: 1.5em; border-top: 1px solid var(--border);
+  color: var(--muted); font-size: 0.9em;
+}
+</style>
+</head>
+<body>
+<div class="toc"><strong>Contents</strong><ol><li><a href="#why-this-step-matters">Why this step matters</a></li><li><a href="#what-the-script-does-in-one-sentence">What the script does in one sentence</a></li><li><a href="#the-algorithm-step-by-step">The algorithm, step by step</a></li><li><a href="#default-parameters-and-why-they-are-what-they-are">Default parameters and why they are what they are</a></li><li><a href="#when-and-why-we-fall-back-to-defaults">When and why we fall back to defaults</a></li><li><a href="#what-the-output-file-looks-like">What the output file looks like</a></li><li><a href="#takeaway">Takeaway</a></li><li><a href="#sources">Sources</a></li></ol></div>
+<h1>Step 7 — Taxonomy CSVs + Mito/Chloro Filter</h1>
+<p><strong>Script:</strong> <code>scripts/mbx_taxonomy_run.sh</code></p>
+<p><strong>Companion files in this folder:</strong>
+- <code>7_taxonomy_run.html</code> — same content with copy buttons on every code block.
+- <code>7_taxonomy_run.pptx</code> — slide deck for the talk.</p>
+<hr />
+<h2 id="why-this-step-matters">Why this step matters</h2>
+<p>Steps 4 and 6 left us with two artifacts:</p>
+<ul>
+<li><strong>A feature table</strong> (Step 4): how many of each ASV in each sample.</li>
+<li><strong>A taxonomy table</strong> (Step 6): for each ASV, which organism it is.</li>
+</ul>
+<p>The rest of the pipeline — diversity statistics, differential abundance,
+machine learning — all needs these two combined into <strong>per-level relative
+abundance tables</strong>: a domain table, a phylum table, a class table, …,
+down to species. The downstream R steps consume those tables, not the
+QIIME2 QZA files.</p>
+<p>But there's also <strong>a contamination problem</strong> specific to 16S amplicon
+analysis. The 16S rRNA primers also amplify the rRNA from:</p>
+<ul>
+<li><strong>Mitochondria</strong>, which evolved from an ancient α-proteobacterium and
+  still have bacteria-like rRNA.</li>
+<li><strong>Chloroplasts</strong>, which evolved from an ancient cyanobacterium and
+  still have bacteria-like rRNA.</li>
+</ul>
+<p>If we leave those reads in, they get classified as plant or animal
+mitochondrial / chloroplast lineages and show up as bizarre "bacteria" in
+every downstream analysis. Worse, they often <strong>dominate</strong> the read counts
+in any sample with plant or animal material — a single bovine mitochondrial
+ASV can hijack 30 % of a rumen sample's reads.</p>
+<p>Step 7's job is to <strong>remove that contamination</strong> before anyone downstream
+ever sees the data, and to produce the seven level CSVs cleanly.</p>
+<hr />
+<h2 id="what-the-script-does-in-one-sentence">What the script does in one sentence</h2>
+<p>It filters mitochondrial and chloroplast features out of the Step 4 feature
+table using the Step 6 taxonomy strings, builds a QIIME2 taxa barplot from
+the filtered data, exports the barplot to seven level-N.csv files (one per
+taxonomic level), and writes the cross-step paths Step 8 onwards will read.</p>
+<hr />
+<h2 id="the-algorithm-step-by-step">The algorithm, step by step</h2>
+<h3>1. Read the upstream info files</h3>
+<p><strong>First</strong> the script reads <code>5_classifier_working_dir/mbx_classifier_run_info.txt</code>
+to find the feature-table path and the taxonomy path. It uses Step 5's
+canonical paths so a re-run with a different working directory layout still
+works.</p>
+<h3>2. Filter mitochondria and chloroplasts</h3>
+<p><strong>Then</strong> the script runs:</p>
+<pre><code>qiime taxa filter-table \
+  --i-table        feature_table.qza \
+  --i-taxonomy     taxonomy.qza \
+  --p-mode         contains \
+  --p-exclude      mitochondria,chloroplast \
+  --o-filtered-table feature_table_filtered.qza
+</code></pre>
+<p>The <code>--p-mode contains</code> plus <code>--p-exclude mitochondria,chloroplast</code> tells
+QIIME2: drop any feature whose taxonomy string mentions either keyword,
+case-insensitive. This catches:</p>
+<ul>
+<li><code>…;c__Mitochondria</code> (plant + animal mitochondrial rRNA — the most common
+  hit)</li>
+<li><code>…;c__Chloroplast</code> (plant chloroplast rRNA)</li>
+<li><code>…;f__Mitochondria</code> (the family-level alias some classifiers produce)</li>
+<li>Anything weird with <code>mitochondria</code> or <code>chloroplast</code> deeper in the string.</li>
+</ul>
+<p>The script logs <strong>how many features were removed and what fraction of the
+total reads they accounted for</strong> — that number is a useful sanity check
+(typically 0–5 % in stool / soil; up to 30 % in plant material or rumen
+samples).</p>
+<h3>3. Build the taxa barplot</h3>
+<p><strong>Next</strong> the script runs:</p>
+<pre><code>qiime taxa barplot \
+  --i-table       feature_table_filtered.qza \
+  --i-taxonomy    taxonomy.qza \
+  --m-metadata-file metadata.txt \
+  --o-visualization taxa_bar_plots.qzv
+</code></pre>
+<p><code>taxa_bar_plots.qzv</code> is the interactive HTML the user can open to look at
+the stacked-bar composition of every sample at every taxonomic level. It's
+the first qualitative result the user actually sees — it tells them
+"the data looks right".</p>
+<h3>4. Export the seven level CSVs</h3>
+<p><strong>Then</strong> the script unzips the <code>.qzv</code> file (a QZV is also a zip archive),
+finds the seven <code>level-N.csv</code> files inside (one for each of N = 1 through
+7 → domain, phylum, class, order, family, genus, species), and copies them
+to the output directory.</p>
+<p>These seven CSVs are the <strong>single source of truth</strong> that every downstream
+analysis step consumes. They're plain CSV — one row per sample, one column
+per taxon at that level, plus the metadata columns. No QIIME2 wrapping; any
+tool (R, pandas, Excel) can read them.</p>
+<h3>5. Write the cross-step info file</h3>
+<p><strong>Finally</strong> the script writes <code>mbx_taxonomy_info.txt</code> with:</p>
+<ul>
+<li><code>LEVEL_7_CSV=&lt;path&gt;</code> — Step 8 (<code>ezclean</code>) uses this as input. It parses
+  the full GTDB hierarchy string in the level-7 column headers to
+  reconstruct every higher level.</li>
+<li><code>METADATA_TXT=&lt;path&gt;</code> — every later step reads this.</li>
+<li>The mitochondria / chloroplast removal stats — surfaced in the final
+  report.</li>
+<li><code>STATUS=COMPLETE</code> for <code>mbXPro --resume</code>.</li>
+</ul>
+<hr />
+<h2 id="default-parameters-and-why-they-are-what-they-are">Default parameters and why they are what they are</h2>
+<table>
+<thead>
+<tr>
+<th>Default</th>
+<th>Value</th>
+<th>Why this default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Filter mode</td>
+<td><code>contains</code></td>
+<td>Case-insensitive substring match. Catches <code>c__Mitochondria</code>, <code>f__Mitochondria</code>, <code>c__Chloroplast</code>, and anything weird with those keywords.</td>
+</tr>
+<tr>
+<td>Filter terms</td>
+<td><code>mitochondria,chloroplast</code></td>
+<td>The two contamination sources 16S primers always amplify in eukaryotic-containing samples.</td>
+</tr>
+<tr>
+<td>Levels exported</td>
+<td>1 through 7 (domain → species)</td>
+<td>Every taxonomic level downstream R + Python steps need. Level 7 in particular contains the full string from which higher levels can be reconstructed.</td>
+</tr>
+<tr>
+<td>Barplot output</td>
+<td><code>taxa_bar_plots.qzv</code></td>
+<td>QIIME2's interactive HTML viewer — the first place a user spots whether the data looks reasonable.</td>
+</tr>
+<tr>
+<td>Cross-step contract field</td>
+<td><code>LEVEL_7_CSV</code></td>
+<td>The full hierarchy lives in level-7. Step 8 (<code>ezclean</code>) parses it to rebuild higher levels with consistent naming.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="when-and-why-we-fall-back-to-defaults">When and why we fall back to defaults</h2>
+<table>
+<thead>
+<tr>
+<th>Fallback</th>
+<th>When it triggers</th>
+<th>Why this fallback exists</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Re-use cached <code>feature_table_filtered.qza</code></strong></td>
+<td>A previous run already produced it with the same input hashes</td>
+<td>Saves a re-filter on repeated runs.</td>
+</tr>
+<tr>
+<td><strong>Log + continue when 0 features removed</strong></td>
+<td>Sample is purely microbial (faecal, soil, water) with no eukaryotic host</td>
+<td>Not an error — just unusual. The log says "0 mito/chloro features removed".</td>
+</tr>
+<tr>
+<td><strong>Log + continue when &gt; 30 % features removed</strong></td>
+<td>Plant or animal-tissue-dominated sample (rumen, root, tongue swab)</td>
+<td>Not an error — but the user should know. The final report flags this number.</td>
+</tr>
+<tr>
+<td><strong>Skip mitochondria term but keep chloroplast</strong></td>
+<td>Not yet exposed as a flag, but reserved for the rare case of needing mitochondrial rRNA itself (e.g. eDNA studies)</td>
+<td>Documented for future extension; default behaviour removes both.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="what-the-output-file-looks-like">What the output file looks like</h2>
+<p><code>7_taxonomy_csv/level-7.csv</code> (example, transposed for readability):</p>
+<pre><code>sample-id   d__Bacteria;p__Bacillota;...;s__Lactobacillus_acidophilus   d__Bacteria;p__Bacteroidota;...;s__Bacteroides_fragilis   ...
+SampleA     0.0214                                                     0.0089                                                   ...
+SampleB     0.0142                                                     0.0312                                                   ...
+...
+</code></pre>
+<p>Plus six analogous files for levels 1 through 6, the filtered QZA, and the
+interactive <code>taxa_bar_plots.qzv</code> for the user's first sanity check.</p>
+<hr />
+<h2 id="takeaway">Takeaway</h2>
+<blockquote>
+<p>Step 7 is the last QIIME2 step in the pipeline. It's also where the most
+common 16S-data gotcha (mitochondrial and chloroplast contamination) gets
+caught — once, here, for the whole downstream pipeline. The seven
+level CSVs it produces become the single source of truth that every R
+and Python step from Step 8 onwards consumes. From now on we never
+touch QIIME2 again.</p>
+</blockquote>
+<hr />
+<h2 id="sources">Sources</h2>
+<ul>
+<li>The script: <code>mbXPro/scripts/mbx_taxonomy_run.sh</code></li>
+<li>QIIME2 <code>q2-taxa</code> plugin:
+  https://docs.qiime2.org/2025.4/plugins/available/taxa/</li>
+<li>The mito/chloro contamination problem: Hanshew et al. (2013),
+  <em>Minimization of chloroplast contamination in 16S rRNA gene
+  pyrosequencing of insect herbivore bacterial communities</em>,
+  J Microbiol Methods 95:149.</li>
+</ul>
+<div class="doc-footer">
+  mbX Pro 1.5.0 · <a href="README.md">Markdown source</a> · <a href="#">Back to top</a>
+</div>
+<script>
+(function () {
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text);
+    }
+    return new Promise(function (resolve, reject) {
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.setAttribute('readonly', '');
+      ta.style.position = 'absolute'; ta.style.left = '-9999px';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy') ? resolve() : reject(new Error('copy failed')); }
+      catch (e) { reject(e); }
+      finally { document.body.removeChild(ta); }
+    });
+  }
+  document.querySelectorAll('pre').forEach(function (pre) {
+    var btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'copy-btn';
+    btn.textContent = 'Copy';
+    btn.setAttribute('aria-label', 'Copy code to clipboard');
+    btn.addEventListener('click', function () {
+      var code = pre.querySelector('code');
+      var text = (code ? code.innerText : pre.innerText) || '';
+      copyText(text).then(function () {
+        btn.textContent = 'Copied'; btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      }).catch(function () {
+        btn.textContent = 'Copy failed';
+        setTimeout(function () { btn.textContent = 'Copy'; }, 1600);
+      });
+    });
+    pre.appendChild(btn);
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>mbX Pro — Command-Line Demo</title>
+<style>
+  :root{
+    --orange:#F67632; --orange-dark:#D96023; --orange-soft:#FCE8DC;
+    --teal:#2DD49A; --green:#70C576; --ink:#1d2127; --muted:#5d6470;
+    --header:#0E1419; --line:#e7e3df; --code-bg:#f5f3f0;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink);background:#fbfaf8;line-height:1.6;
+  }
+  .wrap{max-width:820px;margin:0 auto;padding:0 24px 64px}
+  header.hero{background:var(--header);color:#fff;padding:30px 0}
+  header.hero .wrap{padding-bottom:0}
+  .eyebrow{display:flex;align-items:center;gap:8px;color:var(--teal);
+    font-size:12px;font-weight:700;letter-spacing:2.5px;margin:0 0 6px}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);display:inline-block}
+  .word{font-size:46px;font-weight:900;letter-spacing:-1px;margin:0;
+    background:linear-gradient(120deg,var(--orange),var(--orange-dark));
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:rgba(255,255,255,.55);font-size:14px;margin:6px 0 0}
+  .pill{display:inline-block;margin-top:14px;background:rgba(45,212,154,.14);
+    color:var(--teal);border:1px solid rgba(45,212,154,.35);
+    padding:4px 12px;border-radius:999px;font-size:12.5px;font-weight:600}
+  h1{font-size:24px;margin:38px 0 6px}
+  h2{font-size:18px;margin:34px 0 10px;padding-bottom:6px;border-bottom:2px solid var(--orange-soft)}
+  p{margin:10px 0}
+  code{background:var(--code-bg);padding:2px 6px;border-radius:5px;
+    font-family:"SF Mono",Menlo,Consolas,monospace;font-size:13px;color:var(--orange-dark)}
+  pre{background:var(--header);color:#e9edf2;border-radius:12px;padding:16px 18px;
+    overflow:auto;font-family:"SF Mono",Menlo,Consolas,monospace;font-size:13px;line-height:1.5}
+  pre code{background:none;color:inherit;padding:0}
+  ul,ol{padding-left:22px}
+  li{margin:6px 0}
+  .req{background:#fff;border:1px solid var(--line);border-left:4px solid var(--teal);
+    border-radius:10px;padding:12px 16px;margin:18px 0;font-size:14.5px}
+  .note{background:var(--orange-soft);border:1px solid rgba(246,118,50,.28);
+    border-radius:10px;padding:12px 16px;margin:18px 0;font-size:14px}
+  .cite{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:24px 0}
+  .cite a{color:var(--orange-dark);word-break:break-all}
+  .tree{white-space:pre}
+  a{color:var(--orange-dark)}
+  footer{color:var(--muted);font-size:12.5px;margin-top:40px;border-top:1px solid var(--line);padding-top:16px}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow"><span class="dot"></span>MICROBIOME PIPELINE</p>
+    <p class="word">mbXPro</p>
+    <p class="sub">Command-Line Demo · macOS, Apple Silicon</p>
+    <span class="pill">Zero dependencies — nothing to install</span>
+  </div>
+</header>
+
+<div class="wrap">
+  <p>Run the full mbX Pro 16S pipeline from the terminal with <strong>no setup</strong>.
+  Docker, QIIME2, R, Python and the analysis image are all bundled here — you do
+  <strong>not</strong> install anything.</p>
+
+  <div class="req">
+    <strong>Requirements:</strong> a Mac with Apple Silicon (M1/M2/M3/M4),
+    macOS 13+, and ~30&nbsp;GB free disk space.
+    (First run provisions Rosetta automatically if needed.)
+  </div>
+
+  <h2>What's in this folder</h2>
+<pre class="tree"><code>cli/
+├── mbXPro            ← the launcher you call
+├── run_demo.sh       ← one-shot: runs the pipeline on the test data set
+├── engine/           ← container glue script (do not edit)
+└── payload/          ← bundled runtime + 4.2 GB analysis image (do not edit)</code></pre>
+  <p>The test data lives one level up, in <code>../test_data_set/</code>.</p>
+
+  <h2>Quick start (run the test data set)</h2>
+  <p>Open <strong>Terminal</strong>, drag this <code>cli</code> folder onto the
+  Terminal icon (or <code>cd</code> into it), then run:</p>
+<pre><code>./run_demo.sh</code></pre>
+  <p>That's it. It boots the analysis engine once, then runs the complete
+  pipeline on the bundled test samples. When it finishes, your results are in:</p>
+<pre><code>demo_outputs/mbX_pro_outputs_&lt;timestamp&gt;/</code></pre>
+  <p>Open the report:</p>
+<pre><code>open demo_outputs/mbX_pro_outputs_*/18_final_report/mbX_pro_final_report.html</code></pre>
+  <div class="note">The run takes a while: the pipeline runs under x86 emulation
+  on Apple Silicon. Keep your Mac awake until it finishes.</div>
+
+  <h2>Running your own data</h2>
+  <p>The simplest form — just give it your FASTQ folder and metadata file:</p>
+<pre><code>./mbXPro /path/to/your/FASTQ_folder /path/to/your/metadata.txt</code></pre>
+  <p>Results are written next to your FASTQ folder, in a timestamped
+  <code>mbX_pro_outputs_&lt;date&gt;/</code> folder. You can also choose where they
+  go by adding an output folder as a third argument:</p>
+<pre><code>./mbXPro /path/to/FASTQ /path/to/metadata.txt /path/to/output_location</code></pre>
+  <p>That's all most users need — nothing to install. The first run boots the
+  analysis engine (VM&nbsp;+&nbsp;image load) automatically.</p>
+
+  <h3 style="font-size:15px;margin-top:22px">Advanced (subcommands)</h3>
+<pre><code>./mbXPro run \
+    --fastq    /path/to/your/FASTQ_folder \
+    --metadata /path/to/your/metadata.txt \
+    --out      /path/to/output_location
+
+./mbXPro prepare   # just boot the VM + load the image
+./mbXPro stop      # shut the engine down to free RAM
+./mbXPro doctor    # print readiness</code></pre>
+  <p><strong>Note:</strong> the FASTQ folder, metadata file, and output location
+  must all be inside your home folder (Desktop, Documents, etc.).</p>
+  <p>Pass extra mbX Pro flags after a <code>--</code>, e.g. publication-quality figures:</p>
+<pre><code>./mbXPro /path/to/FASTQ /path/to/metadata.txt -- --publication-figures</code></pre>
+
+  <h2>Troubleshooting</h2>
+  <ul>
+    <li><strong>"cannot be opened because it is from an unidentified developer"</strong> —
+    the launcher already clears that flag for the bundled files. If macOS still
+    blocks a binary, run once: <code>xattr -dr com.apple.quarantine .</code></li>
+    <li><strong>Want to start completely fresh?</strong> <code>./mbXPro stop</code>
+    then delete <code>~/.mbxpro</code>.</li>
+  </ul>
+
+  <div class="cite">
+    <h1 style="margin-top:0;font-size:18px">Cite mbX Pro</h1>
+    <p>If mbX Pro helps your research, please cite our paper:</p>
+    <p><a href="https://doi.org/10.3390/stats8020044">https://doi.org/10.3390/stats8020044</a><br>
+       <a href="https://www.mdpi.com/2571-905X/8/2/44">https://www.mdpi.com/2571-905X/8/2/44</a></p>
+  </div>
+
+  <footer>mbX Pro — End-to-end 16S rRNA analysis · Steps 0 → 18</footer>
+</div>
+</body>
+</html>

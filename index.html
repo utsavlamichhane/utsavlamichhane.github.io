@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Utsav Lamichhane &mdash; ML &amp; Bioinformatics</title>
+<meta name="description" content="Utsav Lamichhane, PhD researcher at the University of Georgia working on microbiome analysis, predictive modeling, and 16S/shotgun metagenomics.">
+<meta property="og:title" content="Utsav Lamichhane &mdash; ML &amp; Bioinformatics">
+<meta property="og:description" content="Utsav Lamichhane, PhD researcher at the University of Georgia working on microbiome analysis, predictive modeling, and 16S/shotgun metagenomics.">
+<meta property="og:type" content="website">
+<link rel="icon" type="image/png" href="assets/img/favicon.png">
+<link rel="apple-touch-icon" href="assets/img/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="index.html">Utsav Lamichhane<span class="dot">.</span></a>
+    <button class="nav-toggle" aria-label="Menu"><span></span><span></span><span></span></button>
+    <ul class="nav-links">
+      <li><a href="index.html" class="active">Home</a></li>
+      <li class="has-drop">
+        <button class="nav-trigger" aria-haspopup="true">Applications <i class="caret"></i></button>
+        <ul class="drop">
+          <li><a href="applications/index.html">Overview</a></li>
+          <li><a href="applications/qiime2-code-generator.html">QIIME2 Code Generator</a></li>
+        </ul>
+      </li>
+      <li class="has-drop">
+        <button class="nav-trigger" aria-haspopup="true">mbX Pro <i class="caret"></i></button>
+        <ul class="drop">
+          <li><a href="mbxpro/index.html">What is mbX Pro</a></li>
+          <li><a href="mbxpro/how-to-use.html">How to use it</a></li>
+          <li><a href="mbxpro/algorithms.html">Algorithms in mbX Pro</a></li>
+        </ul>
+      </li>
+      <li><a href="python-library.html">Python Library</a></li>
+      <li><a href="media.html">Media</a></li>
+      <li><a href="skills.html">Skills</a></li>
+      <li><a href="certifications.html">Certifications</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li class="has-drop">
+        <button class="nav-trigger" aria-haspopup="true">Recent DB <i class="caret"></i></button>
+        <ul class="drop">
+          <li><a href="recent-db/index.html">Overview</a></li>
+          <li><a href="recent-db/mysql-microbiome-database.html">MySQL (Microbiome Database)</a></li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+</header>
+<section class="hero"><div class="wrap"><div class="hero-grid">
+  <div class="hero-copy">
+    <p class="eyebrow">PhD · ML &amp; Bioinformatics · UGA</p>
+    <h1>Building tools to read the <span class="accent">microbiome</span> at scale.</h1>
+    <p class="lead">I'm Utsav Lamichhane, a PhD researcher at the University of Georgia working on microbiome analysis, predictive modeling, and 16S &amp; shotgun metagenomics — and the open-source software that makes those pipelines reproducible.</p>
+    <div class="hero-cta">
+      <a class="btn btn-primary" href="applications/index.html">Explore applications <span class="arr">&rarr;</span></a>
+      <a class="btn btn-ghost" href="python-library.html">Python library</a>
+    </div>
+    <div class="tags">
+      <span class="tag">microbiome analysis</span>
+      <span class="tag">predictive modeling</span>
+      <span class="tag">16S amplicon</span>
+      <span class="tag">shotgun metagenomics</span>
+      <span class="tag">machine learning</span>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="code-card">
+      <div class="bar"><i style="background:#ff6a5e"></i><i style="background:#ffbd2e"></i><i style="background:#5dcaa5"></i><span class="fn">mbX_pipeline.sh</span></div>
+      <pre><span class="c"># 16S amplicon &rarr; insight, end to end</span>
+<span class="k">qiime</span> tools import <span class="c">\</span>
+  --input-path <span class="s">manifest.tsv</span> <span class="c">\</span>
+  --output-path <span class="s">reads.qza</span>
+
+<span class="k">mbx</span> denoise --asv <span class="c">\</span>
+  --classifier <span class="s">silva-138</span>
+
+<span class="k">mbx</span> diversity --alpha --beta
+<span class="k">mbx</span> ml --random-forest <span class="c">\</span>
+  --target <span class="s">phenotype</span>
+
+<span class="c"># &rarr; report.html  &check;</span></pre>
+    </div>
+  </div>
+</div></div></section>
+
+<section class="section"><div class="wrap">
+  <div class="sec-head">
+    <p class="eyebrow">Research focus</p>
+    <h2>Where computation meets the gut.</h2>
+    <p class="lead">My work sits at the intersection of microbial ecology, sequencing, and machine learning — turning raw reads into models that explain host phenotypes.</p>
+  </div>
+  <div class="grid grid-3">
+    <div class="card">
+      <div class="icn icn-teal">16S</div>
+      <h3>Microbiome analysis</h3>
+      <p>Amplicon &amp; shotgun metagenomic workflows — from primer detection and denoising through taxonomy, diversity, and differential abundance.</p>
+    </div>
+    <div class="card">
+      <div class="icn icn-coral">ML</div>
+      <h3>Predictive modeling</h3>
+      <p>Supervised models (random forests, deep learning) that link microbial community structure to host phenotypes and traits.</p>
+    </div>
+    <div class="card">
+      <div class="icn icn-navy">{ }</div>
+      <h3>Reproducible tooling</h3>
+      <p>Open-source R and Python packages, Shiny apps, and step-by-step pipelines so analyses run the same way on any machine.</p>
+    </div>
+  </div>
+</div></section>
+
+<section class="section bg-paper"><div class="wrap">
+  <div class="sec-head">
+    <p class="eyebrow">Featured work</p>
+    <h2>Software &amp; applications.</h2>
+  </div>
+  <div class="grid grid-2">
+    <div class="card">
+      <div class="icn icn-teal">mbX</div>
+      <h3>mbX &mdash; microbiomeX</h3>
+      <p>A toolkit for microbiome data wrangling and visualization, available in both R and Python. Published in <em>Stats</em> (MDPI, 2025).</p>
+      <div class="pill-row"><span class="pill">R package</span><span class="pill">Python</span><span class="pill">Shiny</span></div>
+      <div class="card-foot" style="margin-top:16px"><a class="card-link" href="https://www.mdpi.com/2571-905X/8/2/44" target="_blank" rel="noopener">Read the paper <span class="arr">&rarr;</span></a></div>
+    </div>
+    <div class="card">
+      <div class="icn icn-coral">Q2</div>
+      <h3>QIIME2 Code Generator</h3>
+      <p>An interactive Shiny app that writes correct QIIME 2 commands for your study design — no more syntax hunting across docs.</p>
+      <div class="pill-row"><span class="pill">Shiny</span><span class="pill">QIIME 2</span></div>
+      <div class="card-foot" style="margin-top:16px"><a class="card-link" href="applications/qiime2-code-generator.html">Open the generator <span class="arr">&rarr;</span></a></div>
+    </div>
+    <div class="card">
+      <div class="icn icn-navy">19</div>
+      <h3>mbX Pro Pipeline</h3>
+      <p>A 19-step, fully documented amplicon pipeline &mdash; primer ID, DADA2, taxonomy, diversity, ANCOM-BC2, PICRUSt2, ML and networks &mdash; each step with copy-ready code.</p>
+      <div class="pill-row"><span class="pill">19 steps</span><span class="pill">copy-ready</span></div>
+      <div class="card-foot" style="margin-top:16px"><a class="card-link" href="mbxpro/index.html">Explore mbX Pro <span class="arr">&rarr;</span></a></div>
+    </div>
+    <div class="card">
+      <div class="icn icn-amber">py</div>
+      <h3>utsav &mdash; Python library</h3>
+      <p>A pip-installable package bundling microbiome taxa helpers and machine-learning utilities used across my projects.</p>
+      <div class="pill-row"><span class="pill">pip install utsav</span><span class="pill">v0.2.5</span></div>
+      <div class="card-foot" style="margin-top:16px"><a class="card-link" href="python-library.html">View the library <span class="arr">&rarr;</span></a></div>
+    </div>
+  </div>
+</div></section>
+
+<section class="section"><div class="wrap">
+  <div class="sec-head"><p class="eyebrow">Toolbox</p><h2>Things I work with.</h2></div>
+  <div class="chips">
+    <span class="chip">Python</span><span class="chip c2">R</span><span class="chip c3">QIIME 2</span>
+    <span class="chip">Machine learning</span><span class="chip c2">Deep learning</span><span class="chip c3">SQL</span>
+    <span class="chip">R Shiny</span><span class="chip c2">HPC · Sapelo2</span><span class="chip c3">Linux</span>
+    <span class="chip">NGS analysis</span><span class="chip c2">Bioconductor</span><span class="chip c3">Dash · Plotly</span>
+  </div>
+  <p style="margin-top:22px"><a class="card-link" href="skills.html">See all skills <span class="arr">&rarr;</span></a></p>
+</div></section>
+
+<section class="section bg-navy"><div class="wrap" style="text-align:center">
+  <p class="eyebrow" style="justify-content:center">Get in touch</p>
+  <h2 style="color:#fff">Open to collaboration &amp; research conversations.</h2>
+  <p class="lead" style="margin:0 auto 26px">Reach out about microbiome analysis, ML for biology, or the tools above.</p>
+  <a class="btn btn-primary" href="contact.html">Contact me <span class="arr">&rarr;</span></a>
+</div></section>
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div style="max-width:320px">
+        <div class="fbrand">Utsav Lamichhane<span style="color:var(--coral)">.</span></div>
+        <p style="color:#8da0b4;font-size:.92rem">PhD researcher in machine learning &amp; bioinformatics at the University of Georgia — building open tools for microbiome science.</p>
+      </div>
+      <div class="footer-nav">
+        <div>
+          <h4>Explore</h4>
+          <a href="applications/index.html">Applications</a>
+          <a href="mbxpro/index.html">mbX Pro</a>
+          <a href="python-library.html">Python Library</a>
+          <a href="skills.html">Skills</a>
+        </div>
+        <div>
+          <h4>More</h4>
+          <a href="certifications.html">Certifications</a>
+          <a href="media.html">Media</a>
+          <a href="recent-db/index.html">Recent DB</a>
+          <a href="contact.html">Contact</a>
+        </div>
+        <div>
+          <h4>Elsewhere</h4>
+          <a href="https://github.com/utsavlamichhane" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://www.linkedin.com/in/utsav-lamichhane-373793119/" target="_blank" rel="noopener">LinkedIn</a>
+          <a href="https://scholar.google.com/citations?user=8YFfSMEAAAAJ&hl=en" target="_blank" rel="noopener">Google Scholar</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; <span id="year">2026</span> Utsav Lamichhane. Athens, GA.</span>
+      <span><a href="mailto:utsav.lamichhane@uga.edu">utsav.lamichhane@uga.edu</a></span>
+    </div>
+  </div>
+</footer>
+<script src="assets/js/main.js"></script>
+</body>
+</html>

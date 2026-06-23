@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Step 3 — DADA2 Parameter Finder | mbX Pro</title>
+<style>
+  :root {
+    --bg:        #fafbfc;
+    --fg:        #1f2328;
+    --muted:     #57606a;
+    --link:      #0969da;
+    --code-bg:   #0d1117;
+    --code-fg:   #f0f6fc;
+    --inline-bg: #eef1f4;
+    --border:    #d0d7de;
+    --accent:    #218bff;
+    --btn-bg:    #ffffff;
+    --btn-fg:    #1f2328;
+    --btn-bg-hover: #f3f5f7;
+    --btn-ok-bg: #1f883d;
+    --btn-ok-fg: #ffffff;
+    --table-stripe: #f6f8fa;
+    --callout-bg: #fff8dc;
+    --callout-border: #e1c468;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:        #0d1117;
+      --fg:        #c9d1d9;
+      --muted:     #8b949e;
+      --link:      #58a6ff;
+      --code-bg:   #161b22;
+      --code-fg:   #c9d1d9;
+      --inline-bg: #1c2128;
+      --border:    #30363d;
+      --btn-bg:    #21262d;
+      --btn-fg:    #c9d1d9;
+      --btn-bg-hover: #30363d;
+      --table-stripe: #161b22;
+      --callout-bg: #2d2a14;
+      --callout-border: #6d5c1b;
+    }
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    line-height: 1.65;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 48px 24px 96px;
+    font-size: 16px;
+  }
+  h1, h2, h3, h4 { font-weight: 600; line-height: 1.25; margin-top: 2em; margin-bottom: 0.5em; }
+  h1 { font-size: 2.1em; margin-top: 0; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+  h2 { font-size: 1.5em; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+  h3 { font-size: 1.2em; }
+  h4 { font-size: 1.0em; color: var(--muted); }
+  p { margin: 0.6em 0 1em; }
+  a { color: var(--link); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  ul, ol { padding-left: 1.5em; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
+
+  pre {
+    position: relative;
+    background: var(--code-bg);
+    color: var(--code-fg);
+    padding: 18px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 0.92em;
+    line-height: 1.5;
+    margin: 1em 0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+  pre code { background: transparent; padding: 0; color: inherit; font-size: 1em; }
+  code {
+    background: var(--inline-bg);
+    padding: 0.15em 0.4em;
+    border-radius: 4px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.9em;
+  }
+  .copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--btn-bg);
+    color: var(--btn-fg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 11px;
+    font-size: 12px;
+    font-family: inherit;
+    cursor: pointer;
+    opacity: 0.85;
+    transition: background 120ms, opacity 120ms, color 120ms;
+    z-index: 2;
+  }
+  .copy-btn:hover { background: var(--btn-bg-hover); opacity: 1; }
+  .copy-btn.copied { background: var(--btn-ok-bg); color: var(--btn-ok-fg); border-color: var(--btn-ok-bg); }
+
+  table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: 0.95em; }
+  th, td { border: 1px solid var(--border); padding: 8px 12px; vertical-align: top; text-align: left; }
+  th { background: var(--inline-bg); font-weight: 600; }
+  tbody tr:nth-child(even) td { background: var(--table-stripe); }
+
+  .toc {
+    background: var(--inline-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 22px;
+    margin: 1em 0 2em;
+    font-size: 0.95em;
+  }
+  .toc strong { display: block; margin-bottom: 6px; }
+  .toc ol { margin: 0; padding-left: 1.4em; }
+  .toc li { margin: 2px 0; }
+
+  .callout {
+    background: var(--callout-bg);
+    border-left: 4px solid var(--callout-border);
+    padding: 12px 18px;
+    border-radius: 4px;
+    margin: 1.2em 0;
+  }
+  .callout strong { display: block; margin-bottom: 4px; }
+
+  blockquote {
+    border-left: 4px solid var(--accent);
+    margin: 1.2em 0;
+    padding: 4px 18px;
+    color: var(--muted);
+    background: var(--inline-bg);
+    border-radius: 4px;
+  }
+
+  .doc-footer {
+    margin-top: 4em;
+    padding-top: 1.5em;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.9em;
+  }
+  .step-num {
+    display: inline-block;
+    background: var(--accent);
+    color: white;
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+    text-align: center;
+    border-radius: 50%;
+    font-weight: 600;
+    margin-right: 8px;
+    font-size: 0.95em;
+  }
+</style>
+</head>
+<body>
+
+<h1 id="top">Step 3 — DADA2 Parameter Finder</h1>
+<p style="color: var(--muted); margin-top: -0.5em;">
+  How mbX Pro picks the four numbers DADA2 needs, from the data itself.
+</p>
+
+<p>
+  <strong>Script:</strong>
+  <code>scripts/mbx_dada2_parameter_finder.sh</code> (orchestrator)
+  + <code>scripts/create_dada2_parameters_txt.sh</code> (core algorithm)
+</p>
+
+<div class="toc">
+<strong>Contents</strong>
+<ol>
+  <li><a href="#why-it-matters">Why this step matters</a></li>
+  <li><a href="#what-we-tell">What we tell DADA2</a></li>
+  <li><a href="#step-by-step">The algorithm, step by step</a></li>
+  <li><a href="#defaults">Default parameters and why</a></li>
+  <li><a href="#fallbacks">When and why we fall back to defaults</a></li>
+  <li><a href="#output">What the output file looks like</a></li>
+  <li><a href="#takeaway">Takeaway</a></li>
+</ol>
+</div>
+
+<hr>
+
+<h2 id="why-it-matters">Why this step matters</h2>
+
+<p>Illumina sequencers don't return perfect reads. Every position in every read comes with a <strong>Phred quality score</strong> (a number from 0–40 that says how confident the sequencer is about that base). Quality drops off near the back of every read, and it drops off faster on the reverse read than on the forward read.</p>
+
+<p>If we feed those raw reads straight into the denoiser (<strong>DADA2</strong> — the algorithm that turns noisy reads into the actual biological variants, called ASVs), two bad things can happen:</p>
+
+<ul>
+  <li><strong>Cut too aggressively</strong> → we throw away real biology and lose the ability to match the forward and reverse reads back together (they no longer overlap).</li>
+  <li><strong>Cut too lightly</strong> → too many sequencing errors stay in, DADA2 sees random noise as "rare variants", and the species list inflates with junk.</li>
+</ul>
+
+<p>The job of this step is to land on the sweet spot — pick the four numbers that DADA2 needs (<code>--p-trim-left-f</code>, <code>--p-trim-left-r</code>, <code>--p-trunc-len-f</code>, <code>--p-trunc-len-r</code>) using the data itself, not a hand-waved guess.</p>
+
+<hr>
+
+<h2 id="what-we-tell">What we tell DADA2</h2>
+
+<table>
+  <thead><tr><th>Parameter</th><th>What it means in plain English</th></tr></thead>
+  <tbody>
+    <tr><td><code>--p-trim-left-f</code></td><td>How many bases to chop off the <em>front</em> of the forward read (the <strong>primer</strong> — the synthetic anchor used during PCR, not biology).</td></tr>
+    <tr><td><code>--p-trim-left-r</code></td><td>Same, for the <em>front</em> of the reverse read.</td></tr>
+    <tr><td><code>--p-trunc-len-f</code></td><td>The length to keep on the forward read (everything past this point is too noisy).</td></tr>
+    <tr><td><code>--p-trunc-len-r</code></td><td>The length to keep on the reverse read.</td></tr>
+  </tbody>
+</table>
+
+<p>Four numbers. The whole step exists to find these four numbers, defensibly, from the data.</p>
+
+<hr>
+
+<h2 id="step-by-step">The algorithm, step by step</h2>
+
+<h3><span class="step-num">1</span>Open the QIIME2 artifact</h3>
+<p><strong>First</strong>, the script opens the <code>.qza</code> file. A QIIME2 artifact is just a zip archive (rename it <code>.zip</code> and macOS would happily unzip it). Inside, two things matter:</p>
+<ul>
+  <li><code>metadata.yaml</code> confirms this is a paired-end demultiplexed file (<strong>demultiplexed</strong> = the reads have already been split out by sample).</li>
+  <li><code>data/MANIFEST</code> is a small table telling us, for every sample, which FASTQ file is the forward read and which is the reverse.</li>
+</ul>
+
+<h3><span class="step-num">2</span>Sub-sample reads</h3>
+<p><strong>Then</strong>, instead of reading every single read (hundreds of millions in a real run), the script samples up to <strong>1,000 read pairs per sample</strong> (<code>READS_PER_SAMPLE</code>). Quality letters are decoded into integers using <strong>Phred+33</strong> encoding (the FASTQ standard — the character <code>'!'</code> means quality 0, <code>'I'</code> means quality 40, etc.).</p>
+<p>This sub-sample is enough to estimate every distribution we care about, and it keeps the whole step under a minute on a normal laptop.</p>
+
+<h3><span class="step-num">3</span>Figure out how long the biological piece is</h3>
+<p><strong>Now the clever part.</strong> DADA2 needs to know the <strong>insert length</strong> (the actual DNA between the two primers — the molecule the sequencer was reading). For 16S V4 it's about 253 bases, but every primer pair and every species mix gives a slightly different answer.</p>
+<p>Instead of asking the user, the script figures it out from the reads:</p>
+<ul>
+  <li>Take the forward read and the reverse read of the same pair.</li>
+  <li>Flip the reverse read into its <strong>reverse complement</strong> (the same molecule read the other way around, so the two reads can be laid on top of each other).</li>
+  <li>Look for matching <strong>13-letter windows</strong> (<strong>k-mers</strong>, k = 13) shared between them. This is <strong>seed-and-extend</strong> alignment — the same shortcut BLAST uses.</li>
+  <li>Score each candidate alignment as <code>identity × overlap-length</code>; keep alignments with <strong>≥ 90 % identity</strong>.</li>
+  <li>Do this on about <strong>2,500 pairs</strong> (<code>INSERT_SAMPLE_PAIRS</code>), build a distribution of insert lengths, throw out outliers using the <strong>inter-quartile range rule</strong>, and take the <strong>99th percentile</strong> as the "required insert length" — i.e. almost every real fragment is at most this long.</li>
+</ul>
+<p>This is what lets the script pick a forward-cut and reverse-cut that still leave enough overlap to merge the two reads back together.</p>
+
+<h3><span class="step-num">4</span>Decide trim-left (where to chop off the primer)</h3>
+<p><strong>Next</strong>, the script decides where each read's biological content actually starts:</p>
+<ul>
+  <li>If a primer sequence is known (passed in by the user, or detected by Step 0), trim-left equals the <strong>primer length</strong>.</li>
+  <li>If no primer is known, the default is <strong>20 bases</strong> — a defensive guess that matches the length of most 16S primers.</li>
+</ul>
+<p>It also computes a sanity check: of the reads we sampled, in what fraction did that primer actually match at the 5′ end? The comparison is <strong>IUPAC-aware</strong> (so <code>Y</code> matches both <code>C</code> and <code>T</code>, <code>N</code> matches anything) and tolerates up to <strong>15 %</strong> mismatch. That percentage goes straight into the output file so the user can see at a glance whether the primer was real.</p>
+
+<h3><span class="step-num">5</span>Walk every read base-by-base — the expected-error trick</h3>
+<p><strong>Then comes the heart of the algorithm.</strong> This replaces "look at the quality plot and guess where to cut".</p>
+<p>For every read pair:</p>
+<ul>
+  <li>Start at the trim-left position and walk one base at a time toward the end of the read.</li>
+  <li>At every base, take its Phred score <code>Q</code> and compute the <strong>expected error contribution</strong>: <code>10 ^ (−Q / 10)</code>. That's the actual probability the sequencer got that base wrong — it's the definition of the Phred score.</li>
+  <li>Keep a running sum, called the <strong>expected error</strong> (<strong>EE</strong>).</li>
+  <li>Record the furthest position you can reach while keeping <code>EE ≤ 2.0</code> (<code>MAX_EE_F</code> / <code>MAX_EE_R</code>). That's "the longest truncation this particular read can survive, given DADA2's default quality filter".</li>
+  <li>Do this independently for the forward and the reverse read, because they have very different quality profiles (reverse reads are always worse on Illumina).</li>
+</ul>
+
+<h3><span class="step-num">6</span>The suffix-sum lookup table</h3>
+<p><strong>Now we have a scale problem.</strong> For every possible <code>(forward-cut, reverse-cut)</code> we want to know: how many of my read pairs survive both cuts? Naively that's millions of look-ups.</p>
+<p>So the script builds a <strong>2-D suffix sum</strong> — a cumulative-total table in two dimensions (the same trick spreadsheets use for running totals, generalized to a grid). Once built, asking <em>"how many pairs survive at forward-cut=240 and reverse-cut=180?"</em> becomes one array access. That's how it can score hundreds of candidate truncation pairs in a fraction of a second.</p>
+
+<h3><span class="step-num">7</span>Apply the quality cutoffs</h3>
+<p><strong>Now we filter and rank.</strong> For every candidate cut pair, the script computes three pass rates:</p>
+<ul>
+  <li><strong>Pair-pass rate</strong> — fraction of read pairs whose forward AND reverse both survive at this cut. Must be ≥ <strong>0.80</strong> (<code>MIN_PAIR_PASS_RATE</code>).</li>
+  <li><strong>Forward-pass rate</strong> — fraction whose forward read alone survives. Must be ≥ <strong>0.90</strong> (<code>MIN_FORWARD_PASS_RATE</code>).</li>
+  <li><strong>Reverse-pass rate</strong> — fraction whose reverse read alone survives. Must be ≥ <strong>0.84</strong> (<code>MIN_REVERSE_PASS_RATE</code>).</li>
+</ul>
+<p>It also requires <code>forward-cut + reverse-cut ≥ insert-length + 12</code> — that 12 is the <strong>minimum merge overlap</strong> DADA2 needs to confidently stitch the forward and reverse reads back together. Without it, the reads don't overlap and the pair gets thrown away.</p>
+
+<h3><span class="step-num">8</span>Pick the winner</h3>
+<p><strong>Finally</strong>, among the eligible candidates, the script:</p>
+<ol>
+  <li>Keeps the ones within <strong>1 base</strong> (<code>LENGTH_SLACK</code>) of the longest total trimmed length — so we discard as little real biology as possible.</li>
+  <li>Among those, prefers the candidate with the highest pair-pass rate, then the most <strong>balanced</strong> forward and reverse cuts (asymmetric cuts make the overlap awkward and can introduce bias), then the longest overlap.</li>
+</ol>
+<p>The winner gets written into <code>dada2_parameters.txt</code> along with the <strong>top 20</strong> runners-up, all three pass rates, the insert length it inferred, and the percentage of reads whose primers actually matched.</p>
+
+<hr>
+
+<h2 id="defaults">Default parameters and why they are what they are</h2>
+
+<table>
+  <thead><tr><th>Default</th><th>Value</th><th>Why this default</th></tr></thead>
+  <tbody>
+    <tr><td>Reads sampled per sample (<code>READS_PER_SAMPLE</code>)</td><td><strong>1,000</strong></td><td>Enough to estimate the expected-error distribution within ~1 %; small enough that the step finishes in seconds on a laptop.</td></tr>
+    <tr><td>Pairs aligned for insert estimation (<code>INSERT_SAMPLE_PAIRS</code>)</td><td><strong>2,500</strong></td><td>Enough overlapping pairs to get a clean P99 of the insert length; covers the typical sequencing-batch heterogeneity.</td></tr>
+    <tr><td>Insert-overlap k-mer size</td><td><strong>13 bases</strong></td><td>Long enough to be specific (a random 13-mer hits any genome by chance ~once per 67 million bases); short enough that one or two sequencing errors don't break every seed.</td></tr>
+    <tr><td>Insert-overlap identity floor</td><td><strong>≥ 90 %</strong></td><td>Below this, the alignment is almost certainly spurious. 90 % is the standard cut for paired-end merge tools (vsearch, fastp, PEAR).</td></tr>
+    <tr><td>Insert length used</td><td><strong>P99 of cleaned distribution</strong></td><td>We need to cover <em>almost every</em> real fragment but ignore extreme outliers caused by chimeras. P99 strikes that balance.</td></tr>
+    <tr><td>Trim-left default (no primer known)</td><td><strong>20 bases</strong></td><td>Most published 16S primers are 18–22 bases. Twenty is a defensive guess that's never <em>too short</em> on real data.</td></tr>
+    <tr><td>Primer match tolerance</td><td><strong>≤ 15 % mismatch</strong></td><td>IUPAC-aware comparison. 15 % is tight enough to avoid false matches yet loose enough to absorb a couple of sequencing errors in the primer-landing zone.</td></tr>
+    <tr><td><code>max-ee</code> (expected-error cap)</td><td><strong>2.0</strong></td><td>The DADA2 paper's own default. "At most ~2 wrong bases over the kept length".</td></tr>
+    <tr><td>Pair-pass rate floor</td><td><strong>0.80</strong></td><td>At least 80 % of read pairs must survive the cut — anything less means we're throwing away a quarter of the data.</td></tr>
+    <tr><td>Forward-pass rate floor</td><td><strong>0.90</strong></td><td>Forward reads are good quality on Illumina — we expect 90 %+ to survive. If they don't, the run itself is suspect.</td></tr>
+    <tr><td>Reverse-pass rate floor</td><td><strong>0.84</strong></td><td>Reverse reads are systematically worse; 0.84 is empirically the lowest floor that still rejects clearly broken runs.</td></tr>
+    <tr><td>Minimum merge overlap</td><td><strong>12 bases</strong></td><td>DADA2's own default. Anything shorter and the merge call becomes statistically ambiguous.</td></tr>
+    <tr><td>Length slack (winner band)</td><td><strong>1 base</strong></td><td>"Keep candidates within 1 bp of the longest total length, then pick on quality."</td></tr>
+  </tbody>
+</table>
+
+<p>These defaults are not magic numbers — they come from the DADA2 paper (Callahan et al. 2016, <em>Nature Methods</em>) and from empirical sweeps the maintainers ran on real datasets across multiple 16S regions.</p>
+
+<hr>
+
+<h2 id="fallbacks">When and why we fall back to defaults</h2>
+
+<p>The algorithm is designed to <em>always</em> return a recommendation — even on imperfect data — but it tells you, in plain language, every time it had to compromise. There are five places it can fall back:</p>
+
+<table>
+  <thead><tr><th>Fallback</th><th>When it triggers</th><th>Why this fallback exists</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>trim-left = 20 (no primer)</strong></td>
+      <td>User did not pass <code>--forward-primer</code>/<code>--reverse-primer</code> AND Step 0 reported <code>DETECTION_STATUS = UNKNOWN</code> AND no <code>--assume-primer-length</code> was given.</td>
+      <td>Cutting nothing risks leaving primer in the data, which DADA2 would treat as biological signal. 20 bp is the median 16S primer length — a defensive over-trim that's harmless if the primer was shorter and protective if it was longer.</td>
+    </tr>
+    <tr>
+      <td><strong>trim-left = 0 (sequencer already trimmed)</strong></td>
+      <td>Step 0 reported <code>DETECTION_STATUS = TRIMMED</code> (it scanned the reads and found no primer-like 5′ anchor).</td>
+      <td>Trimming 20 bp off an already-trimmed read would delete 20 bp of real biology. Better to trust the upstream verdict and not cut.</td>
+    </tr>
+    <tr>
+      <td><strong>Use <code>--amplicon-length</code> instead of estimating</strong></td>
+      <td>User supplied <code>--amplicon-length</code>.</td>
+      <td>Estimation needs the forward and reverse reads to actually overlap. If they don't (very long amplicons, short reads), estimation fails. The user override skips estimation entirely.</td>
+    </tr>
+    <tr>
+      <td><strong>Relax pass-rate filters to "pair-pass ≥ 0.80 only"</strong></td>
+      <td>No candidate meets all three pass-rate floors at once.</td>
+      <td>A bad run might have a great forward read but a beaten-up reverse read. Rather than fail, the script keeps the most important global cutoff (80 % of pairs survive) and lets the forward/reverse floors slide. It flags the relaxation in the output.</td>
+    </tr>
+    <tr>
+      <td><strong>Take any candidate with valid overlap</strong></td>
+      <td>Even the relaxed filter leaves zero candidates.</td>
+      <td>Last-resort. Better to return <em>something</em> the user can inspect than to abort the pipeline at step 3. The output file says clearly that the strict filters could not be met.</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="callout">
+  <strong>The principle: no silent compromises.</strong>
+  Every fallback is recorded in the output file under a section called
+  <code>fallback_reasons</code>, so the user can see exactly what gave way and why.
+  Nothing is hidden.
+</div>
+
+<hr>
+
+<h2 id="output">What the output file looks like</h2>
+
+<p>The script writes <code>3_dada2_parameters/dada2_parameters.txt</code>. The interesting keys downstream steps actually consume:</p>
+
+<pre><code>--p-trim-left-f             19
+--p-trim-left-r             20
+--p-trunc-len-f             240
+--p-trunc-len-r             180
+
+INSERT_LENGTH_USED          253
+FORWARD_PRIMER_MATCH_RATE   97.3%
+REVERSE_PRIMER_MATCH_RATE   95.1%
+PAIR_PASS_RATE              0.86
+FORWARD_PASS_RATE           0.94
+REVERSE_PASS_RATE           0.89
+FALLBACK_REASONS            (none)</code></pre>
+
+<p>Plus a "top-20 leaderboard" of candidate truncation pairs so the user can do a five-second sanity check before pressing Run on Step 4.</p>
+
+<hr>
+
+<h2 id="takeaway">Takeaway</h2>
+
+<blockquote>
+  The DADA2 parameter finder replaces "stare at the quality plot and guess"
+  with a small, fast, deterministic algorithm that uses the data itself:
+  figure out the real insert length from the reads, walk each read until the
+  <strong>expected error</strong> gets too high, then pick the cut that keeps
+  the most reads while still leaving enough overlap to merge.
+  <br><br>
+  Same logic a careful bioinformatician would apply by hand —
+  made reproducible, defensible, and ~60× faster.
+</blockquote>
+
+<div class="doc-footer">
+  mbX Pro 1.5.0 · Step 3 — DADA2 Parameter Finder ·
+  <a href="README.md">Markdown source</a> ·
+  <a href="3_dada2_parm_finder.pptx">Slide deck</a> ·
+  <a href="#top">Back to top</a>
+</div>
+
+<script>
+(function () {
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text);
+    }
+    return new Promise(function (resolve, reject) {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'absolute';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy') ? resolve() : reject(new Error('copy failed')); }
+      catch (e) { reject(e); }
+      finally { document.body.removeChild(ta); }
+    });
+  }
+  document.querySelectorAll('pre').forEach(function (pre) {
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'copy-btn';
+    btn.textContent = 'Copy';
+    btn.setAttribute('aria-label', 'Copy code to clipboard');
+    btn.addEventListener('click', function () {
+      var code = pre.querySelector('code');
+      var text = (code ? code.innerText : pre.innerText) || '';
+      copyText(text).then(function () {
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(function () {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 1600);
+      }).catch(function () {
+        btn.textContent = 'Copy failed';
+        setTimeout(function () { btn.textContent = 'Copy'; }, 1600);
+      });
+    });
+    pre.appendChild(btn);
+  });
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Step 4 — DADA2 Denoising | mbX Pro</title>
+<style>
+:root {
+  --bg: #fafbfc; --fg: #1f2328; --muted: #57606a; --link: #0969da;
+  --code-bg: #0d1117; --code-fg: #f0f6fc; --inline-bg: #eef1f4;
+  --border: #d0d7de; --accent: #218bff;
+  --btn-bg: #ffffff; --btn-fg: #1f2328; --btn-bg-hover: #f3f5f7;
+  --btn-ok-bg: #1f883d; --btn-ok-fg: #ffffff;
+  --table-stripe: #f6f8fa; --callout-bg: #fff8dc; --callout-border: #e1c468;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1117; --fg: #c9d1d9; --muted: #8b949e; --link: #58a6ff;
+    --code-bg: #161b22; --code-fg: #c9d1d9; --inline-bg: #1c2128;
+    --border: #30363d; --btn-bg: #21262d; --btn-fg: #c9d1d9;
+    --btn-bg-hover: #30363d; --table-stripe: #161b22;
+    --callout-bg: #2d2a14; --callout-border: #6d5c1b;
+  }
+}
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  line-height: 1.65; max-width: 960px; margin: 0 auto;
+  padding: 48px 24px 96px; font-size: 16px;
+}
+h1, h2, h3, h4 { font-weight: 600; line-height: 1.25; margin-top: 2em; margin-bottom: 0.5em; }
+h1 { font-size: 2.1em; margin-top: 0; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h2 { font-size: 1.5em; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h3 { font-size: 1.2em; }
+h4 { font-size: 1.0em; color: var(--muted); }
+p { margin: 0.6em 0 1em; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+ul, ol { padding-left: 1.5em; }
+hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
+pre {
+  position: relative; background: var(--code-bg); color: var(--code-fg);
+  padding: 18px; border-radius: 8px; overflow-x: auto;
+  font-size: 0.92em; line-height: 1.5; margin: 1em 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+pre code { background: transparent; padding: 0; color: inherit; font-size: 1em; }
+code {
+  background: var(--inline-bg); padding: 0.15em 0.4em; border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9em;
+}
+.copy-btn {
+  position: absolute; top: 10px; right: 10px;
+  background: var(--btn-bg); color: var(--btn-fg);
+  border: 1px solid var(--border); border-radius: 6px;
+  padding: 5px 11px; font-size: 12px; font-family: inherit;
+  cursor: pointer; opacity: 0.85;
+  transition: background 120ms, opacity 120ms, color 120ms; z-index: 2;
+}
+.copy-btn:hover { background: var(--btn-bg-hover); opacity: 1; }
+.copy-btn.copied { background: var(--btn-ok-bg); color: var(--btn-ok-fg); border-color: var(--btn-ok-bg); }
+table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: 0.95em; }
+th, td { border: 1px solid var(--border); padding: 8px 12px; vertical-align: top; text-align: left; }
+th { background: var(--inline-bg); font-weight: 600; }
+tbody tr:nth-child(even) td { background: var(--table-stripe); }
+.toc {
+  background: var(--inline-bg); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px 22px; margin: 1em 0 2em; font-size: 0.95em;
+}
+.toc strong { display: block; margin-bottom: 6px; }
+.toc ol { margin: 0; padding-left: 1.4em; }
+.toc li { margin: 2px 0; }
+blockquote {
+  border-left: 4px solid var(--accent); margin: 1.2em 0; padding: 4px 18px;
+  color: var(--muted); background: var(--inline-bg); border-radius: 4px;
+}
+.doc-footer {
+  margin-top: 4em; padding-top: 1.5em; border-top: 1px solid var(--border);
+  color: var(--muted); font-size: 0.9em;
+}
+</style>
+</head>
+<body>
+<div class="toc"><strong>Contents</strong><ol><li><a href="#why-this-step-matters">Why this step matters</a></li><li><a href="#what-the-script-does-in-one-sentence">What the script does in one sentence</a></li><li><a href="#the-algorithm-step-by-step">The algorithm, step by step</a></li><li><a href="#default-parameters-and-why-they-are-what-they-are">Default parameters and why they are what they are</a></li><li><a href="#when-and-why-we-fall-back-to-defaults">When and why we fall back to defaults</a></li><li><a href="#what-the-output-file-looks-like">What the output file looks like</a></li><li><a href="#takeaway">Takeaway</a></li><li><a href="#sources">Sources</a></li></ol></div>
+<h1>Step 4 — DADA2 Denoising</h1>
+<p><strong>Script:</strong> <code>scripts/mbx_dada2_run.sh</code></p>
+<p><strong>Companion files in this folder:</strong>
+- <code>4_dada2_run.html</code> — same content with copy buttons on every code block.
+- <code>4_dada2_run.pptx</code> — slide deck for the talk.</p>
+<hr />
+<h2 id="why-this-step-matters">Why this step matters</h2>
+<p>By the time we reach Step 4, the data is just <em>reads</em> — short DNA strings
+from the sequencer, each carrying its own per-base quality scores. Reads
+are noisy. Illumina makes about <strong>1 wrong base per 1,000</strong> in the best
+part of a read, and worse near the back. If we treated every distinct read
+as a separate organism, our results would be hopelessly contaminated by
+sequencing errors.</p>
+<p><strong>DADA2</strong> (<strong>D</strong>ivisive <strong>A</strong>mplicon <strong>D</strong>enoising <strong>A</strong>lgorithm) solves
+this. Instead of clustering reads at some arbitrary similarity threshold
+(the old OTU approach), DADA2 <em>models the actual error process</em> and
+asks: <em>given how Illumina makes mistakes, is this distinct read a real
+biological variant — or is it just a slightly-corrupted copy of one?</em></p>
+<p>The output is a list of <strong>Amplicon Sequence Variants</strong> (<strong>ASVs</strong>) —
+exactly-resolved DNA sequences that survive the error model. ASVs are
+single-nucleotide resolved, comparable across studies, and far more
+defensible than OTUs.</p>
+<p>This step's job is to actually run DADA2 on our paired-end data, using the
+truncation parameters Step 3 already computed, and to produce the three
+artifacts every downstream step needs.</p>
+<hr />
+<h2 id="what-the-script-does-in-one-sentence">What the script does in one sentence</h2>
+<p>It reads the four <code>--p-*</code> numbers from Step 3's <code>dada2_parameters.txt</code>,
+runs <code>qiime dada2 denoise-paired</code> with those numbers and a sensible thread
+count, then exports the three QZA outputs as human-readable QZV
+visualisations.</p>
+<hr />
+<h2 id="the-algorithm-step-by-step">The algorithm, step by step</h2>
+<h3>1. Validate the metadata file</h3>
+<p><strong>First</strong>, the script reads the user's metadata file and confirms it has
+the structure DADA2 (and every later step) expects:</p>
+<ul>
+<li>A header row.</li>
+<li>A first column named <code>sample-id</code>, <code>sampleid</code>, <code>id</code>, or one of the QIIME2-
+  recognised synonyms.</li>
+<li>Sample IDs that match the artifact (every sample DADA2 will process
+  appears in the metadata).</li>
+</ul>
+<p>A mismatch here would let DADA2 succeed but produce results no downstream
+step could merge against the metadata. So we catch it before DADA2 even
+starts.</p>
+<h3>2. Parse the DADA2 parameter file</h3>
+<p><strong>Then</strong> the script reads <code>3_dada2_parameters/dada2_parameters.txt</code> and
+pulls out the four numbers Step 3 picked:</p>
+<ul>
+<li><code>--p-trim-left-f</code> — bases to chop off the front of the forward read.</li>
+<li><code>--p-trim-left-r</code> — bases to chop off the front of the reverse read.</li>
+<li><code>--p-trunc-len-f</code> — length to keep on the forward read.</li>
+<li><code>--p-trunc-len-r</code> — length to keep on the reverse read.</li>
+</ul>
+<p>It also reads <code>INSERT_LENGTH_USED</code> and any <code>FALLBACK_REASONS</code> from the
+same file — those don't change DADA2's behaviour, but they're logged so
+the final report can show "Step 3 had to relax its filters because …".</p>
+<h3>3. Auto-detect the thread count</h3>
+<p><strong>Next</strong> the script decides how many CPU threads to give DADA2:</p>
+<ul>
+<li>If the orchestrator exported <code>MBX_THREADS</code> (because the user passed
+  <code>mbXPro --threads N</code>), use that.</li>
+<li>Otherwise call <code>nproc</code> (Linux) or <code>sysctl -n hw.logicalcpu</code> (macOS).</li>
+<li>Last-resort fallback: 1 thread.</li>
+</ul>
+<p>DADA2 is <strong>embarrassingly parallel across samples</strong> — denoising sample A
+doesn't need anything from sample B — so the more threads, the faster.</p>
+<h3>4. Run the denoise-paired plugin</h3>
+<p><strong>Now the actual denoising.</strong> The command:</p>
+<pre><code>qiime dada2 denoise-paired \
+  --i-demultiplexed-seqs   Paired_End_artifact.qza \
+  --p-trim-left-f          &lt;from step 3&gt; \
+  --p-trim-left-r          &lt;from step 3&gt; \
+  --p-trunc-len-f          &lt;from step 3&gt; \
+  --p-trunc-len-r          &lt;from step 3&gt; \
+  --p-n-threads            &lt;auto-detected&gt; \
+  --o-table                feature_table.qza \
+  --o-representative-sequences  representative_sequences.qza \
+  --o-denoising-stats     dada2_stats.qza
+</code></pre>
+<p>Inside QIIME2 this triggers the DADA2 R algorithm, which:</p>
+<ol>
+<li><strong>Filters and trims</strong> each read to the requested truncation length and
+   removes pairs whose expected error exceeds <code>max_ee</code> (2.0 by default).</li>
+<li><strong>Learns the error model</strong> from the filtered reads themselves — DADA2
+   estimates the substitution probabilities <code>P(true base → observed base
+   | quality)</code> empirically. No assumptions baked in.</li>
+<li><strong>Denoises</strong> each sample by asking "is this distinct read more likely a
+   real ASV, or a corrupted copy of a more abundant ASV?", iterated until
+   stable.</li>
+<li><strong>Merges</strong> the forward and reverse reads (using the overlap Step 3
+   guaranteed would exist).</li>
+<li><strong>Removes chimeras</strong> via the consensus method — sequences that look
+   like a PCR-stitched combination of two real ASVs are dropped.</li>
+</ol>
+<p>The output is three artifacts:</p>
+<ul>
+<li><code>feature_table.qza</code> — counts of every ASV in every sample.</li>
+<li><code>representative_sequences.qza</code> — the actual DNA sequence of every ASV.</li>
+<li><code>dada2_stats.qza</code> — how many reads each sample lost at each stage
+  (input → filtered → denoised → merged → non-chimeric).</li>
+</ul>
+<h3>5. Produce three QZV visualisations</h3>
+<p><strong>Finally</strong> the script runs three QIIME2 visualisation commands so the
+user can inspect what happened without having to extract the QZAs:</p>
+<ul>
+<li><code>qiime metadata tabulate</code> → <code>dada2_stats.qzv</code> — interactive table of the
+  per-sample retention numbers.</li>
+<li><code>qiime feature-table summarize</code> → <code>feature_table.qzv</code> — per-sample
+  read-count distribution, alpha-rarefaction preview, sample frequency
+  histogram.</li>
+<li><code>qiime feature-table tabulate-seqs</code> → <code>representative_sequences.qzv</code> —
+  searchable table of ASV sequences with one-click BLAST links.</li>
+</ul>
+<p>All three drop into <code>4_dada2_outputs/</code>.</p>
+<hr />
+<h2 id="default-parameters-and-why-they-are-what-they-are">Default parameters and why they are what they are</h2>
+<table>
+<thead>
+<tr>
+<th>Default</th>
+<th>Value</th>
+<th>Why this default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--p-trim-left-f</code> / <code>--p-trim-left-r</code></td>
+<td>from Step 3</td>
+<td>We never override what Step 3 decided. If the user wants different values they rerun Step 3 with override flags.</td>
+</tr>
+<tr>
+<td><code>--p-trunc-len-f</code> / <code>--p-trunc-len-r</code></td>
+<td>from Step 3</td>
+<td>Same — Step 3 is the single source of truth.</td>
+</tr>
+<tr>
+<td><code>--p-max-ee-f</code> / <code>--p-max-ee-r</code></td>
+<td><strong>2.0</strong></td>
+<td>DADA2 paper's own default. "At most ~2 wrong bases over the kept length." Anything lower throws away too much data; anything higher lets noise into the error model.</td>
+</tr>
+<tr>
+<td><code>--p-trunc-q</code></td>
+<td><strong>2</strong></td>
+<td>Hard cap: truncate any read at the first base with quality ≤ 2 (which means "we have no idea"). Almost never triggers because the max-ee check fires first.</td>
+</tr>
+<tr>
+<td><code>--p-chimera-method</code></td>
+<td><strong>consensus</strong></td>
+<td>DADA2's recommended default. Tags an ASV as chimeric only if the consensus across samples says so — more robust than the per-sample <code>pooled</code> method.</td>
+</tr>
+<tr>
+<td><code>--p-min-fold-parent-over-abundance</code></td>
+<td><strong>1.0</strong></td>
+<td>Chimera detection threshold. A putative parent must be at least as abundant as the chimera to be considered the source.</td>
+</tr>
+<tr>
+<td><code>--p-n-threads</code></td>
+<td>auto-detect</td>
+<td><code>MBX_THREADS</code> → <code>nproc</code> → <code>sysctl</code> → 1. DADA2 scales near-linearly with threads.</td>
+</tr>
+<tr>
+<td><code>--p-n-reads-learn</code></td>
+<td><strong>1,000,000</strong></td>
+<td>QIIME2 default. Enough reads to fit the error model robustly without spending forever on it.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="when-and-why-we-fall-back-to-defaults">When and why we fall back to defaults</h2>
+<table>
+<thead>
+<tr>
+<th>Fallback</th>
+<th>When it triggers</th>
+<th>Why this fallback exists</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Use the orchestrator's <code>MBX_THREADS</code></strong></td>
+<td><code>mbXPro --threads N</code> was passed.</td>
+<td>One source of truth for parallelism across the whole pipeline.</td>
+</tr>
+<tr>
+<td><strong>Auto-detect threads</strong></td>
+<td>Step 4 run standalone with no orchestrator.</td>
+<td><code>nproc</code> / <code>sysctl</code> give a sensible default; 1 thread as last resort.</td>
+</tr>
+<tr>
+<td><strong>Skip metadata-only samples</strong></td>
+<td>Metadata has rows that aren't in the artifact.</td>
+<td>Warn but continue — those samples just won't be in the analysis. The opposite case (artifact has a sample with no metadata) is a hard error from Step 1, never gets here.</td>
+</tr>
+<tr>
+<td><strong>Inherit <code>DETECTION_STATUS</code> consequences</strong></td>
+<td>Step 0 said <code>TRIMMED</code> → Step 3 set trim-left = 0.</td>
+<td>We don't second-guess. DADA2 just uses what Step 3 decided.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="what-the-output-file-looks-like">What the output file looks like</h2>
+<p><code>dada2_stats.qzv</code> (after <code>qiime metadata tabulate</code>) shows one row per
+sample:</p>
+<table>
+<thead>
+<tr>
+<th>sample-id</th>
+<th>input</th>
+<th>filtered</th>
+<th>denoised-f</th>
+<th>denoised-r</th>
+<th>merged</th>
+<th>non-chimeric</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SampleA</td>
+<td>24,118</td>
+<td>23,201</td>
+<td>22,045</td>
+<td>21,876</td>
+<td>18,455</td>
+<td>17,902</td>
+</tr>
+<tr>
+<td>SampleB</td>
+<td>19,732</td>
+<td>19,011</td>
+<td>18,200</td>
+<td>18,099</td>
+<td>14,338</td>
+<td>13,991</td>
+</tr>
+<tr>
+<td>…</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>A healthy run typically keeps ≥ 70 % of the input reads through to
+non-chimeric. Big drops (≥ 50 %) at any one stage are diagnostic:</p>
+<ul>
+<li>Big drop at <code>filtered</code> → truncation lengths too aggressive or
+  <code>max_ee</code> too strict.</li>
+<li>Big drop at <code>merged</code> → forward + reverse cuts don't leave enough overlap
+  to merge (Step 3 should have caught this).</li>
+<li>Big drop at <code>non-chimeric</code> → PCR was over-cycled, the library has lots
+  of chimeras.</li>
+</ul>
+<p>The final report (Step 18) flags any sample that drops below 50 %
+retention so the user knows where to look.</p>
+<hr />
+<h2 id="takeaway">Takeaway</h2>
+<blockquote>
+<p>Step 4 is the step where reads become biology. DADA2 models the actual
+Illumina error process and resolves single-nucleotide variants instead of
+clustering at an arbitrary threshold. The mbX Pro wrapper just makes sure
+the parameters Step 3 computed actually get used, the metadata matches
+the artifact, and the three follow-up visualisations are produced so the
+user can sanity-check the per-sample retention before the next step
+consumes the result.</p>
+</blockquote>
+<hr />
+<h2 id="sources">Sources</h2>
+<ul>
+<li>The script: <code>mbXPro/scripts/mbx_dada2_run.sh</code></li>
+<li>DADA2 paper: Callahan et al. (2016), <em>DADA2: high-resolution sample
+  inference from Illumina amplicon data</em>, Nature Methods 13:581–583.</li>
+<li>QIIME2 <code>q2-dada2</code> plugin:
+  https://docs.qiime2.org/2025.4/plugins/available/dada2/</li>
+<li>Why ASVs over OTUs: Callahan et al. (2017), <em>Exact sequence variants
+  should replace operational taxonomic units in marker-gene data analysis</em>,
+  ISME Journal 11:2639–2643.</li>
+</ul>
+<div class="doc-footer">
+  mbX Pro 1.5.0 · <a href="README.md">Markdown source</a> · <a href="#">Back to top</a>
+</div>
+<script>
+(function () {
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text);
+    }
+    return new Promise(function (resolve, reject) {
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.setAttribute('readonly', '');
+      ta.style.position = 'absolute'; ta.style.left = '-9999px';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy') ? resolve() : reject(new Error('copy failed')); }
+      catch (e) { reject(e); }
+      finally { document.body.removeChild(ta); }
+    });
+  }
+  document.querySelectorAll('pre').forEach(function (pre) {
+    var btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'copy-btn';
+    btn.textContent = 'Copy';
+    btn.setAttribute('aria-label', 'Copy code to clipboard');
+    btn.addEventListener('click', function () {
+      var code = pre.querySelector('code');
+      var text = (code ? code.innerText : pre.innerText) || '';
+      copyText(text).then(function () {
+        btn.textContent = 'Copied'; btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      }).catch(function () {
+        btn.textContent = 'Copy failed';
+        setTimeout(function () { btn.textContent = 'Copy'; }, 1600);
+      });
+    });
+    pre.appendChild(btn);
+  });
+})();
+</script>
+</body>
+</html>

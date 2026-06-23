@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Step 14 — ANCOMBC2 | mbX Pro</title>
+<style>
+:root {
+  --bg: #fafbfc; --fg: #1f2328; --muted: #57606a; --link: #0969da;
+  --code-bg: #0d1117; --code-fg: #f0f6fc; --inline-bg: #eef1f4;
+  --border: #d0d7de; --accent: #218bff;
+  --btn-bg: #ffffff; --btn-fg: #1f2328; --btn-bg-hover: #f3f5f7;
+  --btn-ok-bg: #1f883d; --btn-ok-fg: #ffffff;
+  --table-stripe: #f6f8fa; --callout-bg: #fff8dc; --callout-border: #e1c468;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1117; --fg: #c9d1d9; --muted: #8b949e; --link: #58a6ff;
+    --code-bg: #161b22; --code-fg: #c9d1d9; --inline-bg: #1c2128;
+    --border: #30363d; --btn-bg: #21262d; --btn-fg: #c9d1d9;
+    --btn-bg-hover: #30363d; --table-stripe: #161b22;
+    --callout-bg: #2d2a14; --callout-border: #6d5c1b;
+  }
+}
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  line-height: 1.65; max-width: 960px; margin: 0 auto;
+  padding: 48px 24px 96px; font-size: 16px;
+}
+h1, h2, h3, h4 { font-weight: 600; line-height: 1.25; margin-top: 2em; margin-bottom: 0.5em; }
+h1 { font-size: 2.1em; margin-top: 0; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h2 { font-size: 1.5em; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h3 { font-size: 1.2em; }
+h4 { font-size: 1.0em; color: var(--muted); }
+p { margin: 0.6em 0 1em; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+ul, ol { padding-left: 1.5em; }
+hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
+pre {
+  position: relative; background: var(--code-bg); color: var(--code-fg);
+  padding: 18px; border-radius: 8px; overflow-x: auto;
+  font-size: 0.92em; line-height: 1.5; margin: 1em 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+pre code { background: transparent; padding: 0; color: inherit; font-size: 1em; }
+code {
+  background: var(--inline-bg); padding: 0.15em 0.4em; border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9em;
+}
+.copy-btn {
+  position: absolute; top: 10px; right: 10px;
+  background: var(--btn-bg); color: var(--btn-fg);
+  border: 1px solid var(--border); border-radius: 6px;
+  padding: 5px 11px; font-size: 12px; font-family: inherit;
+  cursor: pointer; opacity: 0.85;
+  transition: background 120ms, opacity 120ms, color 120ms; z-index: 2;
+}
+.copy-btn:hover { background: var(--btn-bg-hover); opacity: 1; }
+.copy-btn.copied { background: var(--btn-ok-bg); color: var(--btn-ok-fg); border-color: var(--btn-ok-bg); }
+table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: 0.95em; }
+th, td { border: 1px solid var(--border); padding: 8px 12px; vertical-align: top; text-align: left; }
+th { background: var(--inline-bg); font-weight: 600; }
+tbody tr:nth-child(even) td { background: var(--table-stripe); }
+.toc {
+  background: var(--inline-bg); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px 22px; margin: 1em 0 2em; font-size: 0.95em;
+}
+.toc strong { display: block; margin-bottom: 6px; }
+.toc ol { margin: 0; padding-left: 1.4em; }
+.toc li { margin: 2px 0; }
+blockquote {
+  border-left: 4px solid var(--accent); margin: 1.2em 0; padding: 4px 18px;
+  color: var(--muted); background: var(--inline-bg); border-radius: 4px;
+}
+.doc-footer {
+  margin-top: 4em; padding-top: 1.5em; border-top: 1px solid var(--border);
+  color: var(--muted); font-size: 0.9em;
+}
+</style>
+</head>
+<body>
+<div class="toc"><strong>Contents</strong><ol><li><a href="#why-this-step-matters">Why this step matters</a></li><li><a href="#what-the-script-does-in-one-sentence">What the script does in one sentence</a></li><li><a href="#the-algorithm-step-by-step">The algorithm, step by step</a></li><li><a href="#default-parameters-and-why-they-are-what-they-are">Default parameters and why they are what they are</a></li><li><a href="#when-and-why-we-fall-back-to-defaults">When and why we fall back to defaults</a></li><li><a href="#what-the-output-file-looks-like">What the output file looks like</a></li><li><a href="#takeaway">Takeaway</a></li><li><a href="#sources">Sources</a></li></ol></div>
+<h1>Step 14 — ANCOMBC2 (Differential Abundance)</h1>
+<p><strong>Script:</strong> <code>scripts/mbx_ancombc2_run.sh</code></p>
+<p><strong>Companion files in this folder:</strong>
+- <code>14_ancombc2.html</code> — same content with copy buttons.
+- <code>14_ancombc2.pptx</code> — slide deck for the talk.</p>
+<hr />
+<h2 id="why-this-step-matters">Why this step matters</h2>
+<p>Step 10 already gave us a per-taxon "is this taxon different between
+groups?" answer via Kruskal-Wallis. That answer is honest as far as it
+goes — but microbiome data has a structural problem KW does <strong>not</strong>
+correct for: <strong>compositionality</strong>.</p>
+<p>The relative abundances of all taxa in a sample sum to 1. So if a single
+species — say <em>Bacteroides</em> — drops from 30 % to 5 % of a community,
+the relative abundances of every <em>other</em> taxon <em>must</em> mathematically go
+up, even when their absolute biomass stayed exactly the same. Naive
+per-taxon tests like KW interpret that mechanical increase as biological
+"differential abundance" — leading to dozens of false positives in
+every microbiome paper that doesn't correct for it.</p>
+<p><strong>ANCOMBC2</strong> (Lin &amp; Peddada 2024) is the current state-of-the-art
+correction. It explicitly models the compositional bias, estimates it
+from the data, and tests every taxon's abundance after the bias is
+removed. It also handles <strong>structural zeros</strong> — taxa absent from an
+entire treatment group, which are a fundamentally different statistical
+object than "low and noisy".</p>
+<p>Step 14's job is to run ANCOMBC2 for every (taxonomic level × categorical
+variable) combination, produce the per-taxon log-fold-change tables,
+identify structural zeros, generate volcano + heatmap visualisations,
+and — thanks to the work we did earlier — apply the ezclean-style taxon
+naming so the output is human-readable.</p>
+<hr />
+<h2 id="what-the-script-does-in-one-sentence">What the script does in one sentence</h2>
+<p>For every (taxonomic level × categorical metadata variable), it collapses
+the filtered feature table to that level via the QIIME2 taxa-collapse
+pipeline, runs ANCOMBC2 with the variable as the formula, exports primary
++ pairwise + global + structural-zeros tables to XLSX with our ezclean-
+style taxon column simplification, and renders volcano + heatmap plots.</p>
+<hr />
+<h2 id="the-algorithm-step-by-step">The algorithm, step by step</h2>
+<h3>1. Gate on Step 11</h3>
+<p><strong>First</strong>, same <code>READY_FOR_DIVERSITY</code> gate as Step 12/13. ANCOMBC2 takes
+<strong>raw counts</strong> (not rarefied or normalised — it does its own bias
+correction), so it reads the <strong>filtered feature table from Step 7</strong>
+(post-mitochondria/chloroplast removal), not the rarefied table.</p>
+<h3>2. Collapse the feature table at each level</h3>
+<p><strong>Then</strong> for each level the user requested (phylum through species by
+default), the script runs:</p>
+<pre><code>qiime taxa collapse \
+  --i-table       feature_table_filtered.qza \
+  --i-taxonomy    taxonomy.qza \
+  --p-level       &lt;2..7&gt; \
+  --o-collapsed-table   collapsed_L&lt;N&gt;.qza
+</code></pre>
+<p>…and exports each collapsed table to a BIOM-TSV that R can read.</p>
+<h3>3. Inside R: build the phyloseq object</h3>
+<p><strong>Now</strong> the R block loads the collapsed TSV into a matrix (taxa × samples),
+joins the metadata as a <code>phyloseq::sample_data</code> object, and wraps both into
+a <code>phyloseq</code> object — ANCOMBC2's expected input.</p>
+<h3>4. Filter taxa with no within-group variance</h3>
+<p><strong>Critical step</strong> (and a source of dozens of ANCOMBC crashes if skipped).
+ANCOMBC2 errors hard on any taxon whose variance is zero <em>within</em> a group
+— e.g. all-zero counts in one group and a constant non-zero value in
+another. Its built-in <code>prv_cut = 0.10</code> only filters by overall
+prevalence; it doesn't catch the per-group variance issue. So we
+preemptively drop any taxon whose within-group variance is zero in at
+least one group of the current variable.</p>
+<h3>5. Run ANCOMBC2</h3>
+<p><strong>Now the actual model:</strong></p>
+<pre><code class="language-r">ANCOMBC::ancombc2(
+  data           = phyloseq_object,
+  fix_formula    = var,
+  group          = var,
+  p_adj_method   = &quot;BH&quot;,
+  pseudo_sens    = TRUE,
+  prv_cut        = 0.10,
+  lib_cut        = 1,
+  struc_zero     = TRUE,
+  neg_lb         = TRUE,
+  alpha          = 0.05,
+  n_cl           = MBX_THREADS,
+  global         = TRUE,
+  pairwise       = TRUE,
+  mdfdr_control  = list(fwer_ctrl_method = &quot;BH&quot;, B = 100)
+)
+</code></pre>
+<p>ANCOMBC2 then:</p>
+<ol>
+<li>Estimates the <strong>sampling-fraction bias</strong> per sample (the magnitude of
+   the compositional distortion).</li>
+<li>Fits a <strong>bias-corrected linear model</strong> for each taxon: log-relative-
+   abundance ~ variable.</li>
+<li>Returns four tables:
+   - <code>res</code> — primary effects (each coefficient vs the reference level).
+   - <code>res_pair</code> — every pairwise comparison.
+   - <code>res_global</code> — a global F-test (any difference across groups).
+   - <code>zero_ind</code> — <strong>structural-zero flags</strong> per (taxon × group).</li>
+<li>Controls <strong>mdFDR</strong> (multiple-testing correction across taxa <strong>and</strong>
+   contrasts simultaneously) via B = 100 multivariate permutations.</li>
+</ol>
+<h3>6. Simplify taxon names</h3>
+<p><strong>Then</strong> the script applies our <code>simplify_taxa()</code> helper (added in
+mbX Pro 1.3.0) to the <code>taxon</code> column of every results dataframe before
+writing. The full GTDB string:</p>
+<pre><code>d__Bacteria;p__Desulfobacterota_G_459543;c__Desulfovibrionia;
+o__Desulfovibrionales;f__Desulfovibrionaceae;g__Bilophila;
+s__Bilophila wadsworthia
+</code></pre>
+<p>becomes:</p>
+<pre><code>Bilophila.wadsworthia
+</code></pre>
+<p>— the same convention <code>mbX::ezclean()</code> uses in Step 8 — so the spreadsheet
+columns and the heatmap row labels match the rest of the pipeline.</p>
+<h3>7. Write four XLSX per (level × variable)</h3>
+<ul>
+<li><code>ancombc2_primary_&lt;Variable&gt;.xlsx</code> — the main effects.</li>
+<li><code>ancombc2_pairwise_&lt;Variable&gt;.xlsx</code> — every pairwise contrast.</li>
+<li><code>ancombc2_global_&lt;Variable&gt;.xlsx</code> — global F-test results.</li>
+<li><code>ancombc2_structural_zeros_&lt;Variable&gt;.xlsx</code> — taxa flagged as
+  structurally absent from at least one group.</li>
+<li><code>ancombc2_summary_&lt;Variable&gt;.xlsx</code> — one row of run-level stats
+  (n_samples, n_groups, n_taxa, n_significant, runtime).</li>
+</ul>
+<h3>8. Render volcano + heatmap</h3>
+<p><strong>For visualisation</strong>, the script renders one <strong>faceted volcano plot</strong>
+per (level × variable), where each panel is one pairwise contrast and
+dots are taxa coloured by <code>q &lt; 0.05 &amp; |lfc| &gt; 1</code>. It also renders a
+<strong>heatmap</strong> showing the bias-corrected log-abundance of all significant
+taxa (any test) across samples grouped by the variable.</p>
+<p>Both plots get the <code>simplify_taxa()</code> treatment for human-readable labels.
+PNG + SVG companions (publication-ready); PDF on <code>--publication-figures</code>.</p>
+<h3>9. Save the raw RDS</h3>
+<p><strong>Finally</strong> the script saves the full ANCOMBC2 output object as an RDS
+file in <code>working_dir_differential_abundance/ancombc2_raw_objects/</code>.
+Advanced users can load it in R for post-hoc analyses without re-running
+the model.</p>
+<hr />
+<h2 id="default-parameters-and-why-they-are-what-they-are">Default parameters and why they are what they are</h2>
+<table>
+<thead>
+<tr>
+<th>Default</th>
+<th>Value</th>
+<th>Why this default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Input feature table</td>
+<td><strong>filtered (Step 7), raw counts</strong></td>
+<td>ANCOMBC2 does its own bias correction; rarefying or normalising first throws away signal.</td>
+</tr>
+<tr>
+<td>Levels</td>
+<td><strong>phylum, class, order, family, genus, species</strong></td>
+<td>Domain is uninformative (it's nearly always all Bacteria); the other six are standard.</td>
+</tr>
+<tr>
+<td><code>p_adj_method</code></td>
+<td><strong>Benjamini-Hochberg</strong></td>
+<td>Standard FDR control.</td>
+</tr>
+<tr>
+<td><code>prv_cut</code></td>
+<td><strong>0.10</strong></td>
+<td>Drop taxa present in &lt; 10 % of samples — they have no power for the test.</td>
+</tr>
+<tr>
+<td><code>lib_cut</code></td>
+<td><strong>1</strong></td>
+<td>No library-size filtering (Step 11 already filtered low-depth samples).</td>
+</tr>
+<tr>
+<td><code>struc_zero</code></td>
+<td><strong>TRUE</strong></td>
+<td>Identify structural zeros explicitly; they're a distinct biological signal.</td>
+</tr>
+<tr>
+<td><code>neg_lb</code></td>
+<td><strong>TRUE</strong></td>
+<td>Use a negative log-bound when estimating bias — more robust to outliers.</td>
+</tr>
+<tr>
+<td><code>alpha</code></td>
+<td><strong>0.05</strong></td>
+<td>Significance threshold.</td>
+</tr>
+<tr>
+<td><code>pairwise</code></td>
+<td><strong>TRUE</strong></td>
+<td>We always want the pairwise breakdown.</td>
+</tr>
+<tr>
+<td><code>global</code></td>
+<td><strong>TRUE</strong></td>
+<td>We also want the global F-test.</td>
+</tr>
+<tr>
+<td><code>mdfdr_control</code></td>
+<td>BH, <strong>B = 100</strong></td>
+<td>Multivariate-permutation mdFDR. 100 is the lower end of "enough"; ANCOMBC2 maintainers use this default in their examples.</td>
+</tr>
+<tr>
+<td><code>n_cl</code></td>
+<td><strong>MBX_THREADS</strong></td>
+<td>Parallel-pooled across contrasts.</td>
+</tr>
+<tr>
+<td>Random seed</td>
+<td><strong>MBX_SEED, L'Ecuyer-CMRG kind</strong></td>
+<td>Reproducibility — and the L'Ecuyer stream is required because n_cl &gt; 1 uses <code>parallel::</code> under the hood.</td>
+</tr>
+<tr>
+<td>Per-group variance pre-filter</td>
+<td>always-on</td>
+<td>Required to prevent ANCOMBC2 crashes.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="when-and-why-we-fall-back-to-defaults">When and why we fall back to defaults</h2>
+<table>
+<thead>
+<tr>
+<th>Fallback</th>
+<th>When it triggers</th>
+<th>Why this fallback exists</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Refuse to run</strong></td>
+<td><code>READY_FOR_DIVERSITY=no</code> from Step 11</td>
+<td>Same gate as Step 12/13.</td>
+</tr>
+<tr>
+<td><strong>Drop zero-within-group-variance taxa</strong></td>
+<td>Always, before each ANCOMBC2 call</td>
+<td>Prevents the most common ANCOMBC2 crash.</td>
+</tr>
+<tr>
+<td><strong>Skip a <code>(level × variable)</code> cell</strong></td>
+<td>&lt; 2 valid groups after NA filter, or &lt; 5 taxa after variance filter</td>
+<td>Logged + continued.</td>
+</tr>
+<tr>
+<td><strong>Drop singleton-group cells</strong></td>
+<td>A group has only 1 sample</td>
+<td>ANCOMBC2 needs ≥ 2 obs per group.</td>
+</tr>
+<tr>
+<td><strong>Apply <code>simplify_taxa()</code> to plot labels</strong></td>
+<td>always</td>
+<td>Our addition (mbX Pro 1.3.0) — replaces the previous "last-two-<code>;</code>-segments" truncation with the ezclean-style convention.</td>
+</tr>
+<tr>
+<td><strong>Save raw RDS</strong></td>
+<td>always</td>
+<td>Advanced users can re-analyse without re-running the model.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="what-the-output-file-looks-like">What the output file looks like</h2>
+<p><code>ancombc2_primary_&lt;Variable&gt;.xlsx</code> (the main-effects table):</p>
+<table>
+<thead>
+<tr>
+<th>taxon</th>
+<th>lfc_Group_B</th>
+<th>se_Group_B</th>
+<th>W_Group_B</th>
+<th>p_Group_B</th>
+<th>q_Group_B</th>
+<th>diff_Group_B</th>
+<th>passed_ss_Group_B</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bilophila.wadsworthia</td>
+<td>+2.41</td>
+<td>0.41</td>
+<td>5.88</td>
+<td>4e-09</td>
+<td>8e-08</td>
+<td>TRUE</td>
+<td>TRUE</td>
+</tr>
+<tr>
+<td>Bacteroides</td>
+<td>−0.92</td>
+<td>0.18</td>
+<td>−5.11</td>
+<td>3e-07</td>
+<td>2e-06</td>
+<td>TRUE</td>
+<td>TRUE</td>
+</tr>
+<tr>
+<td>...</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><code>lfc_*</code> — bias-corrected log-fold-change (positive ⇒ enriched in
+  Group_B vs the reference).</li>
+<li><code>q_*</code> — mdFDR-adjusted p-value.</li>
+<li><code>diff_*</code> — boolean: this taxon is differentially abundant for this
+  contrast at α = 0.05.</li>
+<li><code>passed_ss_*</code> — boolean: passed the pseudo-count sensitivity analysis.</li>
+</ul>
+<p>Plus the volcano (faceted by pairwise contrast) and heatmap (significant
+taxa × samples) PNG/SVG.</p>
+<hr />
+<h2 id="takeaway">Takeaway</h2>
+<blockquote>
+<p>Step 14 corrects for what every other "per-taxon" test in microbiome
+analysis gets structurally wrong — compositionality. ANCOMBC2 estimates
+the sampling-fraction bias from the data, fits a bias-corrected linear
+model per taxon, controls multiple testing across both taxa AND
+contrasts (mdFDR), and explicitly flags structural zeros. Our addition
+in mbX Pro 1.3.0 strips the GTDB hierarchy from the <code>taxon</code> column and
+heatmap labels so the output reads cleanly.</p>
+</blockquote>
+<hr />
+<h2 id="sources">Sources</h2>
+<ul>
+<li>The script: <code>mbXPro/scripts/mbx_ancombc2_run.sh</code></li>
+<li>ANCOMBC2 paper: Lin &amp; Peddada (2024), <em>Multigroup Analysis of
+  Compositions of Microbiomes with Covariate Adjustments and Repeated
+  Measures</em>, Nature Methods 21:83–94.</li>
+<li>ANCOMBC predecessor + the compositionality problem: Lin &amp; Peddada
+  (2020), <em>Analysis of compositions of microbiomes with bias correction</em>,
+  Nature Communications 11:3514.</li>
+<li>Why correction matters: Gloor et al. (2017), <em>Microbiome datasets are
+  compositional</em>, Frontiers in Microbiology 8:2224.</li>
+<li>mdFDR: Guo et al. (2010), <em>Controlling false discoveries in multi-
+  dimensional directional decisions</em>, JRSS-B 72:485.</li>
+</ul>
+<div class="doc-footer">
+  mbX Pro 1.5.0 · <a href="README.md">Markdown source</a> · <a href="#">Back to top</a>
+</div>
+<script>
+(function () {
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text);
+    }
+    return new Promise(function (resolve, reject) {
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.setAttribute('readonly', '');
+      ta.style.position = 'absolute'; ta.style.left = '-9999px';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy') ? resolve() : reject(new Error('copy failed')); }
+      catch (e) { reject(e); }
+      finally { document.body.removeChild(ta); }
+    });
+  }
+  document.querySelectorAll('pre').forEach(function (pre) {
+    var btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'copy-btn';
+    btn.textContent = 'Copy';
+    btn.setAttribute('aria-label', 'Copy code to clipboard');
+    btn.addEventListener('click', function () {
+      var code = pre.querySelector('code');
+      var text = (code ? code.innerText : pre.innerText) || '';
+      copyText(text).then(function () {
+        btn.textContent = 'Copied'; btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      }).catch(function () {
+        btn.textContent = 'Copy failed';
+        setTimeout(function () { btn.textContent = 'Copy'; }, 1600);
+      });
+    });
+    pre.appendChild(btn);
+  });
+})();
+</script>
+</body>
+</html>

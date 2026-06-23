@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Library &mdash; Utsav Lamichhane</title>
+<meta name="description" content="The utsav Python package: microbiome and machine-learning helpers.">
+<meta property="og:title" content="Python Library &mdash; Utsav Lamichhane">
+<meta property="og:description" content="The utsav Python package: microbiome and machine-learning helpers.">
+<meta property="og:type" content="website">
+<link rel="icon" type="image/png" href="assets/img/favicon.png">
+<link rel="apple-touch-icon" href="assets/img/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="index.html">Utsav Lamichhane<span class="dot">.</span></a>
+    <button class="nav-toggle" aria-label="Menu"><span></span><span></span><span></span></button>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li class="has-drop">
+        <button class="nav-trigger" aria-haspopup="true">Applications <i class="caret"></i></button>
+        <ul class="drop">
+          <li><a href="applications/index.html">Overview</a></li>
+          <li><a href="applications/qiime2-code-generator.html">QIIME2 Code Generator</a></li>
+        </ul>
+      </li>
+      <li class="has-drop">
+        <button class="nav-trigger" aria-haspopup="true">mbX Pro <i class="caret"></i></button>
+        <ul class="drop">
+          <li><a href="mbxpro/index.html">What is mbX Pro</a></li>
+          <li><a href="mbxpro/how-to-use.html">How to use it</a></li>
+          <li><a href="mbxpro/algorithms.html">Algorithms in mbX Pro</a></li>
+        </ul>
+      </li>
+      <li><a href="python-library.html" class="active">Python Library</a></li>
+      <li><a href="media.html">Media</a></li>
+      <li><a href="skills.html">Skills</a></li>
+      <li><a href="certifications.html">Certifications</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li class="has-drop">
+        <button class="nav-trigger" aria-haspopup="true">Recent DB <i class="caret"></i></button>
+        <ul class="drop">
+          <li><a href="recent-db/index.html">Overview</a></li>
+          <li><a href="recent-db/mysql-microbiome-database.html">MySQL (Microbiome Database)</a></li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+</header>
+<section class="page-head"><div class="wrap">
+  <div class="crumbs"><a href="index.html">Home</a> / Python Library</div>
+  <h1>Python Library &mdash; utsav</h1>
+  <p>A pip-installable Python package bundling the microbiome and machine-learning helpers I use across projects.</p>
+</div></section>
+<section class="section"><div class="wrap">
+  <div class="grid grid-2" style="align-items:start">
+    <div>
+      <p class="eyebrow">Installation</p>
+      <h2>pip install utsav</h2>
+      <p class="lead">Grab the latest release straight from PyPI and import the helpers into any analysis.</p>
+      <div class="codebox" style="margin:18px 0 26px">
+        <code>pip install utsav==0.2.5</code>
+        <button class="cp" data-copy="pip install utsav==0.2.5">copy</button>
+      </div>
+      <p class="eyebrow">Releases</p>
+      <ul class="version-list">
+        <li class="latest">0.2.5 &middot; latest</li>
+        <li>0.2.4</li><li>0.2.3</li><li>0.2.2</li><li>0.2.1</li><li>0.2.0</li><li>0.1.0</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="icn icn-amber">py</div>
+      <h3>What's inside</h3>
+      <p>Two function families power most of the package:</p>
+      <ul style="color:var(--slate-500);font-size:.95rem;padding-left:1.1em;margin:0 0 18px">
+        <li><strong>Microbiome taxa function</strong> &mdash; reshape and summarize taxonomy tables.</li>
+        <li><strong>Machine-learning function</strong> &mdash; fit and evaluate models on microbiome features.</li>
+      </ul>
+      <div style="display:flex;gap:14px;flex-wrap:wrap">
+        <a class="btn btn-outline" href="https://drive.google.com/file/d/1vo_Jl92S3jL20pW5Oo1TENyM8wSO9ooA/view?usp=sharing" target="_blank" rel="noopener">Documentation <span class="arr">&#8599;</span></a>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" style="margin:48px 0">
+  <p class="eyebrow">Input data format</p>
+  <h2 style="margin-bottom:8px">Expected data-frame structure</h2>
+  <p class="lead" style="margin-bottom:24px">Reference templates so your inputs match what each function expects.</p>
+  <div class="grid grid-2" style="align-items:start">
+    <div>
+      <div class="card" style="margin-bottom:20px">
+        <h3>Machine-learning function</h3>
+        <p>Layout for samples &times; features with a target column.</p>
+        <div class="card-foot"><a class="card-link" href="https://drive.google.com/file/d/1zi41qp1L7_qt4UhfEeMJ6_Ip95MmK6ba/view?usp=sharing" target="_blank" rel="noopener">View template <span class="arr">&#8599;</span></a></div>
+      </div>
+      <div class="card">
+        <h3>Microbiome taxa function</h3>
+        <p>Layout for taxonomy-by-sample abundance tables.</p>
+        <div class="card-foot"><a class="card-link" href="https://drive.google.com/file/d/159R9zxwkf3kbO_hkF4quEBPhwQacxDgl/view?usp=sharing" target="_blank" rel="noopener">View template <span class="arr">&#8599;</span></a></div>
+      </div>
+    </div>
+    <figure class="figure" style="margin:0">
+      <img src="assets/img/input-data-structure.jpeg" alt="Diagram of the expected input data-frame structure" loading="lazy">
+      <figcaption>Expected input data-frame structure</figcaption>
+    </figure>
+  </div>
+</div></section>
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div style="max-width:320px">
+        <div class="fbrand">Utsav Lamichhane<span style="color:var(--coral)">.</span></div>
+        <p style="color:#8da0b4;font-size:.92rem">PhD researcher in machine learning &amp; bioinformatics at the University of Georgia — building open tools for microbiome science.</p>
+      </div>
+      <div class="footer-nav">
+        <div>
+          <h4>Explore</h4>
+          <a href="applications/index.html">Applications</a>
+          <a href="mbxpro/index.html">mbX Pro</a>
+          <a href="python-library.html">Python Library</a>
+          <a href="skills.html">Skills</a>
+        </div>
+        <div>
+          <h4>More</h4>
+          <a href="certifications.html">Certifications</a>
+          <a href="media.html">Media</a>
+          <a href="recent-db/index.html">Recent DB</a>
+          <a href="contact.html">Contact</a>
+        </div>
+        <div>
+          <h4>Elsewhere</h4>
+          <a href="https://github.com/utsavlamichhane" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://www.linkedin.com/in/utsav-lamichhane-373793119/" target="_blank" rel="noopener">LinkedIn</a>
+          <a href="https://scholar.google.com/citations?user=8YFfSMEAAAAJ&hl=en" target="_blank" rel="noopener">Google Scholar</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; <span id="year">2026</span> Utsav Lamichhane. Athens, GA.</span>
+      <span><a href="mailto:utsav.lamichhane@uga.edu">utsav.lamichhane@uga.edu</a></span>
+    </div>
+  </div>
+</footer>
+<script src="assets/js/main.js"></script>
+</body>
+</html>

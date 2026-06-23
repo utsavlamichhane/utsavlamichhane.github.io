@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Step 10 — ezstat | mbX Pro</title>
+<style>
+:root {
+  --bg: #fafbfc; --fg: #1f2328; --muted: #57606a; --link: #0969da;
+  --code-bg: #0d1117; --code-fg: #f0f6fc; --inline-bg: #eef1f4;
+  --border: #d0d7de; --accent: #218bff;
+  --btn-bg: #ffffff; --btn-fg: #1f2328; --btn-bg-hover: #f3f5f7;
+  --btn-ok-bg: #1f883d; --btn-ok-fg: #ffffff;
+  --table-stripe: #f6f8fa; --callout-bg: #fff8dc; --callout-border: #e1c468;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1117; --fg: #c9d1d9; --muted: #8b949e; --link: #58a6ff;
+    --code-bg: #161b22; --code-fg: #c9d1d9; --inline-bg: #1c2128;
+    --border: #30363d; --btn-bg: #21262d; --btn-fg: #c9d1d9;
+    --btn-bg-hover: #30363d; --table-stripe: #161b22;
+    --callout-bg: #2d2a14; --callout-border: #6d5c1b;
+  }
+}
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  line-height: 1.65; max-width: 960px; margin: 0 auto;
+  padding: 48px 24px 96px; font-size: 16px;
+}
+h1, h2, h3, h4 { font-weight: 600; line-height: 1.25; margin-top: 2em; margin-bottom: 0.5em; }
+h1 { font-size: 2.1em; margin-top: 0; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h2 { font-size: 1.5em; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h3 { font-size: 1.2em; }
+h4 { font-size: 1.0em; color: var(--muted); }
+p { margin: 0.6em 0 1em; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+ul, ol { padding-left: 1.5em; }
+hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
+pre {
+  position: relative; background: var(--code-bg); color: var(--code-fg);
+  padding: 18px; border-radius: 8px; overflow-x: auto;
+  font-size: 0.92em; line-height: 1.5; margin: 1em 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+pre code { background: transparent; padding: 0; color: inherit; font-size: 1em; }
+code {
+  background: var(--inline-bg); padding: 0.15em 0.4em; border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9em;
+}
+.copy-btn {
+  position: absolute; top: 10px; right: 10px;
+  background: var(--btn-bg); color: var(--btn-fg);
+  border: 1px solid var(--border); border-radius: 6px;
+  padding: 5px 11px; font-size: 12px; font-family: inherit;
+  cursor: pointer; opacity: 0.85;
+  transition: background 120ms, opacity 120ms, color 120ms; z-index: 2;
+}
+.copy-btn:hover { background: var(--btn-bg-hover); opacity: 1; }
+.copy-btn.copied { background: var(--btn-ok-bg); color: var(--btn-ok-fg); border-color: var(--btn-ok-bg); }
+table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: 0.95em; }
+th, td { border: 1px solid var(--border); padding: 8px 12px; vertical-align: top; text-align: left; }
+th { background: var(--inline-bg); font-weight: 600; }
+tbody tr:nth-child(even) td { background: var(--table-stripe); }
+.toc {
+  background: var(--inline-bg); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px 22px; margin: 1em 0 2em; font-size: 0.95em;
+}
+.toc strong { display: block; margin-bottom: 6px; }
+.toc ol { margin: 0; padding-left: 1.4em; }
+.toc li { margin: 2px 0; }
+blockquote {
+  border-left: 4px solid var(--accent); margin: 1.2em 0; padding: 4px 18px;
+  color: var(--muted); background: var(--inline-bg); border-radius: 4px;
+}
+.doc-footer {
+  margin-top: 4em; padding-top: 1.5em; border-top: 1px solid var(--border);
+  color: var(--muted); font-size: 0.9em;
+}
+</style>
+</head>
+<body>
+<div class="toc"><strong>Contents</strong><ol><li><a href="#why-this-step-matters">Why this step matters</a></li><li><a href="#what-the-script-does-in-one-sentence">What the script does in one sentence</a></li><li><a href="#the-algorithm-step-by-step">The algorithm, step by step</a></li><li><a href="#default-parameters-and-why-they-are-what-they-are">Default parameters and why they are what they are</a></li><li><a href="#when-and-why-we-fall-back-to-defaults">When and why we fall back to defaults</a></li><li><a href="#what-the-output-file-looks-like">What the output file looks like</a></li><li><a href="#takeaway">Takeaway</a></li><li><a href="#sources">Sources</a></li></ol></div>
+<h1>Step 10 — ezstat (per-taxon group statistics)</h1>
+<p><strong>Script:</strong> <code>scripts/mbx_ezstat_all_levels_all_treatments.sh</code>
++ the R function <code>mbX::ezstat()</code> from CRAN</p>
+<p><strong>Companion files in this folder:</strong>
+- <code>10_ezstat.html</code> — same content with copy buttons on every code block.
+- <code>10_ezstat.pptx</code> — slide deck for the talk.</p>
+<hr />
+<h2 id="why-this-step-matters">Why this step matters</h2>
+<p>Step 9's stacked-bar plots show <em>what's there</em>. The next question — and
+the one every reviewer asks — is <strong>which taxa actually differ between
+treatment groups, and is that difference statistically real?</strong></p>
+<p>That's a multi-step inferential job. For every (taxonomic level × every
+categorical metadata column × every taxon), you need to:</p>
+<ol>
+<li>Check whether the abundances follow a normal distribution (most don't).</li>
+<li>Pick the right test (parametric or non-parametric).</li>
+<li>Correct for multiple testing across the hundreds of taxa being tested
+   simultaneously.</li>
+<li>When there are more than two groups, follow up with the right
+   post-hoc comparison and produce <strong>compact letter displays</strong> (the <code>a</code>,
+   <code>b</code>, <code>ab</code> letters that mark which groups differ from which on a
+   boxplot).</li>
+</ol>
+<p>Doing this by hand for one comparison is tedious. Doing it for <em>every
+combination</em> — seven levels × N variables × hundreds of taxa — is
+error-prone in a way no human should accept. Step 10's job is to
+<strong>automate the whole grid</strong>, consistently, with one stat per cell.</p>
+<p>Note that Step 10 produces <strong>per-taxon, per-level</strong> statistics
+(univariate, taxon-by-taxon). Step 14 (ANCOMBC2) does the same job in a
+fundamentally different way — modelling all taxa together and correcting
+for compositionality. Both views are useful; reviewers like to see both.</p>
+<hr />
+<h2 id="what-the-script-does-in-one-sentence">What the script does in one sentence</h2>
+<p>It calls <code>mbX::ezstat()</code> once per (taxonomic level × categorical metadata
+column), and ezstat runs Kruskal-Wallis (or pairwise Wilcoxon) per taxon,
+adjusts p-values with Benjamini-Hochberg, performs Dunn post-hocs for
+multi-group designs, and writes one XLSX per combination.</p>
+<hr />
+<h2 id="the-algorithm-step-by-step">The algorithm, step by step</h2>
+<h3>1. Discover categorical metadata columns</h3>
+<p><strong>First</strong>, the script applies the same categorical-variable detection as
+Step 9 — drop sample-id, drop numeric-only columns, drop singleton-value
+columns, drop all-unique columns. What remains is the set of comparisons
+to run.</p>
+<h3>2. Read Step 8's seven level XLSX paths</h3>
+<p><strong>Then</strong> it reads <code>8_cleaned_files/mbx_ezclean_info.txt</code> to find the per-
+level paths. Each <code>(level × variable)</code> combination becomes one ezstat()
+call.</p>
+<h3>3. For each combination, run ezstat</h3>
+<pre><code>Rscript --vanilla &lt;&lt;RSCRIPT
+library(mbX)
+setwd(&quot;10_stats/&lt;variable&gt;&quot;)
+ezstat(
+  microbiome_data    = &quot;mbX_cleaned_&lt;level&gt;_level-7.xlsx&quot;,
+  metadata           = &quot;metadata.txt&quot;,
+  level              = &quot;&lt;letter&gt;&quot;,
+  selected_metadata  = &quot;&lt;column&gt;&quot;
+)
+RSCRIPT
+</code></pre>
+<p>Inside ezstat():</p>
+<ol>
+<li><strong>Reshape</strong> the wide XLSX into long format: one row per (sample × taxon).</li>
+<li><strong>For every taxon column</strong>:
+   - Group abundances by the metadata variable.
+   - If the variable has exactly two groups, run a <strong>Wilcoxon rank-sum
+     test</strong> (non-parametric, no normality assumption — appropriate for
+     relative-abundance data which is almost never normal).
+   - If three or more groups, run a <strong>Kruskal-Wallis test</strong> for global
+     significance.</li>
+<li><strong>Adjust p-values across taxa</strong> using <strong>Benjamini-Hochberg</strong> (the
+   <code>p.adjust(..., method = "BH")</code> in R) — the most powerful FDR control
+   for univariate microbiome panels.</li>
+<li><strong>For Kruskal-Wallis hits</strong> (p_adj ≤ 0.05), run pairwise <strong>Dunn's
+   tests</strong> with BH adjustment within each significant taxon to identify
+   which specific pairs of groups differ.</li>
+<li><strong>Compute compact letter displays</strong> (CLD) from the pairwise results.
+   Groups sharing a letter are not significantly different from each
+   other; groups with no letter in common are. This is the standard
+   way to summarize multi-group post-hocs on a boxplot.</li>
+<li><strong>Write the per-taxon results</strong> to an XLSX:
+   - <code>KW_&lt;level&gt;_by_&lt;variable&gt;.xlsx</code> — the per-taxon KW (or Wilcoxon)
+     stats: p, p_adj, test statistic.
+   - <code>Pairwise_&lt;level&gt;_by_&lt;variable&gt;.xlsx</code> — every significant pairwise
+     comparison from Dunn.
+   - <code>CLD_Summary_&lt;level&gt;_by_&lt;variable&gt;.xlsx</code> — the compact letter display
+     per significant taxon (used by the boxplot in Step 12 and the final
+     report).
+   - <code>Summary_KW_all_metrics_by_&lt;variable&gt;.xlsx</code> — one summary row per
+     level.</li>
+</ol>
+<h3>4. Skip degenerate cases</h3>
+<p><strong>The script handles four edge cases gracefully</strong>:</p>
+<ul>
+<li>Singleton groups (n &lt; 2 in any group) — Wilcoxon / KW need at least
+  one observation per group; the test is skipped with a warning.</li>
+<li>All-zero taxa — no signal to test; skipped.</li>
+<li>Variables with only one valid group after filtering NAs — skipped.</li>
+<li>Levels with no remaining taxa after the variability filter — skipped.</li>
+</ul>
+<h3>5. Write <code>mbx_ezstat_info.txt</code></h3>
+<p><strong>Finally</strong> the cross-step info file records every XLSX produced, the
+metadata variables actually tested, and <code>STATUS=COMPLETE</code>. The final
+report reads this to know which comparisons to embed.</p>
+<hr />
+<h2 id="default-parameters-and-why-they-are-what-they-are">Default parameters and why they are what they are</h2>
+<table>
+<thead>
+<tr>
+<th>Default</th>
+<th>Value</th>
+<th>Why this default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Test (two groups)</td>
+<td><strong>Wilcoxon rank-sum</strong></td>
+<td>Non-parametric — microbiome relative abundances are almost never normal. Robust to outliers.</td>
+</tr>
+<tr>
+<td>Test (three or more groups)</td>
+<td><strong>Kruskal-Wallis</strong></td>
+<td>Non-parametric ANOVA equivalent. Same robustness argument.</td>
+</tr>
+<tr>
+<td>Post-hoc (multi-group, on KW hits)</td>
+<td><strong>Dunn's test</strong></td>
+<td>The standard non-parametric post-hoc; matches the KW assumptions.</td>
+</tr>
+<tr>
+<td>Multiple-testing correction</td>
+<td><strong>Benjamini-Hochberg (BH) FDR</strong></td>
+<td>Most powerful FDR control for the kind of correlated multi-taxon panel we have.</td>
+</tr>
+<tr>
+<td>Significance threshold</td>
+<td><strong>p_adj ≤ 0.05</strong></td>
+<td>Field convention; the user can re-filter the XLSX with any threshold downstream.</td>
+</tr>
+<tr>
+<td>Compact letter display algorithm</td>
+<td><strong><code>multcompView::multcompLetters</code></strong></td>
+<td>The standard R implementation; widely used + cited.</td>
+</tr>
+<tr>
+<td>Per-taxon prevalence filter</td>
+<td><strong>none, by default</strong></td>
+<td>Filtering hides genuinely-low-abundance signals. We trust BH FDR to handle the false-positive risk.</td>
+</tr>
+<tr>
+<td>Levels</td>
+<td>all seven</td>
+<td>Mirrors Step 9 — every level gets statistics.</td>
+</tr>
+<tr>
+<td>Variables</td>
+<td>all auto-detected</td>
+<td>Same as Step 9; no enumeration burden on the user.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="when-and-why-we-fall-back-to-defaults">When and why we fall back to defaults</h2>
+<table>
+<thead>
+<tr>
+<th>Fallback</th>
+<th>When it triggers</th>
+<th>Why this fallback exists</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Wilcoxon instead of KW</strong></td>
+<td>The variable has exactly two groups</td>
+<td>KW reduces to a Wilcoxon equivalent — we use the actual Wilcoxon for the slightly tighter test.</td>
+</tr>
+<tr>
+<td><strong>Skip taxa with all-zero rows</strong></td>
+<td>A taxon has zero abundance in every sample</td>
+<td>Nothing to test; skipping avoids a spurious p-value.</td>
+</tr>
+<tr>
+<td><strong>Skip singleton-group cells</strong></td>
+<td>Any group has only one sample</td>
+<td>The non-parametric tests need ≥ 2 observations per group. The cell is logged as <code>SKIPPED — singleton group</code>.</td>
+</tr>
+<tr>
+<td><strong>Skip variables with one valid group after NA filter</strong></td>
+<td>All but one group's samples were dropped because of NAs</td>
+<td>Nothing to compare; logged + continued.</td>
+</tr>
+<tr>
+<td><strong>Continue with N&lt;7 levels</strong></td>
+<td>A level's XLSX was empty from Step 8</td>
+<td>We never crash because of a downstream level being thin.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="what-the-output-file-looks-like">What the output file looks like</h2>
+<p><code>10_stats/&lt;variable&gt;/KW_&lt;level&gt;_by_&lt;variable&gt;.xlsx</code> (per-taxon KW results):</p>
+<table>
+<thead>
+<tr>
+<th>taxon</th>
+<th>n_groups</th>
+<th>KW_chi2</th>
+<th>p_value</th>
+<th>p_adj_BH</th>
+<th>significant</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bacteroides</td>
+<td>3</td>
+<td>12.41</td>
+<td>0.0020</td>
+<td>0.0118</td>
+<td>TRUE</td>
+</tr>
+<tr>
+<td>Lactobacillus</td>
+<td>3</td>
+<td>0.84</td>
+<td>0.6582</td>
+<td>0.6582</td>
+<td>FALSE</td>
+</tr>
+<tr>
+<td>Bilophila</td>
+<td>3</td>
+<td>7.92</td>
+<td>0.0190</td>
+<td>0.0451</td>
+<td>TRUE</td>
+</tr>
+<tr>
+<td>...</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><code>CLD_Summary_&lt;level&gt;_by_&lt;variable&gt;.xlsx</code> (compact letter display):</p>
+<table>
+<thead>
+<tr>
+<th>taxon</th>
+<th>group_A</th>
+<th>group_B</th>
+<th>group_C</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bacteroides</td>
+<td>a</td>
+<td>ab</td>
+<td>b</td>
+</tr>
+<tr>
+<td>Bilophila</td>
+<td>a</td>
+<td>b</td>
+<td>b</td>
+</tr>
+<tr>
+<td>...</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Groups sharing a letter are <em>not</em> significantly different. The boxplot in
+the final report places these letters on top of each box to summarise
+the pairwise comparison in one glance.</p>
+<hr />
+<h2 id="takeaway">Takeaway</h2>
+<blockquote>
+<p>Step 10 turns the Step-8 abundance tables into a defensible
+"which-taxa-differ-where" answer. Wilcoxon for two groups,
+Kruskal-Wallis + Dunn + BH for more, compact letter displays for the
+boxplots. The work is mechanical but only because Step 10 mechanises
+it — done by hand across seven levels × N variables × hundreds of
+taxa, this is the place a human introduces errors.</p>
+</blockquote>
+<hr />
+<h2 id="sources">Sources</h2>
+<ul>
+<li>The wrapper: <code>mbXPro/scripts/mbx_ezstat_all_levels_all_treatments.sh</code></li>
+<li>The R function: <code>mbX::ezstat()</code> on CRAN.</li>
+<li>Benjamini-Hochberg FDR: Benjamini &amp; Hochberg (1995), <em>Controlling the
+  false discovery rate</em>, JRSS-B 57:289–300.</li>
+<li>Dunn's test: Dunn (1964), <em>Multiple comparisons using rank sums</em>,
+  Technometrics 6:241–252.</li>
+<li>Compact letter displays: Piepho (2004), <em>An algorithm for a letter-
+  based representation of all-pairwise comparisons</em>, JCGS 13:456–466.</li>
+<li>Why non-parametric for microbiome data: Weiss et al. (2017),
+  <em>Normalization and microbial differential abundance strategies depend
+  upon data characteristics</em>, Microbiome 5:27.</li>
+</ul>
+<div class="doc-footer">
+  mbX Pro 1.5.0 · <a href="README.md">Markdown source</a> · <a href="#">Back to top</a>
+</div>
+<script>
+(function () {
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text);
+    }
+    return new Promise(function (resolve, reject) {
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.setAttribute('readonly', '');
+      ta.style.position = 'absolute'; ta.style.left = '-9999px';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy') ? resolve() : reject(new Error('copy failed')); }
+      catch (e) { reject(e); }
+      finally { document.body.removeChild(ta); }
+    });
+  }
+  document.querySelectorAll('pre').forEach(function (pre) {
+    var btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'copy-btn';
+    btn.textContent = 'Copy';
+    btn.setAttribute('aria-label', 'Copy code to clipboard');
+    btn.addEventListener('click', function () {
+      var code = pre.querySelector('code');
+      var text = (code ? code.innerText : pre.innerText) || '';
+      copyText(text).then(function () {
+        btn.textContent = 'Copied'; btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      }).catch(function () {
+        btn.textContent = 'Copy failed';
+        setTimeout(function () { btn.textContent = 'Copy'; }, 1600);
+      });
+    });
+    pre.appendChild(btn);
+  });
+})();
+</script>
+</body>
+</html>

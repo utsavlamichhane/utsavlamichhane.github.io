@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Step 15 — PICRUSt2 | mbX Pro</title>
+<style>
+:root {
+  --bg: #fafbfc; --fg: #1f2328; --muted: #57606a; --link: #0969da;
+  --code-bg: #0d1117; --code-fg: #f0f6fc; --inline-bg: #eef1f4;
+  --border: #d0d7de; --accent: #218bff;
+  --btn-bg: #ffffff; --btn-fg: #1f2328; --btn-bg-hover: #f3f5f7;
+  --btn-ok-bg: #1f883d; --btn-ok-fg: #ffffff;
+  --table-stripe: #f6f8fa; --callout-bg: #fff8dc; --callout-border: #e1c468;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1117; --fg: #c9d1d9; --muted: #8b949e; --link: #58a6ff;
+    --code-bg: #161b22; --code-fg: #c9d1d9; --inline-bg: #1c2128;
+    --border: #30363d; --btn-bg: #21262d; --btn-fg: #c9d1d9;
+    --btn-bg-hover: #30363d; --table-stripe: #161b22;
+    --callout-bg: #2d2a14; --callout-border: #6d5c1b;
+  }
+}
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  line-height: 1.65; max-width: 960px; margin: 0 auto;
+  padding: 48px 24px 96px; font-size: 16px;
+}
+h1, h2, h3, h4 { font-weight: 600; line-height: 1.25; margin-top: 2em; margin-bottom: 0.5em; }
+h1 { font-size: 2.1em; margin-top: 0; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h2 { font-size: 1.5em; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h3 { font-size: 1.2em; }
+h4 { font-size: 1.0em; color: var(--muted); }
+p { margin: 0.6em 0 1em; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+ul, ol { padding-left: 1.5em; }
+hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
+pre {
+  position: relative; background: var(--code-bg); color: var(--code-fg);
+  padding: 18px; border-radius: 8px; overflow-x: auto;
+  font-size: 0.92em; line-height: 1.5; margin: 1em 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+pre code { background: transparent; padding: 0; color: inherit; font-size: 1em; }
+code {
+  background: var(--inline-bg); padding: 0.15em 0.4em; border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9em;
+}
+.copy-btn {
+  position: absolute; top: 10px; right: 10px;
+  background: var(--btn-bg); color: var(--btn-fg);
+  border: 1px solid var(--border); border-radius: 6px;
+  padding: 5px 11px; font-size: 12px; font-family: inherit;
+  cursor: pointer; opacity: 0.85;
+  transition: background 120ms, opacity 120ms, color 120ms; z-index: 2;
+}
+.copy-btn:hover { background: var(--btn-bg-hover); opacity: 1; }
+.copy-btn.copied { background: var(--btn-ok-bg); color: var(--btn-ok-fg); border-color: var(--btn-ok-bg); }
+table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: 0.95em; }
+th, td { border: 1px solid var(--border); padding: 8px 12px; vertical-align: top; text-align: left; }
+th { background: var(--inline-bg); font-weight: 600; }
+tbody tr:nth-child(even) td { background: var(--table-stripe); }
+.toc {
+  background: var(--inline-bg); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px 22px; margin: 1em 0 2em; font-size: 0.95em;
+}
+.toc strong { display: block; margin-bottom: 6px; }
+.toc ol { margin: 0; padding-left: 1.4em; }
+.toc li { margin: 2px 0; }
+blockquote {
+  border-left: 4px solid var(--accent); margin: 1.2em 0; padding: 4px 18px;
+  color: var(--muted); background: var(--inline-bg); border-radius: 4px;
+}
+.doc-footer {
+  margin-top: 4em; padding-top: 1.5em; border-top: 1px solid var(--border);
+  color: var(--muted); font-size: 0.9em;
+}
+</style>
+</head>
+<body>
+<div class="toc"><strong>Contents</strong><ol><li><a href="#why-this-step-matters">Why this step matters</a></li><li><a href="#what-the-script-does-in-one-sentence">What the script does in one sentence</a></li><li><a href="#the-algorithm-step-by-step">The algorithm, step by step</a></li><li><a href="#default-parameters-and-why-they-are-what-they-are">Default parameters and why they are what they are</a></li><li><a href="#when-and-why-we-fall-back-to-defaults">When and why we fall back to defaults</a></li><li><a href="#what-the-output-file-looks-like">What the output file looks like</a></li><li><a href="#takeaway">Takeaway</a></li><li><a href="#sources">Sources</a></li></ol></div>
+<h1>Step 15 — PICRUSt2 (Functional Prediction)</h1>
+<p><strong>Script:</strong> <code>scripts/mbx_picrust_run.sh</code></p>
+<p><strong>Companion files in this folder:</strong>
+- <code>15_picrust2.html</code> — same content with copy buttons.
+- <code>15_picrust2.pptx</code> — slide deck for the talk.</p>
+<hr />
+<h2 id="why-this-step-matters">Why this step matters</h2>
+<p>Every step up to now has answered "<strong>what's there</strong>" questions. Step 15
+answers a "<strong>what is it doing</strong>" question — at least, predicted from the
+phylogenetic placement of each ASV.</p>
+<p>16S sequencing tells us identity but nothing direct about function.
+<strong>PICRUSt2</strong> (Douglas et al. 2020) fills that gap by exploiting the fact
+that closely-related organisms tend to share gene families. The
+algorithm places every ASV on a reference phylogenetic tree, looks up the
+known gene content of its nearest reference genomes, and infers the
+expected gene-family abundance per sample. The output is four functional
+abundance tables:</p>
+<ul>
+<li><strong>KO</strong> (KEGG Orthology) — individual gene families.</li>
+<li><strong>EC</strong> (Enzyme Commission) — enzymatic activities.</li>
+<li><strong>COG</strong> (Clusters of Orthologous Groups) — broad functional
+  categories.</li>
+<li><strong>MetaCyc</strong> pathways — high-level metabolic pathways.</li>
+</ul>
+<p>Step 15's job is to run PICRUSt2 reliably (it lives in its own conda
+env — see "fallbacks"), flag samples whose ASVs are too distantly related
+to the reference to trust the prediction, run differential abundance
+across treatments on each database, and produce a self-contained HTML
+report so the user can read the functional result alongside the
+taxonomic ones.</p>
+<hr />
+<h2 id="what-the-script-does-in-one-sentence">What the script does in one sentence</h2>
+<p>It runs PICRUSt2 in a pre-baked conda env to predict KO/EC/COG/MetaCyc
+abundances per sample, computes per-sample <strong>NSTI</strong> (the
+phylogenetic distance from each ASV to its nearest reference genome,
+the official trustworthiness metric), runs Kruskal-Wallis + Dunn
+differential abundance per categorical variable, optionally correlates
+genera × pathways with the Step 14 results, and writes a self-contained
+HTML report.</p>
+<hr />
+<h2 id="the-algorithm-step-by-step">The algorithm, step by step</h2>
+<h3>1. Gate on Step 11</h3>
+<p><strong>First</strong>, same <code>READY_FOR_DIVERSITY</code> gate. PICRUSt2 uses <strong>raw counts</strong>
+(non-rarefied) like ANCOMBC2 — it needs absolute count information for
+its NSTI weighting.</p>
+<h3>2. Use the pre-baked <code>mbx_picrust2</code> conda env</h3>
+<p><strong>Then</strong> the script confirms a conda env named <code>mbx_picrust2</code> exists. If
+the user is running inside the Docker image, the env is baked in at
+build time (see Phase 3.3 in <code>CHANGELOG.md</code>) — <code>picrust2=2.6.3</code> from
+bioconda. If running on a fresh host, the script creates the env on first
+use (~2 GB download). All <code>picrust2_*.py</code> commands are invoked via
+<code>conda run -n mbx_picrust2</code>, so the script <strong>never modifies the active
+QIIME2 env</strong>.</p>
+<h3>3. Export the rep-seqs and feature table to PICRUSt2-friendly formats</h3>
+<p><strong>Next</strong> the script converts the Step-4 representative_sequences.qza to a
+plain FASTA and the Step-7 filtered feature table to a BIOM/TSV pair. Those
+are PICRUSt2's required inputs.</p>
+<h3>4. Run <code>place_seqs.py</code></h3>
+<p><strong>Now</strong> PICRUSt2 places every ASV on its reference 20,000-genome tree
+using <code>epa-ng</code> (placement) + <code>gappa</code> (re-formatting):</p>
+<pre><code>place_seqs.py \
+  -s rep_seqs.fasta \
+  -o placed_seqs.tre \
+  -p $THREADS
+</code></pre>
+<p>This is the most computationally expensive sub-step (a few minutes per
+1,000 ASVs).</p>
+<h3>5. Compute NSTI per ASV</h3>
+<p><strong>Then</strong> PICRUSt2 computes the <strong>Nearest Sequenced Taxon Index</strong> for each
+ASV — the phylogenetic distance from the ASV to its closest
+reference genome on the tree. A low NSTI (≤ 0.15) means the prediction
+is well-grounded in a real reference; a high NSTI (&gt; 1.0) means the ASV
+is so distantly related to anything sequenced that the predicted gene
+content is essentially a guess.</p>
+<p>The script computes the <strong>weighted mean NSTI per sample</strong> (read-count-
+weighted, not just ASV-mean) and **flags any sample with weighted NSTI</p>
+<blockquote>
+<p>1.0** in the final report. Those samples are excluded from the per-
+variable DA analysis by default.</p>
+</blockquote>
+<h3>6. Predict gene-family abundance — three databases</h3>
+<p><strong>For each of KO, EC, COG</strong>:</p>
+<pre><code>metagenome_pipeline.py \
+  -i feature_table.biom \
+  -m marker_nsti_predicted.tsv.gz \
+  -f &lt;KO|EC|COG&gt;_predicted.tsv.gz \
+  --strat_out          \
+  -o &lt;KO|EC|COG&gt;_metagenome/
+</code></pre>
+<p>Output is per-sample predicted abundance of every KO/EC/COG term.</p>
+<h3>7. Predict MetaCyc pathway abundance</h3>
+<p><strong>Then</strong> the script runs <code>pathway_pipeline.py</code> to roll the EC predictions
+into <strong>MetaCyc pathway</strong> abundances. MetaCyc is the standard
+human-readable pathway database — much friendlier than raw KO codes for
+biology-focused readers.</p>
+<h3>8. Per-variable Kruskal-Wallis + Dunn on each database</h3>
+<p><strong>For every categorical metadata variable</strong> (auto-detected, same as
+Steps 9/10) the script runs:</p>
+<ul>
+<li>Kruskal-Wallis on each KO / EC / COG / MetaCyc-pathway abundance.</li>
+<li>Benjamini-Hochberg across the gene families.</li>
+<li>Dunn pairwise on KW hits.</li>
+<li>Compact letter displays on significant pathways.</li>
+</ul>
+<p>Outputs: <code>DA_KO_KW_&lt;Variable&gt;.xlsx</code>, <code>DA_EC_KW_&lt;Variable&gt;.xlsx</code>,
+<code>DA_COG_KW_&lt;Variable&gt;.xlsx</code>, <code>DA_metacyc_pathways_KW_&lt;Variable&gt;.xlsx</code>,
+each with the per-term p, p_adj, group means, and Dunn pairs for
+significant terms.</p>
+<h3>9. Cross-reference with Step 14 (when available)</h3>
+<p><strong>If Step 14 ran</strong>, the script computes Spearman correlations between
+every (significant differentially-abundant genus from Step 14) and
+every (significant differentially-abundant MetaCyc pathway). The result
+is <code>correlation_DAgenera_x_DApathways_&lt;Variable&gt;.{tsv,png,pdf}</code> — a
+heatmap that lets the reader say <em>"the increase in pathway X is driven
+by the increase in genus Y"</em>.</p>
+<h3>10. Plots</h3>
+<ul>
+<li><strong>Stacked-bar top-20 MetaCyc pathways</strong> per variable.</li>
+<li><strong>Heatmap of differentially-abundant pathways</strong> with log-fold-change +
+  significance stars.</li>
+<li><strong>Functional PCoA</strong> based on Bray-Curtis of MetaCyc abundance — the
+  functional analogue of Step 13's taxonomic PCoA.</li>
+<li><strong>Genus × pathway correlation heatmap</strong> (when Step 14 is available).</li>
+</ul>
+<p>PNG + SVG always; PDF on <code>--publication-figures</code>.</p>
+<h3>11. Self-contained HTML report</h3>
+<p><strong>Finally</strong> the script writes <code>picrust2_report.html</code>, embedding every
+plot as inline <code>&lt;img src="data:image/..."&gt;</code> so the user can email the
+single file. Per-sample NSTI flagging is shown at the top so the reader
+can see immediately which samples had unreliable predictions.</p>
+<hr />
+<h2 id="default-parameters-and-why-they-are-what-they-are">Default parameters and why they are what they are</h2>
+<table>
+<thead>
+<tr>
+<th>Default</th>
+<th>Value</th>
+<th>Why this default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Conda env name</td>
+<td><strong><code>mbx_picrust2</code></strong></td>
+<td>Isolated from the QIIME2 env so we don't pollute the active scientific env. Baked into the Docker image.</td>
+</tr>
+<tr>
+<td>PICRUSt2 version</td>
+<td><strong>2.6.3</strong></td>
+<td>The bioconda-published latest stable at image build. Pinned in the Dockerfile.</td>
+</tr>
+<tr>
+<td>NSTI threshold (per-sample flag)</td>
+<td><strong>mean NSTI &gt; 1.0</strong></td>
+<td>PICRUSt2 maintainers' own recommendation — above this the predictions are too unreliable to act on.</td>
+</tr>
+<tr>
+<td>Databases predicted</td>
+<td><strong>KO, EC, COG, MetaCyc</strong></td>
+<td>The four most-used functional databases in microbiome papers.</td>
+</tr>
+<tr>
+<td>Test (per-variable)</td>
+<td><strong>Kruskal-Wallis</strong> (or Wilcoxon for 2 groups)</td>
+<td>Functional abundances are not normal; same reasoning as Step 10.</td>
+</tr>
+<tr>
+<td>Multiple-testing correction</td>
+<td><strong>Benjamini-Hochberg</strong></td>
+<td>Standard FDR for the per-database panel.</td>
+</tr>
+<tr>
+<td>Per-database significance threshold</td>
+<td><strong>p_adj ≤ 0.05</strong></td>
+<td>Field convention; user can re-filter.</td>
+</tr>
+<tr>
+<td>Cross-reference with Step 14</td>
+<td>always when Step 14 outputs are present</td>
+<td>Adds the genus-drives-pathway interpretation for free.</td>
+</tr>
+<tr>
+<td>Plot formats</td>
+<td><strong>PNG + SVG always; PDF on <code>--publication-figures</code></strong></td>
+<td>Publication-ready by default.</td>
+</tr>
+<tr>
+<td>Threads</td>
+<td><code>MBX_THREADS</code></td>
+<td>Single source of truth.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="when-and-why-we-fall-back-to-defaults">When and why we fall back to defaults</h2>
+<table>
+<thead>
+<tr>
+<th>Fallback</th>
+<th>When it triggers</th>
+<th>Why this fallback exists</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Refuse to run</strong></td>
+<td><code>READY_FOR_DIVERSITY=no</code></td>
+<td>Same gate.</td>
+</tr>
+<tr>
+<td><strong>Skip COG</strong></td>
+<td>Known PICRUSt2 2.6.x bug — COG mapping file uses an HDF5 format that the pathway pipeline can't read</td>
+<td>KO + EC + MetaCyc still ship; the report explains the gap. Once PICRUSt2 fixes it, COG will run automatically.</td>
+</tr>
+<tr>
+<td><strong>Exclude high-NSTI samples from DA</strong></td>
+<td>Weighted mean NSTI &gt; 1.0</td>
+<td>Their predictions are unreliable; including them would bias the test. They're still in the per-sample table.</td>
+</tr>
+<tr>
+<td><strong>Skip genus×pathway correlation</strong></td>
+<td>Step 14 didn't run or had no significant genera</td>
+<td>No data; the correlation block is omitted from the report.</td>
+</tr>
+<tr>
+<td><strong>Reuse cached intermediates</strong></td>
+<td>A previous run produced placed_seqs.tre + the predicted tables</td>
+<td>Saves the most expensive sub-step on re-runs.</td>
+</tr>
+<tr>
+<td><strong>First-run env creation</strong></td>
+<td><code>mbx_picrust2</code> env doesn't exist (running outside Docker)</td>
+<td>One-time ~2 GB bioconda download. The Docker image avoids this.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="what-the-output-file-looks-like">What the output file looks like</h2>
+<p><code>Summary_picrust2_NSTI.xlsx</code>:</p>
+<table>
+<thead>
+<tr>
+<th>sample-id</th>
+<th>mean_NSTI</th>
+<th>weighted_mean_NSTI</th>
+<th>flag</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SampleA</td>
+<td>0.041</td>
+<td>0.029</td>
+<td>RELIABLE</td>
+</tr>
+<tr>
+<td>SampleB</td>
+<td>0.053</td>
+<td>0.038</td>
+<td>RELIABLE</td>
+</tr>
+<tr>
+<td>SampleC</td>
+<td>1.214</td>
+<td>1.142</td>
+<td>UNRELIABLE — excluded from DA</td>
+</tr>
+</tbody>
+</table>
+<p><code>DA_metacyc_pathways_KW_&lt;Variable&gt;.xlsx</code> (per-pathway KW results):</p>
+<table>
+<thead>
+<tr>
+<th>pathway</th>
+<th>description</th>
+<th>KW_chi2</th>
+<th>p_value</th>
+<th>p_adj</th>
+<th>significant</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PWY-7242</td>
+<td>D-fructuronate degradation</td>
+<td>13.92</td>
+<td>0.0009</td>
+<td>0.0048</td>
+<td>TRUE</td>
+</tr>
+<tr>
+<td>PWY-6383</td>
+<td>Mono-trans, poly-cis decaprenyl phosphate biosynthesis</td>
+<td>7.81</td>
+<td>0.020</td>
+<td>0.041</td>
+<td>TRUE</td>
+</tr>
+<tr>
+<td>...</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Plus the cross-referenced <code>correlation_DAgenera_x_DApathways_&lt;Variable&gt;.tsv</code>
+when Step 14 is present, and the self-contained HTML report.</p>
+<hr />
+<h2 id="takeaway">Takeaway</h2>
+<blockquote>
+<p>Step 15 turns the taxonomic 16S story into a functional story —
+phylogenetic placement + nearest-relative gene lookup + per-sample NSTI
+trust scoring. The script keeps PICRUSt2 in its own conda env so it
+doesn't poison the QIIME2 env, and bakes that env into the Docker image
+so the pipeline is fully offline-capable.</p>
+</blockquote>
+<hr />
+<h2 id="sources">Sources</h2>
+<ul>
+<li>The script: <code>mbXPro/scripts/mbx_picrust_run.sh</code></li>
+<li>PICRUSt2: Douglas et al. (2020), <em>PICRUSt2 for prediction of
+  metagenome functions</em>, Nature Biotechnology 38:685–688.</li>
+<li>NSTI: Langille et al. (2013), <em>Predictive functional profiling of
+  microbial communities using 16S rRNA marker gene sequences</em>, Nature
+  Biotechnology 31:814.</li>
+<li>MetaCyc: Caspi et al. (2020), <em>The MetaCyc database of metabolic
+  pathways and enzymes</em>, NAR 48:D445.</li>
+<li>KEGG: Kanehisa et al. (2017), <em>KEGG: new perspectives on genomes,
+  pathways, diseases and drugs</em>, NAR 45:D353.</li>
+</ul>
+<div class="doc-footer">
+  mbX Pro 1.5.0 · <a href="README.md">Markdown source</a> · <a href="#">Back to top</a>
+</div>
+<script>
+(function () {
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text);
+    }
+    return new Promise(function (resolve, reject) {
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.setAttribute('readonly', '');
+      ta.style.position = 'absolute'; ta.style.left = '-9999px';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy') ? resolve() : reject(new Error('copy failed')); }
+      catch (e) { reject(e); }
+      finally { document.body.removeChild(ta); }
+    });
+  }
+  document.querySelectorAll('pre').forEach(function (pre) {
+    var btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'copy-btn';
+    btn.textContent = 'Copy';
+    btn.setAttribute('aria-label', 'Copy code to clipboard');
+    btn.addEventListener('click', function () {
+      var code = pre.querySelector('code');
+      var text = (code ? code.innerText : pre.innerText) || '';
+      copyText(text).then(function () {
+        btn.textContent = 'Copied'; btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      }).catch(function () {
+        btn.textContent = 'Copy failed';
+        setTimeout(function () { btn.textContent = 'Copy'; }, 1600);
+      });
+    });
+    pre.appendChild(btn);
+  });
+})();
+</script>
+</body>
+</html>

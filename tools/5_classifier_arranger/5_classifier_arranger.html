@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Step 5 — Classifier Arranger | mbX Pro</title>
+<style>
+:root {
+  --bg: #fafbfc; --fg: #1f2328; --muted: #57606a; --link: #0969da;
+  --code-bg: #0d1117; --code-fg: #f0f6fc; --inline-bg: #eef1f4;
+  --border: #d0d7de; --accent: #218bff;
+  --btn-bg: #ffffff; --btn-fg: #1f2328; --btn-bg-hover: #f3f5f7;
+  --btn-ok-bg: #1f883d; --btn-ok-fg: #ffffff;
+  --table-stripe: #f6f8fa; --callout-bg: #fff8dc; --callout-border: #e1c468;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1117; --fg: #c9d1d9; --muted: #8b949e; --link: #58a6ff;
+    --code-bg: #161b22; --code-fg: #c9d1d9; --inline-bg: #1c2128;
+    --border: #30363d; --btn-bg: #21262d; --btn-fg: #c9d1d9;
+    --btn-bg-hover: #30363d; --table-stripe: #161b22;
+    --callout-bg: #2d2a14; --callout-border: #6d5c1b;
+  }
+}
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  line-height: 1.65; max-width: 960px; margin: 0 auto;
+  padding: 48px 24px 96px; font-size: 16px;
+}
+h1, h2, h3, h4 { font-weight: 600; line-height: 1.25; margin-top: 2em; margin-bottom: 0.5em; }
+h1 { font-size: 2.1em; margin-top: 0; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h2 { font-size: 1.5em; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h3 { font-size: 1.2em; }
+h4 { font-size: 1.0em; color: var(--muted); }
+p { margin: 0.6em 0 1em; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+ul, ol { padding-left: 1.5em; }
+hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
+pre {
+  position: relative; background: var(--code-bg); color: var(--code-fg);
+  padding: 18px; border-radius: 8px; overflow-x: auto;
+  font-size: 0.92em; line-height: 1.5; margin: 1em 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+pre code { background: transparent; padding: 0; color: inherit; font-size: 1em; }
+code {
+  background: var(--inline-bg); padding: 0.15em 0.4em; border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9em;
+}
+.copy-btn {
+  position: absolute; top: 10px; right: 10px;
+  background: var(--btn-bg); color: var(--btn-fg);
+  border: 1px solid var(--border); border-radius: 6px;
+  padding: 5px 11px; font-size: 12px; font-family: inherit;
+  cursor: pointer; opacity: 0.85;
+  transition: background 120ms, opacity 120ms, color 120ms; z-index: 2;
+}
+.copy-btn:hover { background: var(--btn-bg-hover); opacity: 1; }
+.copy-btn.copied { background: var(--btn-ok-bg); color: var(--btn-ok-fg); border-color: var(--btn-ok-bg); }
+table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: 0.95em; }
+th, td { border: 1px solid var(--border); padding: 8px 12px; vertical-align: top; text-align: left; }
+th { background: var(--inline-bg); font-weight: 600; }
+tbody tr:nth-child(even) td { background: var(--table-stripe); }
+.toc {
+  background: var(--inline-bg); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px 22px; margin: 1em 0 2em; font-size: 0.95em;
+}
+.toc strong { display: block; margin-bottom: 6px; }
+.toc ol { margin: 0; padding-left: 1.4em; }
+.toc li { margin: 2px 0; }
+blockquote {
+  border-left: 4px solid var(--accent); margin: 1.2em 0; padding: 4px 18px;
+  color: var(--muted); background: var(--inline-bg); border-radius: 4px;
+}
+.doc-footer {
+  margin-top: 4em; padding-top: 1.5em; border-top: 1px solid var(--border);
+  color: var(--muted); font-size: 0.9em;
+}
+</style>
+</head>
+<body>
+<div class="toc"><strong>Contents</strong><ol><li><a href="#why-this-step-matters">Why this step matters</a></li><li><a href="#what-the-script-does-in-one-sentence">What the script does in one sentence</a></li><li><a href="#the-algorithm-step-by-step">The algorithm, step by step</a></li><li><a href="#default-parameters-and-why-they-are-what-they-are">Default parameters and why they are what they are</a></li><li><a href="#when-and-why-we-fall-back-to-defaults">When and why we fall back to defaults</a></li><li><a href="#what-the-output-file-looks-like">What the output file looks like</a></li><li><a href="#takeaway">Takeaway</a></li><li><a href="#sources">Sources</a></li></ol></div>
+<h1>Step 5 — Classifier Arranger</h1>
+<p><strong>Script:</strong> <code>scripts/mbx_classifier_arranger.sh</code></p>
+<p><strong>Companion files in this folder:</strong>
+- <code>5_classifier_arranger.html</code> — same content with copy buttons on every code block.
+- <code>5_classifier_arranger.pptx</code> — slide deck for the talk.</p>
+<hr />
+<h2 id="why-this-step-matters">Why this step matters</h2>
+<p>Step 4 gave us ASV sequences. The next question is: <strong>what organisms do they
+correspond to?</strong> Answering that — <strong>taxonomic classification</strong> — is the
+single most computationally expensive job in 16S amplicon analysis.</p>
+<p>The standard tool is a <strong>Naive Bayes classifier</strong>, trained on a reference
+database of known 16S sequences with known taxonomy. The reference we use is
+<strong>Greengenes2</strong> (GG2) — the current state-of-the-art rRNA database,
+phylogeny-derived and updated regularly.</p>
+<p>Training that classifier on a fresh machine takes <strong>30–90 minutes</strong> of CPU
+time per run and <strong>~15 GB of RAM</strong> at the peak. For a research lab running
+multiple projects per week, that's hours of wasted time. The classifier
+arranger exists to <strong>make that 30 seconds instead of 90 minutes</strong>, by
+recognising that the same classifier — trained against the same reference
++ the same QIIME2 version — will produce bit-identical results every time,
+so a pre-trained one can be cached.</p>
+<p>But there's another decision to make first: <strong>region-specific vs
+full-length</strong>.</p>
+<ul>
+<li>If we know which 16S region was sequenced (V4, V3-V4, etc.), we can
+  extract just that region from the reference and train on a much smaller
+  alphabet — <strong>faster classification + higher accuracy at the species
+  level</strong>.</li>
+<li>If we don't know the region (because Step 0 reported
+  <code>DETECTION_STATUS = TRIMMED</code> or <code>UNKNOWN</code>), we have to train against the
+  full backbone instead — <strong>slower but works for any region</strong>.</li>
+</ul>
+<p>This step makes that decision, then either downloads a pre-trained
+classifier from Zenodo or sets up local training for Step 6.</p>
+<hr />
+<h2 id="what-the-script-does-in-one-sentence">What the script does in one sentence</h2>
+<p>It picks region-specific vs full-length training based on Step 0's primer
+verdict, then for full-length it tries to download a pre-trained classifier
+from a curated Zenodo record matching the user's QIIME2 version (sha256-
+verified), falling back to local training if anything looks wrong.</p>
+<hr />
+<h2 id="the-algorithm-step-by-step">The algorithm, step by step</h2>
+<h3>1. Detect the user's QIIME2 + scikit-learn versions</h3>
+<p><strong>First</strong> the script runs <code>qiime info</code> and extracts the QIIME2 version
+(e.g. <code>2025.4</code>). Then it asks the active conda env's Python for the
+<strong>scikit-learn</strong> version. That second number matters because scikit-learn
+<strong>pickle compatibility breaks between minor versions</strong> — a classifier
+pickled with sklearn 0.24 cannot be loaded by sklearn 1.4 and vice versa.</p>
+<h3>2. Read Step 0's primer verdict</h3>
+<p><strong>Then</strong> the script reads
+<code>0_primer_handling/mbx_primer_info.txt</code> and looks at <code>DETECTION_STATUS</code>:</p>
+<ul>
+<li><code>DETECTED</code> or <code>USER_SUPPLIED</code> → primers are known → we can do
+  <strong>region-specific</strong> training.</li>
+<li><code>TRIMMED</code> → primers were already removed → we lost the region anchor →
+  must do <strong>full-length</strong> training.</li>
+<li><code>UNKNOWN</code> → defensive choice: <strong>full-length</strong>.</li>
+</ul>
+<p>This is the first big branch point. Region-specific is faster and a bit
+more accurate at the species level, but only works if Step 0 succeeded.</p>
+<h3>3. Resolve the Zenodo entry that matches this QIIME2 release</h3>
+<p><strong>For full-length mode</strong>, the script consults its <strong>embedded registry</strong> of
+pre-trained classifiers hosted at:</p>
+<pre><code>https://zenodo.org/records/20021035
+</code></pre>
+<p>The registry has one row per supported QIIME2 release (2023.2 through
+2025.4, eight rows total). Each row holds:</p>
+<ul>
+<li>The QIIME2 version it was built for.</li>
+<li>The Greengenes2 release used (2022.10 or 2024.09).</li>
+<li>The exact filename on Zenodo.</li>
+<li>The <strong>sha256 checksum</strong> of that file.</li>
+</ul>
+<p>The script picks the row matching the user's QIIME2 version. If no row
+matches, it skips Zenodo and goes straight to local training.</p>
+<h3>4. Download + sha256-verify</h3>
+<p><strong>Next</strong> it downloads the matching <code>.qza</code> from Zenodo using <code>curl</code> (or
+<code>wget</code>). After the download finishes, the script computes the file's
+sha256 using <code>shasum -a 256</code> (macOS) or <code>sha256sum</code> (Linux), and compares
+it against the registry. <strong>A mismatch is treated as the download being
+corrupt</strong>: the file is deleted and the script falls back to local
+training with a logged warning. We never use a half-downloaded artifact.</p>
+<h3>5. (Region-specific only) Download the GG2 backbone for local training</h3>
+<p><strong>If we're in region-specific mode</strong> (or full-length mode without a Zenodo
+match), the script downloads two GG2 reference files:</p>
+<ul>
+<li><code>&lt;gg2_ver&gt;.backbone.full-length.fna.qza</code> — the reference sequences.</li>
+<li><code>&lt;gg2_ver&gt;.backbone.tax.qza</code> — the taxonomy strings.</li>
+</ul>
+<p>These get cached in <code>5_classifier_working_dir/</code> so subsequent projects
+re-use them.</p>
+<h3>6. Compute the ASV length distribution</h3>
+<p><strong>Then</strong> for region-specific mode, the script exports the representative
+sequences from Step 4, measures the minimum and maximum ASV lengths
+(usually within a few bp of each other since DADA2 truncates all sequences
+to the same length), and writes them to <code>length_summary.txt</code>. Step 6 will
+use those to tell <code>qiime feature-classifier extract-reads</code> exactly which
+slice of the GG2 backbone to extract (so the trained classifier sees the
+same length distribution it'll classify later).</p>
+<h3>7. Write <code>mbx_classifier_run_info.txt</code></h3>
+<p><strong>Finally</strong> the script writes an info file with everything Step 6 needs to
+run, including:</p>
+<ul>
+<li><code>CLASSIFIER_MODE</code> — <code>region-specific</code> or <code>full-length</code>.</li>
+<li><code>CLASSIFIER_SOURCE</code> — <code>zenodo</code>, <code>cached</code>, <code>local-training</code>, or
+  <code>local-training-fallback</code>.</li>
+<li>All the paths Step 6 will read.</li>
+<li>A <code>STATUS=COMPLETE</code> marker for <code>mbXPro --resume</code>.</li>
+</ul>
+<hr />
+<h2 id="default-parameters-and-why-they-are-what-they-are">Default parameters and why they are what they are</h2>
+<table>
+<thead>
+<tr>
+<th>Default</th>
+<th>Value</th>
+<th>Why this default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Zenodo record URL</td>
+<td><code>https://zenodo.org/records/20021035</code></td>
+<td>Stable DOI-backed URL. The pre-trained classifiers are curated by the mbX Pro maintainers and will be republished there with each major QIIME2 release.</td>
+</tr>
+<tr>
+<td>Supported QIIME2 versions</td>
+<td>2023.2, 2023.5, 2023.7, 2023.9, 2024.2, 2024.5, 2024.10, 2025.4</td>
+<td>The eight QIIME2 releases for which we maintain a pre-trained artifact. Older or unreleased versions fall through to local training.</td>
+</tr>
+<tr>
+<td>Greengenes2 release (older QIIME2)</td>
+<td>2022.10</td>
+<td>The GG2 release used by QIIME2 2023.x and 2024.2.</td>
+</tr>
+<tr>
+<td>Greengenes2 release (newer QIIME2)</td>
+<td>2024.09</td>
+<td>The GG2 release used by QIIME2 2024.5+.</td>
+</tr>
+<tr>
+<td>Checksum algorithm</td>
+<td>sha256</td>
+<td>The same algorithm Zenodo publishes; standard for tamper-evident verification.</td>
+</tr>
+<tr>
+<td><code>CLASSIFIER_MODE</code> selection</td>
+<td>region-specific iff primers known</td>
+<td>Region-specific is faster + slightly more accurate, but only safe when Step 0 confirmed the region.</td>
+</tr>
+<tr>
+<td><code>CLASSIFIER_SOURCE</code> precedence</td>
+<td>zenodo → cached → local-training</td>
+<td>Try the cheap option first, fall back to local training silently if anything looks wrong.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="when-and-why-we-fall-back-to-defaults">When and why we fall back to defaults</h2>
+<table>
+<thead>
+<tr>
+<th>Fallback</th>
+<th>When it triggers</th>
+<th>Why this fallback exists</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Force <code>full-length</code> mode</strong></td>
+<td>Step 0 reported <code>TRIMMED</code> or <code>UNKNOWN</code></td>
+<td>Without the primer/region anchor, region-specific extract-reads would mis-align. Full-length is always safe.</td>
+</tr>
+<tr>
+<td><strong>Skip Zenodo entirely</strong></td>
+<td><code>mbXPro --skip-zenodo</code>, offline runs, corporate firewall</td>
+<td>Some users need to run with no outbound network. Local training takes longer but produces identical results.</td>
+</tr>
+<tr>
+<td><strong>No matching Zenodo row</strong></td>
+<td>The user's QIIME2 version is unsupported (e.g. a pre-release or a future version we haven't published for yet)</td>
+<td>Local training works for any version; we don't gate on "is your version in our table?"</td>
+</tr>
+<tr>
+<td><strong>sha256 mismatch</strong></td>
+<td>Download was corrupt, or the file on Zenodo was replaced unexpectedly</td>
+<td>Better to spend an extra 90 minutes training locally than to use an unknown artifact that might produce silently wrong taxonomy.</td>
+</tr>
+<tr>
+<td><strong>Reuse cached classifier</strong></td>
+<td>A previous project on this machine already downloaded the same classifier</td>
+<td>We avoid re-downloading the same 180 MB file every project.</td>
+</tr>
+<tr>
+<td><strong><code>local-training-fallback</code></strong></td>
+<td>Zenodo succeeded but the downloaded classifier fails to load in <code>classify-sklearn</code> (e.g. scikit-learn pickle mismatch we didn't catch)</td>
+<td>Step 6 deletes the bad file and falls back to local training automatically. The pipeline never aborts because of a Zenodo problem.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="what-the-output-file-looks-like">What the output file looks like</h2>
+<pre><code>CLASSIFIER_MODE=full-length
+CLASSIFIER_SOURCE=zenodo
+QIIME2_VERSION=2025.4
+SCIKIT_LEARN_VERSION=1.4.2
+SCIKIT_LEARN_FAMILY=1.4
+ZENODO_RECORD_URL=https://zenodo.org/records/20021035
+ZENODO_QIIME2_USED=2025.4
+ZENODO_GG2_USED=2024.09
+ZENODO_FILENAME=gg2-2024.09-full-length-naive-bayes-qiime2-2025.4.qza
+ZENODO_SHA256_EXPECTED=612075d9354fecfff7a2513e46891b3d9b0dc79bbcaf29f78de6b3e5d7bff3f8
+ZENODO_SHA256_ACTUAL=612075d9354fecfff7a2513e46891b3d9b0dc79bbcaf29f78de6b3e5d7bff3f8
+ZENODO_NOTE=Downloaded and sha256-verified successfully.
+
+TRAINED_CLASSIFIER_QZA=/.../5_classifier_working_dir/gg2_full_length_trained_classifier.qza
+REPRESENTATIVE_SEQUENCES_QZA=/.../4_dada2_outputs/representative_sequences.qza
+FEATURE_TABLE_QZA=/.../4_dada2_outputs/feature_table.qza
+
+STATUS=COMPLETE
+</code></pre>
+<p>Every field is read by Step 6 and surfaced verbatim in the final report —
+so a reviewer can later look at any analysis and see exactly which
+classifier was used, where it came from, and that the bits matched what
+we expected.</p>
+<hr />
+<h2 id="takeaway">Takeaway</h2>
+<blockquote>
+<p>Step 5 is where the pipeline decides "can we cheat?". If we have the
+primers, we extract the region — faster and slightly more accurate. If
+we have a matching QIIME2 release, we download a pre-trained classifier
+instead of spending 90 minutes training one — and we sha256-verify it
+so we know nothing was tampered with. If any of that goes wrong, we
+silently fall back to local training. The pipeline never aborts because
+of a Zenodo problem; the worst case is a longer wait.</p>
+</blockquote>
+<hr />
+<h2 id="sources">Sources</h2>
+<ul>
+<li>The script: <code>mbXPro/scripts/mbx_classifier_arranger.sh</code></li>
+<li>Greengenes2: McDonald et al. (2024), <em>Greengenes2 unifies microbial
+  data in a single reference tree</em>, Nature Biotechnology 42:715–718.</li>
+<li>QIIME2 Naive Bayes classifier: Bokulich et al. (2018), <em>Optimizing
+  taxonomic classification of marker-gene amplicon sequences with QIIME 2's
+  q2-feature-classifier plugin</em>, Microbiome 6:90.</li>
+<li>The pre-trained classifier record:
+  https://zenodo.org/records/20021035</li>
+</ul>
+<div class="doc-footer">
+  mbX Pro 1.5.0 · <a href="README.md">Markdown source</a> · <a href="#">Back to top</a>
+</div>
+<script>
+(function () {
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text);
+    }
+    return new Promise(function (resolve, reject) {
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.setAttribute('readonly', '');
+      ta.style.position = 'absolute'; ta.style.left = '-9999px';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy') ? resolve() : reject(new Error('copy failed')); }
+      catch (e) { reject(e); }
+      finally { document.body.removeChild(ta); }
+    });
+  }
+  document.querySelectorAll('pre').forEach(function (pre) {
+    var btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'copy-btn';
+    btn.textContent = 'Copy';
+    btn.setAttribute('aria-label', 'Copy code to clipboard');
+    btn.addEventListener('click', function () {
+      var code = pre.querySelector('code');
+      var text = (code ? code.innerText : pre.innerText) || '';
+      copyText(text).then(function () {
+        btn.textContent = 'Copied'; btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      }).catch(function () {
+        btn.textContent = 'Copy failed';
+        setTimeout(function () { btn.textContent = 'Copy'; }, 1600);
+      });
+    });
+    pre.appendChild(btn);
+  });
+})();
+</script>
+</body>
+</html>

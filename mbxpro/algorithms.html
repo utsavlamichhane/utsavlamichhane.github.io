@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Algorithms in mbX Pro &mdash; Utsav Lamichhane</title>
+<meta name="description" content="All 19 documented steps of the mbX Pro 16S pipeline.">
+<meta property="og:title" content="Algorithms in mbX Pro &mdash; Utsav Lamichhane">
+<meta property="og:description" content="All 19 documented steps of the mbX Pro 16S pipeline.">
+<meta property="og:type" content="website">
+<link rel="icon" type="image/png" href="../assets/img/favicon.png">
+<link rel="apple-touch-icon" href="../assets/img/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="../index.html">Utsav Lamichhane<span class="dot">.</span></a>
+    <button class="nav-toggle" aria-label="Menu"><span></span><span></span><span></span></button>
+    <ul class="nav-links">
+      <li><a href="../index.html">Home</a></li>
+      <li class="has-drop">
+        <button class="nav-trigger" aria-haspopup="true">Applications <i class="caret"></i></button>
+        <ul class="drop">
+          <li><a href="../applications/index.html">Overview</a></li>
+          <li><a href="../applications/qiime2-code-generator.html">QIIME2 Code Generator</a></li>
+        </ul>
+      </li>
+      <li class="has-drop">
+        <button class="nav-trigger" aria-haspopup="true">mbX Pro <i class="caret"></i></button>
+        <ul class="drop">
+          <li><a href="../mbxpro/index.html">What is mbX Pro</a></li>
+          <li><a href="../mbxpro/how-to-use.html">How to use it</a></li>
+          <li><a href="../mbxpro/algorithms.html">Algorithms in mbX Pro</a></li>
+        </ul>
+      </li>
+      <li><a href="../python-library.html">Python Library</a></li>
+      <li><a href="../media.html">Media</a></li>
+      <li><a href="../skills.html">Skills</a></li>
+      <li><a href="../certifications.html">Certifications</a></li>
+      <li><a href="../contact.html">Contact</a></li>
+      <li class="has-drop">
+        <button class="nav-trigger" aria-haspopup="true">Recent DB <i class="caret"></i></button>
+        <ul class="drop">
+          <li><a href="../recent-db/index.html">Overview</a></li>
+          <li><a href="../recent-db/mysql-microbiome-database.html">MySQL (Microbiome Database)</a></li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+</header>
+<section class="page-head brand"><div class="wrap">
+  <div class="crumbs"><a href="../index.html">Home</a> / <a href="index.html">mbX Pro</a> / Algorithms</div>
+  <h1>Algorithms in mbX Pro</h1>
+  <p>Every step of the pipeline as a standalone reference &mdash; with copy-ready code and a companion slide deck. Each opens in a dedicated <code>mbXPro</code> tab.</p>
+</div></section>
+<section class="section"><div class="wrap">
+  <div class="subtabs">
+    <a class="subtab" href="index.html">
+      <span class="st-k">01</span><span class="st-t">What is mbX Pro</span><span class="st-d">The pipeline, in brief</span>
+    </a>
+    <a class="subtab" href="how-to-use.html">
+      <span class="st-k">02</span><span class="st-t">How to use it</span><span class="st-d">Setup &amp; workflow</span>
+    </a>
+    <a class="subtab active" href="algorithms.html">
+      <span class="st-k">03</span><span class="st-t">Algorithms in mbX Pro</span><span class="st-d">All documented steps</span>
+    </a>
+  </div>
+  <div class="callout" style="margin-bottom:28px">Tip: every step opens in the same window named <strong>mbXPro</strong>, so you can step through the pipeline without losing this index. Work through them in order, 0 &rarr; 18.</div>
+  <div class="steps">
+    <a class="step" href="../tools/0_primer_identifier_pro/0_primer_identifier_pro.html" target="mbXPro" rel="noopener">
+      <span class="num">step 0</span>
+      <span class="st-title">Primer Identifier (Pro)</span>
+      <span class="st-sub">Detect &amp; trim 16S primers automatically</span>
+      <span class="st-links"><span style="color:var(--coral)">open &#8599;</span><span class="muted">opens in mbXPro tab</span></span>
+    </a>
+    <a class="step" href="../tools/1_create_manifest/1_create_manifest.html" target="mbXPro" rel="noopener">
+      <span class="num">step 1</span>
+      <span class="st-title">Manifest Builder</span>
+      <span class="st-sub">Build the QIIME 2 import manifest</span>
+      <span class="st-links"><span style="color:var(--coral)">open &#8599;</span><span class="muted">opens in mbXPro tab</span></span>
+    </a>
+    <a class="step" href="../tools/2_artifact_creator/2_artifact_creator.html" target="mbXPro" rel="noopener">
+      <span class="num">step 2</span>
+      <span class="st-title">Artifact Creator</span>
+      <span class="st-sub">Import raw reads into QIIME 2</span>
+      <span class="st-links"><span style="color:var(--coral)">open &#8599;</span><span class="muted">opens in mbXPro tab</span></span>
+    </a>
+    <a class="step" href="../tools/3_dada2_parm_finder/3_dada2_parm_finder.html" target="mbXPro" rel="noopener">
+      <span class="num">step 3</span>
+      <span class="st-title">DADA2 Parameter Finder</span>
+      <span class="st-sub">Choose truncation &amp; trim lengths</span>
+      <span class="st-links"><span style="color:var(--coral)">open &#8599;</span><span class="muted">opens in mbXPro tab</span></span>
+    </a>
+    <a class="step" href="../tools/4_dada2_run/4_dada2_run.html" target="mbXPro" rel="noopener">
+      <span class="num">step 4</span>
+      <span class="st-title">DADA2 Denoising</span>
+      <span class="st-sub">Denoise reads into ASVs</span>
+      <span class="st-links"><span style="color:var(--coral)">open &#8599;</span><span class="muted">opens in mbXPro tab</span></span>
+    </a>
+    <a class="step" href="../tools/5_classifier_arranger/5_classifier_arranger.html" target="mbXPro" rel="noopener">
+      <span class="num">step 5</span>
+      <span class="st-title">Classifier Arranger</span>
+      <span class="st-sub">Prepare the reference classifier</span>
+      <span class="st-links"><span style="color:var(--coral)">open &#8599;</span><span class="muted">opens in mbXPro tab</span></span>
+    </a>
+    <a class="step" href="../tools/6_classifier_run/6_classifier_run.html" target="mbXPro" rel="noopener">
+      <span class="num">step 6</span>
+      <span class="st-title">Classifier Run</span>
+      <span class="st-sub">Train &amp; apply the classifier</span>
+      <span class="st-links"><span style="color:var(--coral)">open &#8599;</span><span class="muted">opens in mbXPro tab</span></span>
+    </a>
+    <a class="step" href="../tools/7_taxonomy_run/7_taxonomy_run.html" target="mbXPro" rel="noopener">
+      <span class="num">step 7</span>
+      <span class="st-title">Taxonomy CSVs</span>
+      <span class="st-sub">Assign and export taxonomy</span>
+      <span class="st-links"><span style="color:var(--coral)">open &#8599;</span><span class="muted">opens in mbXPro tab</span></span>
+    </a>
+    <a class="step" href="../tools/8_ezclean/8_ezclean.html" target="mbXPro" rel="noopener">
+      <span class="num">step 8</span>
+      <span class="st-title">ezclean per level</span>
+      <span class="st-sub">Clean tables by taxonomic level</span>
+      <span class="st-links"><span style="color:var(--coral)">open &#8599;</span><span class="muted">opens in mbXPro tab</span></span>
+    </a>
+    <a class="step" href="../tools/9_ezviz/9_ezviz.html" target="mbXPro" rel="noopener">
+      <span class="num">step 9</span>
+      <span class="st-title">ezviz</span>
+      <span class="st-sub">Visualize community composition</span>
+      <span class="st-links"><span style="color:var(--coral)">open &#8599;</span><span class="muted">opens in mbXPro tab</span></span>
+    </a>
+    <a class="step" href="../tools/10_ezstat/10_ezstat.html" target="mbXPro" rel="noopener">
+      <span class="num">step 10</span>
+      <span class="st-title">ezstat</span>
+      <span class="st-sub">Statistical testing of taxa</span>
+      <span class="st-links"><span style="color:var(--coral)">open &#8599;</span><span class="muted">opens in mbXPro tab</span></span>
+    </a>
+    <a class="step" href="../tools/11_pre_diversity_parameters/11_pre_diversity_parameters.html" target="mbXPro" rel="noopener">
+      <span class="num">step 11</span>
+      <span class="st-title">Pre-diversity</span>
+      <span class="st-sub">Set rarefaction &amp; depth parameters</span>
+      <span class="st-links"><span style="color:var(--coral)">open &#8599;</span><span class="muted">opens in mbXPro tab</span></span>
+    </a>
+    <a class="step" href="../tools/12_alpha_diversity/12_alpha_diversity.html" target="mbXPro" rel="noopener">
+      <span class="num">step 12</span>
+      <span class="st-title">Alpha Diversity</span>
+      <span class="st-sub">Within-sample diversity metrics</span>
+      <span class="st-links"><span style="color:var(--coral)">open &#8599;</span><span class="muted">opens in mbXPro tab</span></span>
+    </a>
+    <a class="step" href="../tools/13_beta_diversity/13_beta_diversity.html" target="mbXPro" rel="noopener">
+      <span class="num">step 13</span>
+      <span class="st-title">Beta Diversity</span>
+      <span class="st-sub">Between-sample diversity &amp; ordination</span>
+      <span class="st-links"><span style="color:var(--coral)">open &#8599;</span><span class="muted">opens in mbXPro tab</span></span>
+    </a>
+    <a class="step" href="../tools/14_ancombc2/14_ancombc2.html" target="mbXPro" rel="noopener">
+      <span class="num">step 14</span>
+      <span class="st-title">ANCOM-BC2</span>
+      <span class="st-sub">Differential abundance analysis</span>
+      <span class="st-links"><span style="color:var(--coral)">open &#8599;</span><span class="muted">opens in mbXPro tab</span></span>
+    </a>
+    <a class="step" href="../tools/15_picrust2/15_picrust2.html" target="mbXPro" rel="noopener">
+      <span class="num">step 15</span>
+      <span class="st-title">PICRUSt2</span>
+      <span class="st-sub">Predicted functional profiling</span>
+      <span class="st-links"><span style="color:var(--coral)">open &#8599;</span><span class="muted">opens in mbXPro tab</span></span>
+    </a>
+    <a class="step" href="../tools/16_ml_classifier/16_ml_classifier.html" target="mbXPro" rel="noopener">
+      <span class="num">step 16</span>
+      <span class="st-title">Random Forest</span>
+      <span class="st-sub">Machine-learning classification</span>
+      <span class="st-links"><span style="color:var(--coral)">open &#8599;</span><span class="muted">opens in mbXPro tab</span></span>
+    </a>
+    <a class="step" href="../tools/17_networks/17_networks.html" target="mbXPro" rel="noopener">
+      <span class="num">step 17</span>
+      <span class="st-title">Networks</span>
+      <span class="st-sub">Microbial co-occurrence networks</span>
+      <span class="st-links"><span style="color:var(--coral)">open &#8599;</span><span class="muted">opens in mbXPro tab</span></span>
+    </a>
+    <a class="step" href="../tools/18_final_report/18_final_report.html" target="mbXPro" rel="noopener">
+      <span class="num">step 18</span>
+      <span class="st-title">Final Report</span>
+      <span class="st-sub">Assemble the publication-ready report</span>
+      <span class="st-links"><span style="color:var(--coral)">open &#8599;</span><span class="muted">opens in mbXPro tab</span></span>
+    </a>
+  </div>
+</div></section>
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div style="max-width:320px">
+        <div class="fbrand">Utsav Lamichhane<span style="color:var(--coral)">.</span></div>
+        <p style="color:#8da0b4;font-size:.92rem">PhD researcher in machine learning &amp; bioinformatics at the University of Georgia — building open tools for microbiome science.</p>
+      </div>
+      <div class="footer-nav">
+        <div>
+          <h4>Explore</h4>
+          <a href="../applications/index.html">Applications</a>
+          <a href="../mbxpro/index.html">mbX Pro</a>
+          <a href="../python-library.html">Python Library</a>
+          <a href="../skills.html">Skills</a>
+        </div>
+        <div>
+          <h4>More</h4>
+          <a href="../certifications.html">Certifications</a>
+          <a href="../media.html">Media</a>
+          <a href="../recent-db/index.html">Recent DB</a>
+          <a href="../contact.html">Contact</a>
+        </div>
+        <div>
+          <h4>Elsewhere</h4>
+          <a href="https://github.com/utsavlamichhane" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://www.linkedin.com/in/utsav-lamichhane-373793119/" target="_blank" rel="noopener">LinkedIn</a>
+          <a href="https://scholar.google.com/citations?user=8YFfSMEAAAAJ&hl=en" target="_blank" rel="noopener">Google Scholar</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; <span id="year">2026</span> Utsav Lamichhane. Athens, GA.</span>
+      <span><a href="mailto:utsav.lamichhane@uga.edu">utsav.lamichhane@uga.edu</a></span>
+    </div>
+  </div>
+</footer>
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

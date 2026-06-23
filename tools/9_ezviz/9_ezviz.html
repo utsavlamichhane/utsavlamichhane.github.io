@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Step 9 — ezviz | mbX Pro</title>
+<style>
+:root {
+  --bg: #fafbfc; --fg: #1f2328; --muted: #57606a; --link: #0969da;
+  --code-bg: #0d1117; --code-fg: #f0f6fc; --inline-bg: #eef1f4;
+  --border: #d0d7de; --accent: #218bff;
+  --btn-bg: #ffffff; --btn-fg: #1f2328; --btn-bg-hover: #f3f5f7;
+  --btn-ok-bg: #1f883d; --btn-ok-fg: #ffffff;
+  --table-stripe: #f6f8fa; --callout-bg: #fff8dc; --callout-border: #e1c468;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1117; --fg: #c9d1d9; --muted: #8b949e; --link: #58a6ff;
+    --code-bg: #161b22; --code-fg: #c9d1d9; --inline-bg: #1c2128;
+    --border: #30363d; --btn-bg: #21262d; --btn-fg: #c9d1d9;
+    --btn-bg-hover: #30363d; --table-stripe: #161b22;
+    --callout-bg: #2d2a14; --callout-border: #6d5c1b;
+  }
+}
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  line-height: 1.65; max-width: 960px; margin: 0 auto;
+  padding: 48px 24px 96px; font-size: 16px;
+}
+h1, h2, h3, h4 { font-weight: 600; line-height: 1.25; margin-top: 2em; margin-bottom: 0.5em; }
+h1 { font-size: 2.1em; margin-top: 0; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h2 { font-size: 1.5em; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h3 { font-size: 1.2em; }
+h4 { font-size: 1.0em; color: var(--muted); }
+p { margin: 0.6em 0 1em; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+ul, ol { padding-left: 1.5em; }
+hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
+pre {
+  position: relative; background: var(--code-bg); color: var(--code-fg);
+  padding: 18px; border-radius: 8px; overflow-x: auto;
+  font-size: 0.92em; line-height: 1.5; margin: 1em 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+pre code { background: transparent; padding: 0; color: inherit; font-size: 1em; }
+code {
+  background: var(--inline-bg); padding: 0.15em 0.4em; border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9em;
+}
+.copy-btn {
+  position: absolute; top: 10px; right: 10px;
+  background: var(--btn-bg); color: var(--btn-fg);
+  border: 1px solid var(--border); border-radius: 6px;
+  padding: 5px 11px; font-size: 12px; font-family: inherit;
+  cursor: pointer; opacity: 0.85;
+  transition: background 120ms, opacity 120ms, color 120ms; z-index: 2;
+}
+.copy-btn:hover { background: var(--btn-bg-hover); opacity: 1; }
+.copy-btn.copied { background: var(--btn-ok-bg); color: var(--btn-ok-fg); border-color: var(--btn-ok-bg); }
+table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: 0.95em; }
+th, td { border: 1px solid var(--border); padding: 8px 12px; vertical-align: top; text-align: left; }
+th { background: var(--inline-bg); font-weight: 600; }
+tbody tr:nth-child(even) td { background: var(--table-stripe); }
+.toc {
+  background: var(--inline-bg); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px 22px; margin: 1em 0 2em; font-size: 0.95em;
+}
+.toc strong { display: block; margin-bottom: 6px; }
+.toc ol { margin: 0; padding-left: 1.4em; }
+.toc li { margin: 2px 0; }
+blockquote {
+  border-left: 4px solid var(--accent); margin: 1.2em 0; padding: 4px 18px;
+  color: var(--muted); background: var(--inline-bg); border-radius: 4px;
+}
+.doc-footer {
+  margin-top: 4em; padding-top: 1.5em; border-top: 1px solid var(--border);
+  color: var(--muted); font-size: 0.9em;
+}
+</style>
+</head>
+<body>
+<div class="toc"><strong>Contents</strong><ol><li><a href="#why-this-step-matters">Why this step matters</a></li><li><a href="#what-the-script-does-in-one-sentence">What the script does in one sentence</a></li><li><a href="#the-algorithm-step-by-step">The algorithm, step by step</a></li><li><a href="#default-parameters-and-why-they-are-what-they-are">Default parameters and why they are what they are</a></li><li><a href="#when-and-why-we-fall-back-to-defaults">When and why we fall back to defaults</a></li><li><a href="#what-the-output-file-looks-like">What the output file looks like</a></li><li><a href="#takeaway">Takeaway</a></li><li><a href="#sources">Sources</a></li></ol></div>
+<h1>Step 9 — ezviz (stacked-bar visualisations)</h1>
+<p><strong>Script:</strong> <code>scripts/mbx_ezviz_all_levels_all_treatments.sh</code>
++ the R function <code>mbX::ezviz()</code> from CRAN</p>
+<p><strong>Companion files in this folder:</strong>
+- <code>9_ezviz.html</code> — same content with copy buttons on every code block.
+- <code>9_ezviz.pptx</code> — slide deck for the talk.</p>
+<hr />
+<h2 id="why-this-step-matters">Why this step matters</h2>
+<p>Step 8 left us with seven clean per-level XLSX files of relative
+abundances. Those tables are <em>correct</em> but completely opaque to a human
+looking at them. The first qualitative question every microbiome
+researcher asks is: <strong>"what does the community look like at each
+level, in each treatment group?"</strong> The answer is a stacked-bar plot —
+the workhorse visual of 16S analysis.</p>
+<p>A stacked-bar plot makes three things obvious in seconds:</p>
+<ul>
+<li><strong>Which taxa dominate</strong> each sample (the visually large blocks).</li>
+<li><strong>How consistent</strong> the community is within a treatment group
+  (parallel bars look similar).</li>
+<li><strong>Which taxa differ</strong> between treatment groups (block sizes shift).</li>
+</ul>
+<p>But there's a craft to it. Too many taxa and the plot becomes a rainbow of
+indistinguishable colours. Inconsistent ordering between samples makes
+groups impossible to compare. Step 9's job is to produce one <strong>publication-
+ready</strong> stacked-bar plot per (taxonomic level × categorical metadata
+variable), every time, with the same conventions across every project.</p>
+<hr />
+<h2 id="what-the-script-does-in-one-sentence">What the script does in one sentence</h2>
+<p>It calls <code>mbX::ezviz()</code> once per combination of (seven taxonomic levels) ×
+(every categorical metadata column), producing per-treatment per-level
+stacked-bar PNGs that share the same colour palette, the same top-taxa
+cutoff, and the same legend ordering.</p>
+<hr />
+<h2 id="the-algorithm-step-by-step">The algorithm, step by step</h2>
+<h3>1. Discover categorical metadata columns</h3>
+<p><strong>First</strong> the script reads the metadata file and figures out which columns
+are categorical (eligible for a "by group" plot). The rule:</p>
+<ul>
+<li>Drop the first column (<code>sample-id</code> — never a grouping variable).</li>
+<li>Drop numeric-only columns (continuous variables — ezviz handles those
+  differently, but we don't run them by default).</li>
+<li>Drop columns with only one unique value (no contrast to plot).</li>
+<li>Drop columns whose unique-value count equals the sample count (every
+  value is unique — also useless for grouping).</li>
+<li>What remains is the list of categorical variables to plot.</li>
+</ul>
+<h3>2. Read Step 8's contract</h3>
+<p><strong>Then</strong> the script reads <code>8_cleaned_files/mbx_ezclean_info.txt</code> to find
+the seven per-level XLSX paths. Each level becomes one ezviz() call per
+metadata variable.</p>
+<h3>3. Loop: 7 levels × N categorical variables</h3>
+<p><strong>For every combination</strong>, the script runs:</p>
+<pre><code>Rscript --vanilla &lt;&lt;RSCRIPT
+library(mbX)
+setwd(&quot;9_visualization_entire&quot;)
+ezviz(
+  microbiome_data    = &quot;mbX_cleaned_&lt;level&gt;_level-7.xlsx&quot;,
+  metadata           = &quot;metadata.txt&quot;,
+  level              = &quot;&lt;letter&gt;&quot;,
+  selected_metadata  = &quot;&lt;column&gt;&quot;,
+  top_taxa           = 20
+)
+RSCRIPT
+</code></pre>
+<p>Inside ezviz():</p>
+<ol>
+<li>Read the cleaned XLSX (taxa as columns, samples as rows, plus metadata
+   columns).</li>
+<li>Drop everything that isn't a taxon column or the requested grouping
+   column.</li>
+<li><strong>Compute the top-20 most abundant taxa</strong> by mean relative abundance
+   across all samples. Everything else gets collapsed into a single
+   <code>Other</code> category. Twenty is the empirical sweet spot — fewer loses too
+   much information; more produces unreadable colour soup.</li>
+<li><strong>Order the taxa</strong> by mean abundance (largest at the bottom of the
+   stack, smallest at the top — standard convention).</li>
+<li><strong>Order the samples</strong> within each group by similarity (UPGMA-clustered
+   for stacked-bar coherence).</li>
+<li><strong>Pick the colour palette</strong>: 20 maximally-distinct colours from a
+   pre-computed list. The same colour always means the same taxon across
+   different (level × variable) plots in the same project.</li>
+<li><strong>Render</strong> the stacked-bar plot as PNG (and SVG via the shared plot
+   helpers — see Phase 3.1 of <code>CHANGELOG.md</code>).</li>
+</ol>
+<h3>4. Handle empty levels gracefully</h3>
+<p><strong>Then</strong> if a particular level's XLSX was empty (typically species, on
+low-classification data), the script logs <code>SKIPPED — no taxa in level</code>
+and continues. It does not fail the whole step.</p>
+<h3>5. Write <code>mbx_ezviz_info.txt</code></h3>
+<p><strong>Finally</strong> the cross-step info file records the path of every PNG
+produced, the metadata variables actually plotted (so the final report
+knows which combinations exist), and <code>STATUS=COMPLETE</code>.</p>
+<hr />
+<h2 id="default-parameters-and-why-they-are-what-they-are">Default parameters and why they are what they are</h2>
+<table>
+<thead>
+<tr>
+<th>Default</th>
+<th>Value</th>
+<th>Why this default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>top_taxa</code></td>
+<td><strong>20</strong></td>
+<td>Empirical sweet spot — 15 loses signal; 25+ becomes a colour-blob. Twenty is what microbiome papers consistently use.</td>
+</tr>
+<tr>
+<td>Top-taxa selection</td>
+<td>by mean relative abundance</td>
+<td>The most fair "what dominates on average?" metric. Median picks too few rare-but-consistent taxa.</td>
+</tr>
+<tr>
+<td>Other category</td>
+<td>collapsed grey</td>
+<td>Visually distinct from any real taxon. Always at the top of the stack.</td>
+</tr>
+<tr>
+<td>Sample ordering</td>
+<td>UPGMA-clustered within each treatment</td>
+<td>Visually-similar samples sit next to each other, making the within-group consistency obvious.</td>
+</tr>
+<tr>
+<td>Colour palette</td>
+<td>maximally distinct, project-stable</td>
+<td>The same taxon gets the same colour across every plot in the same project — comparing across plots is now visual, not memory-intensive.</td>
+</tr>
+<tr>
+<td>Plot formats</td>
+<td>PNG (always) + SVG (always) + PDF (when <code>--publication-figures</code>)</td>
+<td>SVG is publication-ready out of the box; PDF on demand.</td>
+</tr>
+<tr>
+<td>Levels</td>
+<td>all seven</td>
+<td>We never skip a level proactively — if it has data, it gets plotted.</td>
+</tr>
+<tr>
+<td>Categorical variables</td>
+<td>all auto-detected</td>
+<td>The script never asks the user to enumerate them.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="when-and-why-we-fall-back-to-defaults">When and why we fall back to defaults</h2>
+<table>
+<thead>
+<tr>
+<th>Fallback</th>
+<th>When it triggers</th>
+<th>Why this fallback exists</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Skip empty levels</strong></td>
+<td>Level XLSX has 0 taxa (low-classification data)</td>
+<td>Not an error — just unusual. Plot whatever has data.</td>
+</tr>
+<tr>
+<td><strong>Skip singleton-value variables</strong></td>
+<td>A "Treatment" column where every sample has the same value</td>
+<td>Plotting a "group" with one group is pointless.</td>
+</tr>
+<tr>
+<td><strong>Skip all-unique variables</strong></td>
+<td>A column that's effectively a per-sample ID</td>
+<td>Same reasoning — no contrast to show.</td>
+</tr>
+<tr>
+<td><strong>Re-use existing PNGs</strong></td>
+<td>Re-run after a partial failure</td>
+<td>Idempotent: if the PNG already exists at the expected path, the script doesn't re-render it.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="what-the-output-file-looks-like">What the output file looks like</h2>
+<p><code>9_visualization_entire/mbX_ezviz_&lt;level&gt;_by_&lt;variable&gt;.png</code> — one
+publication-ready stacked-bar PNG per (level × variable) combination, plus
+the SVG companion, plus optional PDF.</p>
+<p>Each PNG has:</p>
+<ul>
+<li>One vertical bar per sample.</li>
+<li>The 20 most abundant taxa, ordered by mean abundance (largest at the
+  bottom).</li>
+<li>All other taxa collapsed into a grey <code>Other</code> block at the top.</li>
+<li>A facet per treatment group (samples within a group are clustered for
+  visual coherence).</li>
+<li>The same colour for the same taxon across every plot in the project.</li>
+</ul>
+<hr />
+<h2 id="takeaway">Takeaway</h2>
+<blockquote>
+<p>Step 9 produces the first deliverable a microbiome researcher actually
+looks at — the per-level stacked-bar plot. The trick is doing it
+consistently across every (level × variable) combination so the
+reviewer's eye can compare them. The mbX::ezviz() function handles the
+aesthetics; the wrapper handles the discovery of which combinations to
+plot.</p>
+</blockquote>
+<hr />
+<h2 id="sources">Sources</h2>
+<ul>
+<li>The wrapper script: <code>mbXPro/scripts/mbx_ezviz_all_levels_all_treatments.sh</code></li>
+<li>The R function: <code>mbX::ezviz()</code> on CRAN.</li>
+<li>mbX package: https://cran.r-project.org/package=mbX</li>
+</ul>
+<div class="doc-footer">
+  mbX Pro 1.5.0 · <a href="README.md">Markdown source</a> · <a href="#">Back to top</a>
+</div>
+<script>
+(function () {
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text);
+    }
+    return new Promise(function (resolve, reject) {
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.setAttribute('readonly', '');
+      ta.style.position = 'absolute'; ta.style.left = '-9999px';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy') ? resolve() : reject(new Error('copy failed')); }
+      catch (e) { reject(e); }
+      finally { document.body.removeChild(ta); }
+    });
+  }
+  document.querySelectorAll('pre').forEach(function (pre) {
+    var btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'copy-btn';
+    btn.textContent = 'Copy';
+    btn.setAttribute('aria-label', 'Copy code to clipboard');
+    btn.addEventListener('click', function () {
+      var code = pre.querySelector('code');
+      var text = (code ? code.innerText : pre.innerText) || '';
+      copyText(text).then(function () {
+        btn.textContent = 'Copied'; btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      }).catch(function () {
+        btn.textContent = 'Copy failed';
+        setTimeout(function () { btn.textContent = 'Copy'; }, 1600);
+      });
+    });
+    pre.appendChild(btn);
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Step 11 — Pre-diversity | mbX Pro</title>
+<style>
+:root {
+  --bg: #fafbfc; --fg: #1f2328; --muted: #57606a; --link: #0969da;
+  --code-bg: #0d1117; --code-fg: #f0f6fc; --inline-bg: #eef1f4;
+  --border: #d0d7de; --accent: #218bff;
+  --btn-bg: #ffffff; --btn-fg: #1f2328; --btn-bg-hover: #f3f5f7;
+  --btn-ok-bg: #1f883d; --btn-ok-fg: #ffffff;
+  --table-stripe: #f6f8fa; --callout-bg: #fff8dc; --callout-border: #e1c468;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1117; --fg: #c9d1d9; --muted: #8b949e; --link: #58a6ff;
+    --code-bg: #161b22; --code-fg: #c9d1d9; --inline-bg: #1c2128;
+    --border: #30363d; --btn-bg: #21262d; --btn-fg: #c9d1d9;
+    --btn-bg-hover: #30363d; --table-stripe: #161b22;
+    --callout-bg: #2d2a14; --callout-border: #6d5c1b;
+  }
+}
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  line-height: 1.65; max-width: 960px; margin: 0 auto;
+  padding: 48px 24px 96px; font-size: 16px;
+}
+h1, h2, h3, h4 { font-weight: 600; line-height: 1.25; margin-top: 2em; margin-bottom: 0.5em; }
+h1 { font-size: 2.1em; margin-top: 0; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h2 { font-size: 1.5em; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h3 { font-size: 1.2em; }
+h4 { font-size: 1.0em; color: var(--muted); }
+p { margin: 0.6em 0 1em; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+ul, ol { padding-left: 1.5em; }
+hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
+pre {
+  position: relative; background: var(--code-bg); color: var(--code-fg);
+  padding: 18px; border-radius: 8px; overflow-x: auto;
+  font-size: 0.92em; line-height: 1.5; margin: 1em 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+pre code { background: transparent; padding: 0; color: inherit; font-size: 1em; }
+code {
+  background: var(--inline-bg); padding: 0.15em 0.4em; border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9em;
+}
+.copy-btn {
+  position: absolute; top: 10px; right: 10px;
+  background: var(--btn-bg); color: var(--btn-fg);
+  border: 1px solid var(--border); border-radius: 6px;
+  padding: 5px 11px; font-size: 12px; font-family: inherit;
+  cursor: pointer; opacity: 0.85;
+  transition: background 120ms, opacity 120ms, color 120ms; z-index: 2;
+}
+.copy-btn:hover { background: var(--btn-bg-hover); opacity: 1; }
+.copy-btn.copied { background: var(--btn-ok-bg); color: var(--btn-ok-fg); border-color: var(--btn-ok-bg); }
+table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: 0.95em; }
+th, td { border: 1px solid var(--border); padding: 8px 12px; vertical-align: top; text-align: left; }
+th { background: var(--inline-bg); font-weight: 600; }
+tbody tr:nth-child(even) td { background: var(--table-stripe); }
+.toc {
+  background: var(--inline-bg); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px 22px; margin: 1em 0 2em; font-size: 0.95em;
+}
+.toc strong { display: block; margin-bottom: 6px; }
+.toc ol { margin: 0; padding-left: 1.4em; }
+.toc li { margin: 2px 0; }
+blockquote {
+  border-left: 4px solid var(--accent); margin: 1.2em 0; padding: 4px 18px;
+  color: var(--muted); background: var(--inline-bg); border-radius: 4px;
+}
+.doc-footer {
+  margin-top: 4em; padding-top: 1.5em; border-top: 1px solid var(--border);
+  color: var(--muted); font-size: 0.9em;
+}
+</style>
+</head>
+<body>
+<div class="toc"><strong>Contents</strong><ol><li><a href="#why-this-step-matters">Why this step matters</a></li><li><a href="#what-the-script-does-in-one-sentence">What the script does in one sentence</a></li><li><a href="#the-algorithm-step-by-step">The algorithm, step by step</a></li><li><a href="#default-parameters-and-why-they-are-what-they-are">Default parameters and why they are what they are</a></li><li><a href="#when-and-why-we-fall-back-to-defaults">When and why we fall back to defaults</a></li><li><a href="#what-the-output-file-looks-like">What the output file looks like</a></li><li><a href="#takeaway">Takeaway</a></li><li><a href="#sources">Sources</a></li></ol></div>
+<h1>Step 11 — Pre-diversity (phylogeny + depth selection)</h1>
+<p><strong>Script:</strong> <code>scripts/mbx_pre_diversity_parameters.sh</code></p>
+<p><strong>Companion files in this folder:</strong>
+- <code>11_pre_diversity_parameters.html</code> — same content with copy buttons.
+- <code>11_pre_diversity_parameters.pptx</code> — slide deck for the talk.</p>
+<hr />
+<h2 id="why-this-step-matters">Why this step matters</h2>
+<p>Steps 12 and 13 — alpha and beta diversity — both need two things that
+nothing upstream has produced:</p>
+<ol>
+<li><strong>A phylogenetic tree</strong> of every ASV in the dataset, because the
+   phylogenetic diversity metrics (Faith's PD, weighted/unweighted
+   UniFrac) need to know how related the ASVs are.</li>
+<li><strong>A scientifically-defensible rarefaction depth</strong> — the number of
+   reads we'll subsample every sample down to before computing diversity.
+   Picking that number wrong is the <strong>single most common source of
+   misleading microbiome results</strong> in the literature.</li>
+</ol>
+<p>The depth question is the substantive one. <strong>If the depth is too low</strong>,
+we throw away usable read information; samples that started with deep
+sequencing end up looking artificially impoverished. <strong>If the depth is
+too high</strong>, we lose every sample that didn't reach it — and we lose them
+<em>non-randomly</em> (the deepest samples are often the easiest libraries to
+prepare). Either failure mode biases every downstream comparison.</p>
+<p>Step 11's job is to <strong>answer the depth question quantitatively</strong>, using
+three concurrent statistical criteria that any reviewer can defend, and
+to produce a <code>STATUS</code> field that gates the diversity steps from running
+if the depth verdict isn't strong enough.</p>
+<hr />
+<h2 id="what-the-script-does-in-one-sentence">What the script does in one sentence</h2>
+<p>It builds a rooted phylogenetic tree from the ASV sequences, then
+computes the smallest rarefaction depth that simultaneously satisfies
+≥ 90 % sample retention, ≥ 0.98 mean Good's coverage, and a flat
+analytical rarefaction curve (Hurlbert 1971 closed-form slope &lt;
+0.5 features / 1,000 reads).</p>
+<hr />
+<h2 id="the-algorithm-step-by-step">The algorithm, step by step</h2>
+<h3>1. Pre-flight + version logging</h3>
+<p><strong>First</strong> the script confirms QIIME2, R, and the input artifacts are all
+present, logs every tool version (so the final report can cite them
+exactly), and creates the <code>11_pre_diversity/</code> output directory.</p>
+<h3>2. QC visualisations</h3>
+<p><strong>Then</strong> it produces two QIIME2 QZVs — <code>metadata_summary.qzv</code> and
+<code>feature_table_summary.qzv</code> — useful for the user's sanity check before
+they commit hours to diversity computation.</p>
+<h3>3. Build the rooted phylogenetic tree</h3>
+<p><strong>Next</strong> the script runs the <code>align-to-tree-mafft-fasttree</code> QIIME2 pipeline:</p>
+<pre><code>qiime phylogeny align-to-tree-mafft-fasttree \
+  --i-sequences         representative_sequences.qza \
+  --o-alignment         aligned-rep-seqs.qza \
+  --o-masked-alignment  masked-aligned-rep-seqs.qza \
+  --o-tree              unrooted-tree.qza \
+  --o-rooted-tree       rooted-tree.qza \
+  --p-n-threads         &lt;MBX_THREADS&gt;
+</code></pre>
+<p>Under the hood this runs four sub-steps:</p>
+<ol>
+<li><strong>MAFFT</strong> multiple-sequence alignment of every ASV against every other
+   ASV. MAFFT is fast and accurate; FFT-NS-2 is the default mode.</li>
+<li><strong>Mask</strong> the alignment to remove highly variable positions that confuse
+   tree-building (QIIME2 default; based on entropy filtering).</li>
+<li><strong>FastTree</strong> builds an approximately-maximum-likelihood tree from the
+   masked alignment. Much faster than RAxML for the ~hundreds-to-thousands
+   of ASVs we typically have.</li>
+<li><strong>Mid-point root</strong> the tree so the diversity metrics have a defined
+   root (UniFrac requires it; Faith's PD doesn't strictly but uses one).</li>
+</ol>
+<h3>4. Tabulate per-sample frequencies</h3>
+<p><strong>Now</strong> the script exports the feature table to TSV + BIOM and counts the
+total non-chimeric ASVs per sample. That distribution is the input to
+the depth-selection math.</p>
+<h3>5. The depth-selection algorithm — three concurrent criteria</h3>
+<p><strong>This is the heart of the step.</strong> Let <code>f_i</code> be the read count in sample
+<em>i</em>, and let <code>d</code> be a candidate rarefaction depth. The algorithm sweeps
+<code>d</code> from 1,000 up to <code>max(f_i)</code> and picks the largest <code>d</code> that
+simultaneously satisfies:</p>
+<p><strong>(a) Overall sample-retention rule</strong>:
+The fraction of samples with <code>f_i ≥ d</code> must be <code>≥ 0.90</code>
+(<code>MIN_OVERALL</code>). Equivalently: at most 10 % of samples are allowed to be
+dropped by the rarefaction. If a <code>--group-col</code> is supplied, an additional
+per-group retention check requires <code>≥ MIN_GROUP</code> of each group's samples
+to survive — otherwise we'd risk wiping out an entire treatment group.</p>
+<p><strong>(b) Coverage rule (Good's coverage)</strong>:
+For each retained sample, the analytical <strong>Good's coverage</strong> at depth
+<code>d</code> is computed:</p>
+<pre><code>C(d) = 1 − f₁(d) / d
+</code></pre>
+<p>where <code>f₁(d)</code> is the <strong>expected number of singletons</strong> in a subsample of
+size <code>d</code> from the sample's count vector. The mean of <code>C(d)</code> across
+retained samples must be <code>≥ 0.98</code> (<code>GOOD_COV_MIN</code>) — i.e. on average,
+at most 2 % of the community at the rarefied depth would be unobserved
+singletons.</p>
+<p><strong>(c) Plateau rule (Hurlbert 1971)</strong>:
+The expected number of observed ASVs at depth <code>d</code>, given a sample with
+<code>f_i</code> reads and ASV counts <code>n_j</code>, is the <strong>Hurlbert rarefaction</strong>
+closed-form:</p>
+<pre><code>E[S | d, sample i] = Σ_j  [ 1 − C(f_i − n_j, d) / C(f_i, d) ]
+</code></pre>
+<p>where <code>C(a, b)</code> is the binomial coefficient and the sum is over every
+ASV <code>j</code> in sample <code>i</code>. (This is the exact expectation, not a simulation
+approximation — much faster and bit-reproducible.) For each candidate
+<code>d</code>, the algorithm computes the <strong>mean slope</strong> of that curve in a small
+window around <code>d</code>, expressed as <strong>features gained per 1,000 additional
+reads</strong>. That slope must be <code>&lt; 0.5</code> (<code>PLATEAU_SLOPE_MAX</code>) — meaning the
+curve has effectively flattened, so we're not throwing information away
+by stopping here.</p>
+<p><strong>The recommended depth</strong> is the largest <code>d</code> satisfying <em>all three</em>
+criteria. If no <code>d</code> does, the algorithm reports which criterion is
+binding (the script can then say "criterion (c) was binding — the
+curves haven't plateaued at any feasible depth").</p>
+<h3>6. Sample-ID consistency checks</h3>
+<p><strong>Then</strong> the script runs three ID-overlap checks:</p>
+<ul>
+<li>Metadata IDs ↔ feature-table IDs.</li>
+<li>Feature-table IDs ↔ representative-sequences IDs.</li>
+<li>Representative-sequences IDs ↔ tree tip IDs.</li>
+</ul>
+<p>A mismatch at any of these levels would cause the diversity step to
+silently drop samples. The script lists every mismatching ID by name and
+sets <code>OVERALL_STATUS=FAIL</code>.</p>
+<h3>7. Official QIIME alpha-rarefaction</h3>
+<p><strong>For documentation</strong>, the script also runs <code>qiime diversity
+alpha-rarefaction</code> with <code>observed_features + shannon + faith_pd</code>, max
+depth = max sample frequency, 10 iterations, 20 steps. The resulting
+QZV is what the user actually clicks through in their browser; the
+analytical preview (the closed-form Hurlbert plot from step 5) goes into
+the final report.</p>
+<h3>8. Decision-supporting visualisations</h3>
+<p>The script then writes four PNGs:</p>
+<ul>
+<li><code>sequencing_depth_distribution.png</code> — histogram of <code>f_i</code>.</li>
+<li><code>depth_vs_retention.png</code> — the (d, retained-fraction) curve, with the
+  90 % threshold marked.</li>
+<li><code>alpha_rarefaction_curves.png</code> — mean Hurlbert curve, annotated with
+  the chosen depth.</li>
+<li><code>group_depth_summary.png</code> — per-treatment-group depth distributions
+  when a <code>--group-col</code> is supplied.</li>
+</ul>
+<h3>9. Write the cross-step info file + <code>STATUS</code></h3>
+<p><strong>Finally</strong> the script writes <code>mbx_pre_diversity_info.txt</code> with every
+output path, the recommended depth, the binding criterion (if any), and
+one of four <code>STATUS</code> values:</p>
+<ul>
+<li><code>PASS</code> — all three criteria met cleanly.</li>
+<li><code>PASS_WITH_WARNINGS</code> — criteria met but borderline; non-blocking
+  warnings (e.g. one group at exactly 90 % retention).</li>
+<li><code>REVIEW_REQUIRED</code> — fallback rule used, or a criterion failed; user
+  should look at the summary before continuing.</li>
+<li><code>FAIL</code> — pipeline-stopping problem (zero overlap between metadata and
+  table; a group entirely wiped out). The next step refuses to run
+  unless <code>--force</code> is passed.</li>
+</ul>
+<p><code>READY_FOR_DIVERSITY=yes|no</code> is also written — Steps 12, 13, 14, 15 all
+read it and refuse to run when set to <code>no</code>.</p>
+<hr />
+<h2 id="default-parameters-and-why-they-are-what-they-are">Default parameters and why they are what they are</h2>
+<table>
+<thead>
+<tr>
+<th>Default</th>
+<th>Value</th>
+<th>Why this default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tree builder</td>
+<td><code>align-to-tree-mafft-fasttree</code></td>
+<td>MAFFT + FastTree is the QIIME2-recommended pipeline; fast + accurate enough for community-level diversity.</td>
+</tr>
+<tr>
+<td>Alignment mode</td>
+<td>MAFFT <code>FFT-NS-2</code> (default)</td>
+<td>Best speed/accuracy trade-off for ~10²–10³ ASVs.</td>
+</tr>
+<tr>
+<td>Tree rooting</td>
+<td>mid-point</td>
+<td>UniFrac requires a rooted tree. Mid-point root is unbiased w.r.t. group structure.</td>
+</tr>
+<tr>
+<td>Overall sample retention floor</td>
+<td><strong>0.90</strong> (<code>MIN_OVERALL</code>)</td>
+<td>Microbial ecology convention; losing &gt; 10 % of samples non-randomly is unacceptable.</td>
+</tr>
+<tr>
+<td>Per-group retention floor (when <code>--group-col</code>)</td>
+<td><strong>0.80</strong> (<code>MIN_GROUP</code>)</td>
+<td>Slightly more permissive — small groups need extra leeway.</td>
+</tr>
+<tr>
+<td>Good's coverage floor</td>
+<td><strong>0.98</strong> (<code>GOOD_COV_MIN</code>)</td>
+<td>At most 2 % of the community can be unobserved singletons at the chosen depth.</td>
+</tr>
+<tr>
+<td>Plateau slope ceiling</td>
+<td><strong>0.5 features / 1,000 reads</strong> (<code>PLATEAU_SLOPE_MAX</code>)</td>
+<td>Below this slope the curve is statistically flat — additional reads aren't recovering new biology.</td>
+</tr>
+<tr>
+<td>Depth sweep step size</td>
+<td>adaptive (log-linear)</td>
+<td>Faster than a constant grid without losing resolution near the candidate depth.</td>
+</tr>
+<tr>
+<td>Rarefaction iterations (QIIME visualisation)</td>
+<td>10</td>
+<td>QIIME2 default; enough to smooth the curves for visual interpretation.</td>
+</tr>
+<tr>
+<td>Rarefaction steps (QIIME visualisation)</td>
+<td>20</td>
+<td>Same.</td>
+</tr>
+<tr>
+<td>Phylogeny threads</td>
+<td><code>MBX_THREADS</code></td>
+<td>Single source of truth for parallelism.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="when-and-why-we-fall-back-to-defaults">When and why we fall back to defaults</h2>
+<table>
+<thead>
+<tr>
+<th>Fallback</th>
+<th>When it triggers</th>
+<th>Why this fallback exists</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>PASS_WITH_WARNINGS</code></strong></td>
+<td>All three criteria met but borderline (e.g. coverage 0.978)</td>
+<td>Non-blocking — downstream steps run, but the report flags the concern.</td>
+</tr>
+<tr>
+<td><strong><code>REVIEW_REQUIRED</code></strong></td>
+<td>No <code>d</code> satisfies all three; the algorithm uses the largest <code>d</code> satisfying any two</td>
+<td>The user should inspect the curves; downstream steps run only with the report-issued warning.</td>
+</tr>
+<tr>
+<td><strong><code>FAIL</code> (depth-based)</strong></td>
+<td>A <code>--group-col</code> group would be entirely wiped at every candidate depth</td>
+<td>Continuing would silently drop a treatment group; this must be a hard stop.</td>
+</tr>
+<tr>
+<td><strong><code>FAIL</code> (ID-based)</strong></td>
+<td>&lt; 50 % overlap between metadata and feature-table sample IDs</td>
+<td>Almost always a metadata-vs-FASTQ-sample-ID mismatch that Step 1 missed.</td>
+</tr>
+<tr>
+<td><strong><code>READY_FOR_DIVERSITY=no</code></strong></td>
+<td><code>STATUS ∈ {FAIL, REVIEW_REQUIRED}</code> (configurable)</td>
+<td>Downstream steps 12, 13, 14, 15 all gate on this.</td>
+</tr>
+<tr>
+<td><strong><code>--force</code></strong> flag on downstream steps</td>
+<td>User wants to run anyway</td>
+<td>The override exists; the report records that it was used.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="what-the-output-file-looks-like">What the output file looks like</h2>
+<pre><code>RECOMMENDED_DEPTH=12450
+DEPTH_CRITERION_OVERALL=PASS  (94 % of samples ≥ 12,450)
+DEPTH_CRITERION_COVERAGE=PASS (mean Good's coverage = 0.987)
+DEPTH_CRITERION_PLATEAU=PASS  (slope = 0.31 features / 1,000 reads)
+BINDING_CRITERION=none
+
+ROOTED_TREE_QZA=/.../11_pre_diversity/rooted-tree.qza
+FEATURE_TABLE_QZA=/.../7_taxonomy_csv/feature_table_filtered.qza
+METADATA_TXT=/.../metadata.txt
+
+OVERALL_STATUS=PASS
+READY_FOR_DIVERSITY=yes
+STATUS=COMPLETE
+</code></pre>
+<p>Plus four PNGs that the final report embeds, the official QIIME
+rarefaction QZV for interactive inspection, and a plain-language summary
+file (<code>mbx_pre_diversity_summary.txt</code>) the user can hand to a reviewer.</p>
+<hr />
+<h2 id="takeaway">Takeaway</h2>
+<blockquote>
+<p>Step 11 builds the tree the diversity metrics need, but more importantly
+it <strong>picks the rarefaction depth with three concurrent criteria</strong> so
+the decision is reviewer-defensible. Hurlbert 1971's closed-form
+rarefaction lets us evaluate the plateau analytically — bit-reproducible
+without Monte Carlo. The <code>STATUS</code> field gates Steps 12 through 15 from
+running when the depth verdict is too weak.</p>
+</blockquote>
+<hr />
+<h2 id="sources">Sources</h2>
+<ul>
+<li>The script: <code>mbXPro/scripts/mbx_pre_diversity_parameters.sh</code></li>
+<li>Hurlbert rarefaction: Hurlbert (1971), <em>The non-concept of species
+  diversity</em>, Ecology 52:577–586.</li>
+<li>Good's coverage: Good (1953), <em>The population frequencies of species
+  and the estimation of population parameters</em>, Biometrika 40:237.</li>
+<li>MAFFT: Katoh &amp; Standley (2013), MBE 30:772–780.</li>
+<li>FastTree: Price et al. (2010), PLOS ONE 5:e9490.</li>
+<li>Why depth choice matters: Weiss et al. (2017), Microbiome 5:27.</li>
+</ul>
+<div class="doc-footer">
+  mbX Pro 1.5.0 · <a href="README.md">Markdown source</a> · <a href="#">Back to top</a>
+</div>
+<script>
+(function () {
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text);
+    }
+    return new Promise(function (resolve, reject) {
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.setAttribute('readonly', '');
+      ta.style.position = 'absolute'; ta.style.left = '-9999px';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy') ? resolve() : reject(new Error('copy failed')); }
+      catch (e) { reject(e); }
+      finally { document.body.removeChild(ta); }
+    });
+  }
+  document.querySelectorAll('pre').forEach(function (pre) {
+    var btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'copy-btn';
+    btn.textContent = 'Copy';
+    btn.setAttribute('aria-label', 'Copy code to clipboard');
+    btn.addEventListener('click', function () {
+      var code = pre.querySelector('code');
+      var text = (code ? code.innerText : pre.innerText) || '';
+      copyText(text).then(function () {
+        btn.textContent = 'Copied'; btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      }).catch(function () {
+        btn.textContent = 'Copy failed';
+        setTimeout(function () { btn.textContent = 'Copy'; }, 1600);
+      });
+    });
+    pre.appendChild(btn);
+  });
+})();
+</script>
+</body>
+</html>

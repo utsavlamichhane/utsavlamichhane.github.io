@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Step 16 — Random Forest | mbX Pro</title>
+<style>
+:root {
+  --bg: #fafbfc; --fg: #1f2328; --muted: #57606a; --link: #0969da;
+  --code-bg: #0d1117; --code-fg: #f0f6fc; --inline-bg: #eef1f4;
+  --border: #d0d7de; --accent: #218bff;
+  --btn-bg: #ffffff; --btn-fg: #1f2328; --btn-bg-hover: #f3f5f7;
+  --btn-ok-bg: #1f883d; --btn-ok-fg: #ffffff;
+  --table-stripe: #f6f8fa; --callout-bg: #fff8dc; --callout-border: #e1c468;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1117; --fg: #c9d1d9; --muted: #8b949e; --link: #58a6ff;
+    --code-bg: #161b22; --code-fg: #c9d1d9; --inline-bg: #1c2128;
+    --border: #30363d; --btn-bg: #21262d; --btn-fg: #c9d1d9;
+    --btn-bg-hover: #30363d; --table-stripe: #161b22;
+    --callout-bg: #2d2a14; --callout-border: #6d5c1b;
+  }
+}
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  line-height: 1.65; max-width: 960px; margin: 0 auto;
+  padding: 48px 24px 96px; font-size: 16px;
+}
+h1, h2, h3, h4 { font-weight: 600; line-height: 1.25; margin-top: 2em; margin-bottom: 0.5em; }
+h1 { font-size: 2.1em; margin-top: 0; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h2 { font-size: 1.5em; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h3 { font-size: 1.2em; }
+h4 { font-size: 1.0em; color: var(--muted); }
+p { margin: 0.6em 0 1em; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+ul, ol { padding-left: 1.5em; }
+hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
+pre {
+  position: relative; background: var(--code-bg); color: var(--code-fg);
+  padding: 18px; border-radius: 8px; overflow-x: auto;
+  font-size: 0.92em; line-height: 1.5; margin: 1em 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+pre code { background: transparent; padding: 0; color: inherit; font-size: 1em; }
+code {
+  background: var(--inline-bg); padding: 0.15em 0.4em; border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9em;
+}
+.copy-btn {
+  position: absolute; top: 10px; right: 10px;
+  background: var(--btn-bg); color: var(--btn-fg);
+  border: 1px solid var(--border); border-radius: 6px;
+  padding: 5px 11px; font-size: 12px; font-family: inherit;
+  cursor: pointer; opacity: 0.85;
+  transition: background 120ms, opacity 120ms, color 120ms; z-index: 2;
+}
+.copy-btn:hover { background: var(--btn-bg-hover); opacity: 1; }
+.copy-btn.copied { background: var(--btn-ok-bg); color: var(--btn-ok-fg); border-color: var(--btn-ok-bg); }
+table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: 0.95em; }
+th, td { border: 1px solid var(--border); padding: 8px 12px; vertical-align: top; text-align: left; }
+th { background: var(--inline-bg); font-weight: 600; }
+tbody tr:nth-child(even) td { background: var(--table-stripe); }
+.toc {
+  background: var(--inline-bg); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px 22px; margin: 1em 0 2em; font-size: 0.95em;
+}
+.toc strong { display: block; margin-bottom: 6px; }
+.toc ol { margin: 0; padding-left: 1.4em; }
+.toc li { margin: 2px 0; }
+blockquote {
+  border-left: 4px solid var(--accent); margin: 1.2em 0; padding: 4px 18px;
+  color: var(--muted); background: var(--inline-bg); border-radius: 4px;
+}
+.doc-footer {
+  margin-top: 4em; padding-top: 1.5em; border-top: 1px solid var(--border);
+  color: var(--muted); font-size: 0.9em;
+}
+</style>
+</head>
+<body>
+<div class="toc"><strong>Contents</strong><ol><li><a href="#why-this-step-matters">Why this step matters</a></li><li><a href="#what-the-script-does-in-one-sentence">What the script does in one sentence</a></li><li><a href="#the-algorithm-step-by-step">The algorithm, step by step</a></li><li><a href="#default-parameters-and-why-they-are-what-they-are">Default parameters and why they are what they are</a></li><li><a href="#when-and-why-we-fall-back-to-defaults">When and why we fall back to defaults</a></li><li><a href="#what-the-output-file-looks-like">What the output file looks like</a></li><li><a href="#takeaway">Takeaway</a></li><li><a href="#sources">Sources</a></li></ol></div>
+<h1>Step 16 — Random Forest Biomarker Classifier</h1>
+<p><strong>Script:</strong> <code>scripts/mbx_ml_classifier_run.sh</code></p>
+<p><strong>Companion files in this folder:</strong>
+- <code>16_ml_classifier.html</code> — same content with copy buttons.
+- <code>16_ml_classifier.pptx</code> — slide deck for the talk.</p>
+<hr />
+<h2 id="why-this-step-matters">Why this step matters</h2>
+<p>Steps 10 and 14 (per-taxon stats and ANCOMBC2) answer a <strong>descriptive</strong>
+question: <em>which taxa differ between groups?</em> Step 16 answers the
+matching <strong>predictive</strong> question: <em>can we PREDICT the group from the
+taxa?</em></p>
+<p>Both questions matter, and reviewers ask them both:</p>
+<ul>
+<li>A taxon that's statistically different by ANCOMBC2 but doesn't help a
+  classifier may be a false positive (the test caught a small mean shift
+  but the within-group overlap is large).</li>
+<li>A taxon that's important for a classifier but isn't flagged by ANCOMBC2
+  may be a non-linear or interaction effect (it only matters when
+  combined with another taxon).</li>
+</ul>
+<p>The classifier of choice is <strong>Random Forest</strong> (Breiman 2001), because:</p>
+<ul>
+<li>It handles non-linear relationships out of the box.</li>
+<li>It handles non-normal, compositional, zero-inflated data without
+  parametric assumptions.</li>
+<li>It produces honest feature-importance scores via permutation.</li>
+<li>It works well on small-N data (the microbiome reality), unlike most
+  deep models.</li>
+</ul>
+<p>Step 16's job is to run the classifier <em>for every (taxonomic level ×
+categorical variable)</em>, report cross-validated accuracy + AUC + F1 +
+confusion matrix + ROC, and identify the <strong>taxa that drive the
+prediction</strong> via permutation importance + Saabas-style local SHAP-
+equivalent contributions.</p>
+<hr />
+<h2 id="what-the-script-does-in-one-sentence">What the script does in one sentence</h2>
+<p>For every (taxonomic level × categorical variable), it trains a Random
+Forest using <code>ranger</code>, with cross-validation auto-selected (5-fold
+stratified when N ≥ 20, leave-one-out when N &lt; 20), reports
+accuracy/AUC/F1/sens/spec, computes permutation feature importance and
+Saabas-style SHAP contributions, and writes per-(level × variable) and
+per-variable summary spreadsheets so the user can compare classifiers
+across levels.</p>
+<hr />
+<h2 id="the-algorithm-step-by-step">The algorithm, step by step</h2>
+<h3>1. Gate on Steps 7 + 8</h3>
+<p><strong>First</strong> the script reads <code>7_taxonomy_csv/mbx_taxonomy_info.txt</code> for
+the metadata path and <code>8_cleaned_files/mbx_ezclean_info.txt</code> for the
+seven cleaned XLSX paths. It refuses to run if either contract is
+missing.</p>
+<h3>2. Auto-detect categorical variables</h3>
+<p><strong>Then</strong> it applies the same categorical-variable detection used by Step
+9/10/12 — every column that isn't <code>sample-id</code>, numeric-only, singleton,
+or all-unique.</p>
+<h3>3. For every (level × variable): one Random Forest run</h3>
+<p><strong>For each combination</strong>, the script invokes R:</p>
+<pre><code class="language-r">library(ranger)
+set.seed(MBX_SEED)
+
+X &lt;- read.xlsx(level_xlsx)        # samples × taxa wide table
+y &lt;- X[[selected_variable]]       # the response
+
+# Drop the response column from features
+X[[selected_variable]] &lt;- NULL
+
+# Drop other metadata columns
+X &lt;- X[, sapply(X, is.numeric), drop = FALSE]
+
+# Cross-validation strategy
+cv &lt;- if (N &gt;= 20) &quot;stratified-5-fold&quot; else &quot;LOOCV&quot;
+
+# Train, predict, aggregate per-fold metrics
+rf &lt;- ranger(
+  dependent.variable.name = &quot;y&quot;,
+  data            = data,
+  num.trees       = NUM_TREES,             # default 500
+  importance      = &quot;permutation&quot;,
+  probability     = TRUE,
+  case.weights    = ...,                   # for class imbalance
+  num.threads     = MBX_THREADS
+)
+</code></pre>
+<h3>4. Cross-validation auto-selection</h3>
+<p><strong>Critical for small-N microbiome data:</strong></p>
+<ul>
+<li><strong>N ≥ 20</strong>: 5-fold <strong>stratified</strong> CV. Stratified means each fold has
+  roughly the same group proportions as the full sample — important when
+  one group is rare.</li>
+<li><strong>N &lt; 20</strong>: <strong>Leave-one-out</strong> CV. Necessary because 5-fold on N = 12
+  would give 2-sample test folds, where the metrics are noisier than
+  the model.</li>
+</ul>
+<h3>5. Handle class imbalance</h3>
+<p><strong>By default</strong>, the script uses <code>ranger</code>'s <code>case.weights</code> to weight
+samples inversely to their class frequency. This stops the classifier
+from getting "high accuracy" by always predicting the majority class —
+a known pathology of microbiome classifiers when one treatment group is
+twice the size of another.</p>
+<h3>6. Metrics + confusion matrix + ROC</h3>
+<p><strong>For each run</strong> the script computes:</p>
+<ul>
+<li><strong>Accuracy</strong> — the fraction of test-fold predictions that match the
+  truth.</li>
+<li><strong>Macro-averaged AUC</strong> — average of one-vs-rest ROC AUCs across
+  classes. Robust to class imbalance.</li>
+<li><strong>Per-class sensitivity, specificity, F1</strong> — for the per-class table.</li>
+<li><strong>Confusion matrix</strong> as a PNG heatmap.</li>
+<li><strong>ROC curves</strong> (one per class for multi-class) as a PNG.</li>
+</ul>
+<h3>7. Permutation feature importance</h3>
+<p><strong>For honest variable importance</strong>, the script uses <strong>permutation
+importance</strong> instead of Gini importance:</p>
+<ul>
+<li>For each feature, randomly permute its values in the <strong>out-of-bag</strong>
+  samples.</li>
+<li>Measure how much the prediction accuracy drops.</li>
+<li>The bigger the drop, the more important the feature.</li>
+</ul>
+<p>This is more honest than Gini importance, which is biased toward
+high-cardinality features. Output: <code>feature_importance.xlsx</code> and a
+<code>top20_importance.png</code> barplot.</p>
+<h3>8. Saabas-style SHAP-equivalent local contributions</h3>
+<p><strong>For per-sample interpretability</strong>, the script computes Saabas
+contributions (a per-tree decomposition of each prediction into a sum
+of feature contributions). The result is a per-sample × per-feature
+matrix saying "this feature pushed this sample's predicted probability
+up by 0.04". A heatmap shows the top features driving each sample's
+prediction.</p>
+<p>Saabas is the computationally-tractable SHAP equivalent for trees —
+it gives the same per-sample feature-attribution interpretation without
+the (much more expensive) full TreeSHAP algorithm.</p>
+<h3>9. Per-variable summary across the seven levels</h3>
+<p><strong>Finally</strong> the script aggregates the (level × variable) runs into
+<code>Summary_RF_&lt;Variable&gt;.xlsx</code>:</p>
+<table>
+<thead>
+<tr>
+<th>level</th>
+<th>accuracy</th>
+<th>macro_AUC</th>
+<th>F1</th>
+<th>n_features</th>
+<th>n_used</th>
+<th>runtime_s</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>domain</td>
+<td>0.55</td>
+<td>0.61</td>
+<td>0.52</td>
+<td>2</td>
+<td>2</td>
+<td>0.4</td>
+</tr>
+<tr>
+<td>phylum</td>
+<td>0.71</td>
+<td>0.74</td>
+<td>0.69</td>
+<td>12</td>
+<td>12</td>
+<td>0.8</td>
+</tr>
+<tr>
+<td>class</td>
+<td>0.78</td>
+<td>0.82</td>
+<td>0.77</td>
+<td>23</td>
+<td>22</td>
+<td>1.2</td>
+</tr>
+<tr>
+<td>...</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>That summary is the canonical "<strong>which taxonomic level is the most
+predictive for this variable?</strong>" answer.</p>
+<h3>10. Save the model</h3>
+<p><strong>Then</strong> the script saves the trained model as an RDS file. Advanced
+users can load it in R and apply it to a new dataset (e.g. cross-
+validation against an independent cohort).</p>
+<hr />
+<h2 id="default-parameters-and-why-they-are-what-they-are">Default parameters and why they are what they are</h2>
+<table>
+<thead>
+<tr>
+<th>Default</th>
+<th>Value</th>
+<th>Why this default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Classifier</td>
+<td><strong>Random Forest (ranger)</strong></td>
+<td>Robust to non-linearity, non-normal data, small N. The default microbiome ML choice.</td>
+</tr>
+<tr>
+<td>Number of trees</td>
+<td><strong>500</strong></td>
+<td>Empirical sweet spot — more trees rarely changes accuracy; fewer increases variance.</td>
+</tr>
+<tr>
+<td>Cross-validation</td>
+<td><strong>5-fold stratified</strong> when N ≥ 20, else <strong>LOOCV</strong></td>
+<td>Auto-selected per (level × variable). Stratification keeps small groups represented in every fold.</td>
+</tr>
+<tr>
+<td>Class imbalance handling</td>
+<td><strong><code>case.weights</code> inverse to class frequency</strong></td>
+<td>Stops the classifier from gaming accuracy by always predicting the majority class.</td>
+</tr>
+<tr>
+<td>Importance metric</td>
+<td><strong>Permutation importance</strong></td>
+<td>Unbiased; Gini importance favours high-cardinality features.</td>
+</tr>
+<tr>
+<td>Local interpretation</td>
+<td><strong>Saabas SHAP-equivalent</strong></td>
+<td>Per-sample × per-feature contributions; the tree-friendly SHAP approximation.</td>
+</tr>
+<tr>
+<td>Seed</td>
+<td><strong><code>MBX_SEED</code></strong> (default 42, L'Ecuyer-CMRG)</td>
+<td>Reproducibility — required because <code>ranger</code> uses parallel under the hood.</td>
+</tr>
+<tr>
+<td>Threads</td>
+<td><strong><code>MBX_THREADS</code></strong></td>
+<td>Single source of truth.</td>
+</tr>
+<tr>
+<td>Plot formats</td>
+<td><strong>PNG + SVG always; PDF on <code>--publication-figures</code></strong></td>
+<td>Publication-ready by default.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="when-and-why-we-fall-back-to-defaults">When and why we fall back to defaults</h2>
+<table>
+<thead>
+<tr>
+<th>Fallback</th>
+<th>When it triggers</th>
+<th>Why this fallback exists</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>LOOCV instead of 5-fold</strong></td>
+<td>N &lt; 20 samples</td>
+<td>5-fold on N = 12 gives 2-sample test folds — noisier than the model.</td>
+</tr>
+<tr>
+<td><strong>Skip a (level × variable) cell</strong></td>
+<td>&lt; 2 valid groups, &lt; 5 samples per group, or no features after filtering</td>
+<td>Insufficient data to train.</td>
+</tr>
+<tr>
+<td><strong>Class-weight balancing</strong></td>
+<td>One class has ≥ 2× another class's samples</td>
+<td>Prevents the majority-class gaming.</td>
+</tr>
+<tr>
+<td><strong>Skip SHAP if <code>--skip-shap</code></strong></td>
+<td>Large N + many features makes Saabas slow</td>
+<td>Saabas is per-sample × per-feature — quadratic in feature count. User can opt out.</td>
+</tr>
+<tr>
+<td><strong>Reuse cached RDS</strong></td>
+<td>Existing trained model at the expected path</td>
+<td>Saves the most expensive sub-step on re-runs.</td>
+</tr>
+<tr>
+<td><strong>Hard-fail on factor-level mismatch</strong></td>
+<td>The response column has only one level after filtering</td>
+<td>Nothing to classify; logged + skipped.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="what-the-output-file-looks-like">What the output file looks like</h2>
+<p><code>Summary_RF_&lt;Variable&gt;.xlsx</code> (the canonical "which level is most
+predictive?" answer):</p>
+<table>
+<thead>
+<tr>
+<th>level</th>
+<th>accuracy</th>
+<th>macro_AUC</th>
+<th>F1</th>
+<th>n_features</th>
+<th>n_used</th>
+<th>runtime_s</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>domain</td>
+<td>0.55</td>
+<td>0.61</td>
+<td>0.52</td>
+<td>2</td>
+<td>2</td>
+<td>0.4</td>
+</tr>
+<tr>
+<td>phylum</td>
+<td>0.71</td>
+<td>0.74</td>
+<td>0.69</td>
+<td>12</td>
+<td>12</td>
+<td>0.8</td>
+</tr>
+<tr>
+<td>class</td>
+<td>0.78</td>
+<td>0.82</td>
+<td>0.77</td>
+<td>23</td>
+<td>22</td>
+<td>1.2</td>
+</tr>
+<tr>
+<td>order</td>
+<td>0.83</td>
+<td>0.87</td>
+<td>0.82</td>
+<td>47</td>
+<td>41</td>
+<td>2.0</td>
+</tr>
+<tr>
+<td>family</td>
+<td>0.86</td>
+<td>0.90</td>
+<td>0.85</td>
+<td>84</td>
+<td>71</td>
+<td>2.9</td>
+</tr>
+<tr>
+<td>genus</td>
+<td>0.88</td>
+<td>0.93</td>
+<td>0.87</td>
+<td>142</td>
+<td>109</td>
+<td>4.1</td>
+</tr>
+<tr>
+<td>species</td>
+<td>0.85</td>
+<td>0.91</td>
+<td>0.83</td>
+<td>218</td>
+<td>178</td>
+<td>5.3</td>
+</tr>
+</tbody>
+</table>
+<p>Plus per-(level × variable) <code>RF_&lt;level&gt;_by_&lt;var&gt;/</code> directories with:</p>
+<ul>
+<li><code>model_metrics.xlsx</code> — accuracy + AUC + F1 + sens + spec.</li>
+<li><code>confusion_matrix.png</code> / <code>.svg</code>.</li>
+<li><code>roc_curves.png</code> / <code>.svg</code>.</li>
+<li><code>feature_importance.xlsx</code> — every feature's permutation importance.</li>
+<li><code>top20_importance.png</code> / <code>.svg</code>.</li>
+<li><code>shap_per_sample.png</code> / <code>.svg</code>.</li>
+<li><code>predicted_vs_actual.xlsx</code>.</li>
+<li><code>model.rds</code>.</li>
+</ul>
+<hr />
+<h2 id="takeaway">Takeaway</h2>
+<blockquote>
+<p>Step 16 is the predictive complement to Steps 10 and 14. A signal that
+shows up in ANCOMBC2 <strong>and</strong> drives a Random Forest classification is
+hard to dismiss. The cross-validation strategy auto-adapts to small-N
+microbiome reality. Permutation importance + Saabas SHAP give a
+reviewer the <em>which taxa actually drive the prediction</em> answer.</p>
+</blockquote>
+<hr />
+<h2 id="sources">Sources</h2>
+<ul>
+<li>The script: <code>mbXPro/scripts/mbx_ml_classifier_run.sh</code></li>
+<li>Random Forest: Breiman (2001), <em>Random forests</em>, Machine Learning
+  45:5–32.</li>
+<li><code>ranger</code>: Wright &amp; Ziegler (2017), <em>ranger: A fast implementation of
+  Random Forests for high dimensional data in C++ and R</em>, JSS 77:1.</li>
+<li>Permutation importance: Strobl et al. (2007), <em>Bias in random forest
+  variable importance measures</em>, BMC Bioinformatics 8:25.</li>
+<li>Saabas SHAP-equivalent: Saabas (2014),
+  http://blog.datadive.net/interpreting-random-forests/</li>
+<li>SHAP for trees: Lundberg et al. (2020), <em>From local explanations to
+  global understanding with explainable AI for trees</em>, Nat Mach Intell
+  2:56–67.</li>
+</ul>
+<div class="doc-footer">
+  mbX Pro 1.5.0 · <a href="README.md">Markdown source</a> · <a href="#">Back to top</a>
+</div>
+<script>
+(function () {
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text);
+    }
+    return new Promise(function (resolve, reject) {
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.setAttribute('readonly', '');
+      ta.style.position = 'absolute'; ta.style.left = '-9999px';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy') ? resolve() : reject(new Error('copy failed')); }
+      catch (e) { reject(e); }
+      finally { document.body.removeChild(ta); }
+    });
+  }
+  document.querySelectorAll('pre').forEach(function (pre) {
+    var btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'copy-btn';
+    btn.textContent = 'Copy';
+    btn.setAttribute('aria-label', 'Copy code to clipboard');
+    btn.addEventListener('click', function () {
+      var code = pre.querySelector('code');
+      var text = (code ? code.innerText : pre.innerText) || '';
+      copyText(text).then(function () {
+        btn.textContent = 'Copied'; btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      }).catch(function () {
+        btn.textContent = 'Copy failed';
+        setTimeout(function () { btn.textContent = 'Copy'; }, 1600);
+      });
+    });
+    pre.appendChild(btn);
+  });
+})();
+</script>
+</body>
+</html>

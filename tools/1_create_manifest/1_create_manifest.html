@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Step 1 — Manifest Builder | mbX Pro</title>
+<style>
+:root {
+  --bg: #fafbfc; --fg: #1f2328; --muted: #57606a; --link: #0969da;
+  --code-bg: #0d1117; --code-fg: #f0f6fc; --inline-bg: #eef1f4;
+  --border: #d0d7de; --accent: #218bff;
+  --btn-bg: #ffffff; --btn-fg: #1f2328; --btn-bg-hover: #f3f5f7;
+  --btn-ok-bg: #1f883d; --btn-ok-fg: #ffffff;
+  --table-stripe: #f6f8fa; --callout-bg: #fff8dc; --callout-border: #e1c468;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1117; --fg: #c9d1d9; --muted: #8b949e; --link: #58a6ff;
+    --code-bg: #161b22; --code-fg: #c9d1d9; --inline-bg: #1c2128;
+    --border: #30363d; --btn-bg: #21262d; --btn-fg: #c9d1d9;
+    --btn-bg-hover: #30363d; --table-stripe: #161b22;
+    --callout-bg: #2d2a14; --callout-border: #6d5c1b;
+  }
+}
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  line-height: 1.65; max-width: 960px; margin: 0 auto;
+  padding: 48px 24px 96px; font-size: 16px;
+}
+h1, h2, h3, h4 { font-weight: 600; line-height: 1.25; margin-top: 2em; margin-bottom: 0.5em; }
+h1 { font-size: 2.1em; margin-top: 0; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h2 { font-size: 1.5em; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h3 { font-size: 1.2em; }
+h4 { font-size: 1.0em; color: var(--muted); }
+p { margin: 0.6em 0 1em; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+ul, ol { padding-left: 1.5em; }
+hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
+pre {
+  position: relative; background: var(--code-bg); color: var(--code-fg);
+  padding: 18px; border-radius: 8px; overflow-x: auto;
+  font-size: 0.92em; line-height: 1.5; margin: 1em 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+pre code { background: transparent; padding: 0; color: inherit; font-size: 1em; }
+code {
+  background: var(--inline-bg); padding: 0.15em 0.4em; border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9em;
+}
+.copy-btn {
+  position: absolute; top: 10px; right: 10px;
+  background: var(--btn-bg); color: var(--btn-fg);
+  border: 1px solid var(--border); border-radius: 6px;
+  padding: 5px 11px; font-size: 12px; font-family: inherit;
+  cursor: pointer; opacity: 0.85;
+  transition: background 120ms, opacity 120ms, color 120ms; z-index: 2;
+}
+.copy-btn:hover { background: var(--btn-bg-hover); opacity: 1; }
+.copy-btn.copied { background: var(--btn-ok-bg); color: var(--btn-ok-fg); border-color: var(--btn-ok-bg); }
+table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: 0.95em; }
+th, td { border: 1px solid var(--border); padding: 8px 12px; vertical-align: top; text-align: left; }
+th { background: var(--inline-bg); font-weight: 600; }
+tbody tr:nth-child(even) td { background: var(--table-stripe); }
+.toc {
+  background: var(--inline-bg); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px 22px; margin: 1em 0 2em; font-size: 0.95em;
+}
+.toc strong { display: block; margin-bottom: 6px; }
+.toc ol { margin: 0; padding-left: 1.4em; }
+.toc li { margin: 2px 0; }
+blockquote {
+  border-left: 4px solid var(--accent); margin: 1.2em 0; padding: 4px 18px;
+  color: var(--muted); background: var(--inline-bg); border-radius: 4px;
+}
+.doc-footer {
+  margin-top: 4em; padding-top: 1.5em; border-top: 1px solid var(--border);
+  color: var(--muted); font-size: 0.9em;
+}
+</style>
+</head>
+<body>
+<div class="toc"><strong>Contents</strong><ol><li><a href="#why-this-step-matters">Why this step matters</a></li><li><a href="#what-the-script-does-in-one-sentence">What the script does in one sentence</a></li><li><a href="#the-algorithm-step-by-step">The algorithm, step by step</a></li><li><a href="#default-parameters-and-why-they-are-what-they-are">Default parameters and why they are what they are</a></li><li><a href="#when-and-why-we-fall-back-to-defaults">When and why we fall back to defaults</a></li><li><a href="#what-the-output-file-looks-like">What the output file looks like</a></li><li><a href="#takeaway">Takeaway</a></li><li><a href="#sources">Sources</a></li></ol></div>
+<h1>Step 1 — Manifest Builder</h1>
+<p><strong>Script:</strong> <code>scripts/create_manifest.sh</code></p>
+<p><strong>Companion files in this folder:</strong>
+- <code>1_create_manifest.html</code> — same content with copy buttons on every code block.
+- <code>1_create_manifest.pptx</code> — slide deck for the talk.</p>
+<hr />
+<h2 id="why-this-step-matters">Why this step matters</h2>
+<p>QIIME2 — the platform we use for everything from denoising to taxonomy — can't
+read raw FASTQ files directly. Before it can do anything, it needs an
+<strong>import manifest</strong>: a small tab-separated table that says <em>for every sample,
+which FASTQ file on disk is the forward read and which is the reverse</em>.</p>
+<p>That sounds trivial. It is not. Real sequencing data shows up with <strong>five
+different naming conventions</strong> depending on which facility delivered it:</p>
+<ul>
+<li>Illumina default: <code>SampleA_R1_001.fastq.gz</code> / <code>SampleA_R2_001.fastq.gz</code></li>
+<li>SRA / ENA archives: <code>SRR123_1.fastq.gz</code> / <code>SRR123_2.fastq.gz</code></li>
+<li>Some commercial vendors: <code>gut_READ1.fastq.gz</code> / <code>gut_READ2.fastq.gz</code></li>
+<li>Older bioinformatics pipelines: <code>s12.forward.fastq.gz</code> / <code>s12.reverse.fastq.gz</code></li>
+<li>Single-end runs (no mate at all): <code>SRR123.fastq.gz</code></li>
+</ul>
+<p>A mismatch — forward labelled as reverse, two samples merged into one, or a
+sample present in the FASTQ folder but missing from the metadata — produces
+silent errors that the downstream steps inherit as "weird results" that take
+hours to debug. The manifest builder's job is to <strong>never let that happen</strong>.</p>
+<hr />
+<h2 id="what-the-script-does-in-one-sentence">What the script does in one sentence</h2>
+<p>It scans a FASTQ directory, classifies every file by direction and sample,
+reconciles the sample IDs against the user's metadata file, and produces a
+QIIME2-compatible TSV with absolute paths — failing loudly the moment
+anything inconsistent appears.</p>
+<hr />
+<h2 id="the-algorithm-step-by-step">The algorithm, step by step</h2>
+<h3>1. Walk the FASTQ directory</h3>
+<p><strong>First</strong>, the script finds every file matching <code>*.fastq.gz</code>, <code>*.fq.gz</code>,
+<code>*.fastq</code>, or <code>*.fq</code> in the directory the user pointed to. By default it
+also peeks one level above and one level below, so users who keep their
+FASTQs in a subdirectory don't have to know about that.</p>
+<h3>2. Classify each filename</h3>
+<p><strong>Then</strong> an embedded Python helper applies a <strong>regex cascade</strong>, in priority
+order, to every filename:</p>
+<ul>
+<li><code>R1</code> / <code>R2</code> — Illumina default</li>
+<li><code>_1</code> / <code>_2</code> — SRA / ENA archive convention</li>
+<li><code>READ1</code> / <code>READ2</code> — some commercial vendors</li>
+<li><code>forward</code> / <code>reverse</code> — older pipelines</li>
+<li>Anything that matches none of the above is provisionally classified as
+  <strong>single-end</strong>.</li>
+</ul>
+<p>Both the <strong>classifier and the priority order</strong> are identical to the ones
+Step 0 (the primer identifier) uses internally — so Step 0 and Step 1 can
+<strong>never disagree</strong> about which file is which.</p>
+<h3>3. Infer the sample ID</h3>
+<p><strong>Now</strong> the script strips the direction marker out of each filename to
+recover the sample ID. <code>SampleA_R1_001.fastq.gz</code> → sample <code>SampleA_001</code> →
+sample <code>SampleA</code>. The stripping rules are conservative: anything that
+looks like an Illumina lane or chunk number (<code>_L001</code>, <code>_001</code>) gets dropped
+only if doing so preserves uniqueness.</p>
+<h3>4. Reconcile against the metadata</h3>
+<p><strong>Critical step.</strong> If the user supplied a metadata file, the script reads
+its first column (<code>sample-id</code> / <code>sampleid</code> / <code>id</code>) and tries to match every
+FASTQ sample-id against it:</p>
+<ul>
+<li><strong>Exact match</strong> wins.</li>
+<li><strong>Unique case-insensitive match</strong> is accepted, adopting the metadata's
+  spelling (so the rest of the pipeline uses the user's preferred casing).</li>
+<li>A FASTQ sample with <strong>no metadata row</strong> is a <strong>hard error</strong> — it would
+  silently vanish in any later metadata-aware QIIME2 command, producing
+  spooky "missing samples" downstream.</li>
+<li>A metadata row with no FASTQ files is a <strong>warning</strong> — those samples
+  simply won't be in the analysis but the user should know.</li>
+</ul>
+<h3>5. Decide paired-end vs single-end at the directory level</h3>
+<p><strong>A directory is paired-end</strong> if and only if <strong>every</strong> sample has both a
+forward and a reverse file. Mixed directories (some samples paired, some
+single) are rejected — they're almost always a mistake (e.g. the reverse
+file failed to copy from the sequencer).</p>
+<h3>6. Write the manifest</h3>
+<p><strong>Finally</strong>, the script writes the QIIME2-compatible TSV with <strong>absolute
+paths</strong> (so QIIME2 can find the files regardless of where the user runs
+<code>qiime tools import</code> from). Paired-end format:</p>
+<pre><code>sample-id    forward-absolute-filepath    reverse-absolute-filepath
+SampleA      /abs/path/SampleA_R1.fastq.gz    /abs/path/SampleA_R2.fastq.gz
+...
+</code></pre>
+<p>Single-end format:</p>
+<pre><code>sample-id    absolute-filepath
+SampleA      /abs/path/SampleA.fastq.gz
+...
+</code></pre>
+<p>The manifest goes into <code>1_manifest_file/manifest.txt</code> inside the run's
+output tree.</p>
+<hr />
+<h2 id="default-parameters-and-why-they-are-what-they-are">Default parameters and why they are what they are</h2>
+<table>
+<thead>
+<tr>
+<th>Default</th>
+<th>Value</th>
+<th>Why this default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FASTQ extensions recognised</td>
+<td><code>.fastq.gz</code> <code>.fq.gz</code> <code>.fastq</code> <code>.fq</code></td>
+<td>The four spellings every common pipeline produces. We don't try <code>.bam</code> or <code>.cram</code> — those need a different import path.</td>
+</tr>
+<tr>
+<td>Search depth</td>
+<td>parent + child of given dir</td>
+<td>Users often keep FASTQs in a subfolder (e.g. <code>~/project/FASTQ/</code>). Searching one level above and below catches both layouts without requiring the user to think about it.</td>
+</tr>
+<tr>
+<td>Name-pattern priority</td>
+<td>R1/R2 → _1/_2 → READ1/READ2 → forward/reverse → single</td>
+<td>Most-specific to least-specific so an ambiguous filename can't accidentally match multiple patterns.</td>
+</tr>
+<tr>
+<td>Sample-ID matching</td>
+<td>exact, then unique case-insensitive</td>
+<td>Catches the common case-mismatch bug (FASTQ has <code>Sample01</code>, metadata has <code>sample01</code>) without inviting collisions.</td>
+</tr>
+<tr>
+<td>Output location</td>
+<td><code>&lt;parent_of_fastq&gt;/mbX_pro_outputs_&lt;TS&gt;/1_manifest_file/manifest.txt</code></td>
+<td>We never write inside the FASTQ folder — those should be treated as read-only.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="when-and-why-we-fall-back-to-defaults">When and why we fall back to defaults</h2>
+<table>
+<thead>
+<tr>
+<th>Fallback</th>
+<th>When it triggers</th>
+<th>Why this fallback exists</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Search siblings + children</strong></td>
+<td>User pointed at a directory that contains only sub-directories of FASTQ files.</td>
+<td>Common in shared-storage setups; easier than asking the user to re-aim.</td>
+</tr>
+<tr>
+<td><strong>Adopt metadata casing</strong></td>
+<td>FASTQ sample-id matches a metadata row only after case-folding.</td>
+<td>Avoids the most common merge-failure mode without inviting silent ambiguity (we require the case-insensitive match to be unique).</td>
+</tr>
+<tr>
+<td><strong>Refuse mixed paired + single</strong></td>
+<td>Some samples have both reads, others have only one.</td>
+<td>Mixed-mode runs are almost always a delivery error. Continuing would silently drop the broken samples or import them with wrong direction labels.</td>
+</tr>
+<tr>
+<td><strong>Hard-fail on missing metadata row</strong></td>
+<td>A FASTQ sample-id has no row in the metadata.</td>
+<td>The alternative — silently importing it as an "unknown" sample — would cause it to vanish at every downstream <code>--m-metadata-file</code> command, looking like a phantom data loss.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="what-the-output-file-looks-like">What the output file looks like</h2>
+<pre><code>sample-id   forward-absolute-filepath   reverse-absolute-filepath
+SampleA /Users/.../FASTQ/SampleA_R1_001.fastq.gz    /Users/.../FASTQ/SampleA_R2_001.fastq.gz
+SampleB /Users/.../FASTQ/SampleB_R1_001.fastq.gz    /Users/.../FASTQ/SampleB_R2_001.fastq.gz
+...
+</code></pre>
+<p>Plain text, tab-separated, absolute paths. Step 2 reads the header to detect
+paired vs single-end and feeds the file straight into <code>qiime tools import</code>.</p>
+<hr />
+<h2 id="takeaway">Takeaway</h2>
+<blockquote>
+<p>The manifest builder doesn't sound like an algorithm — but it's the place
+where five vendor naming conventions meet the user's metadata, and where
+silent merge errors are most likely to creep in. The whole script is a
+series of small consistency checks designed to <strong>fail loudly the moment
+anything is wrong</strong>, so the downstream pipeline can trust that the file
+layout actually matches the metadata.</p>
+</blockquote>
+<hr />
+<h2 id="sources">Sources</h2>
+<ul>
+<li>The script: <code>mbXPro/scripts/create_manifest.sh</code></li>
+<li>QIIME2 import manifest format:
+  https://docs.qiime2.org/2025.4/tutorials/importing/</li>
+<li>Naming conventions: Illumina BCL Convert specification (R1/R2/_001); SRA
+  ENA fastq-dump (<code>_1</code>/<code>_2</code>).</li>
+</ul>
+<div class="doc-footer">
+  mbX Pro 1.5.0 · <a href="README.md">Markdown source</a> · <a href="#">Back to top</a>
+</div>
+<script>
+(function () {
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text);
+    }
+    return new Promise(function (resolve, reject) {
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.setAttribute('readonly', '');
+      ta.style.position = 'absolute'; ta.style.left = '-9999px';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy') ? resolve() : reject(new Error('copy failed')); }
+      catch (e) { reject(e); }
+      finally { document.body.removeChild(ta); }
+    });
+  }
+  document.querySelectorAll('pre').forEach(function (pre) {
+    var btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'copy-btn';
+    btn.textContent = 'Copy';
+    btn.setAttribute('aria-label', 'Copy code to clipboard');
+    btn.addEventListener('click', function () {
+      var code = pre.querySelector('code');
+      var text = (code ? code.innerText : pre.innerText) || '';
+      copyText(text).then(function () {
+        btn.textContent = 'Copied'; btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      }).catch(function () {
+        btn.textContent = 'Copy failed';
+        setTimeout(function () { btn.textContent = 'Copy'; }, 1600);
+      });
+    });
+    pre.appendChild(btn);
+  });
+})();
+</script>
+</body>
+</html>

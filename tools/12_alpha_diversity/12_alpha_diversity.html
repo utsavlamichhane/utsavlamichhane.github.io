@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Step 12 — Alpha Diversity | mbX Pro</title>
+<style>
+:root {
+  --bg: #fafbfc; --fg: #1f2328; --muted: #57606a; --link: #0969da;
+  --code-bg: #0d1117; --code-fg: #f0f6fc; --inline-bg: #eef1f4;
+  --border: #d0d7de; --accent: #218bff;
+  --btn-bg: #ffffff; --btn-fg: #1f2328; --btn-bg-hover: #f3f5f7;
+  --btn-ok-bg: #1f883d; --btn-ok-fg: #ffffff;
+  --table-stripe: #f6f8fa; --callout-bg: #fff8dc; --callout-border: #e1c468;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1117; --fg: #c9d1d9; --muted: #8b949e; --link: #58a6ff;
+    --code-bg: #161b22; --code-fg: #c9d1d9; --inline-bg: #1c2128;
+    --border: #30363d; --btn-bg: #21262d; --btn-fg: #c9d1d9;
+    --btn-bg-hover: #30363d; --table-stripe: #161b22;
+    --callout-bg: #2d2a14; --callout-border: #6d5c1b;
+  }
+}
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  line-height: 1.65; max-width: 960px; margin: 0 auto;
+  padding: 48px 24px 96px; font-size: 16px;
+}
+h1, h2, h3, h4 { font-weight: 600; line-height: 1.25; margin-top: 2em; margin-bottom: 0.5em; }
+h1 { font-size: 2.1em; margin-top: 0; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h2 { font-size: 1.5em; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h3 { font-size: 1.2em; }
+h4 { font-size: 1.0em; color: var(--muted); }
+p { margin: 0.6em 0 1em; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+ul, ol { padding-left: 1.5em; }
+hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
+pre {
+  position: relative; background: var(--code-bg); color: var(--code-fg);
+  padding: 18px; border-radius: 8px; overflow-x: auto;
+  font-size: 0.92em; line-height: 1.5; margin: 1em 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+pre code { background: transparent; padding: 0; color: inherit; font-size: 1em; }
+code {
+  background: var(--inline-bg); padding: 0.15em 0.4em; border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9em;
+}
+.copy-btn {
+  position: absolute; top: 10px; right: 10px;
+  background: var(--btn-bg); color: var(--btn-fg);
+  border: 1px solid var(--border); border-radius: 6px;
+  padding: 5px 11px; font-size: 12px; font-family: inherit;
+  cursor: pointer; opacity: 0.85;
+  transition: background 120ms, opacity 120ms, color 120ms; z-index: 2;
+}
+.copy-btn:hover { background: var(--btn-bg-hover); opacity: 1; }
+.copy-btn.copied { background: var(--btn-ok-bg); color: var(--btn-ok-fg); border-color: var(--btn-ok-bg); }
+table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: 0.95em; }
+th, td { border: 1px solid var(--border); padding: 8px 12px; vertical-align: top; text-align: left; }
+th { background: var(--inline-bg); font-weight: 600; }
+tbody tr:nth-child(even) td { background: var(--table-stripe); }
+.toc {
+  background: var(--inline-bg); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px 22px; margin: 1em 0 2em; font-size: 0.95em;
+}
+.toc strong { display: block; margin-bottom: 6px; }
+.toc ol { margin: 0; padding-left: 1.4em; }
+.toc li { margin: 2px 0; }
+blockquote {
+  border-left: 4px solid var(--accent); margin: 1.2em 0; padding: 4px 18px;
+  color: var(--muted); background: var(--inline-bg); border-radius: 4px;
+}
+.doc-footer {
+  margin-top: 4em; padding-top: 1.5em; border-top: 1px solid var(--border);
+  color: var(--muted); font-size: 0.9em;
+}
+</style>
+</head>
+<body>
+<div class="toc"><strong>Contents</strong><ol><li><a href="#why-this-step-matters">Why this step matters</a></li><li><a href="#what-the-script-does-in-one-sentence">What the script does in one sentence</a></li><li><a href="#the-algorithm-step-by-step">The algorithm, step by step</a></li><li><a href="#default-parameters-and-why-they-are-what-they-are">Default parameters and why they are what they are</a></li><li><a href="#when-and-why-we-fall-back-to-defaults">When and why we fall back to defaults</a></li><li><a href="#what-the-output-file-looks-like">What the output file looks like</a></li><li><a href="#takeaway">Takeaway</a></li><li><a href="#sources">Sources</a></li></ol></div>
+<h1>Step 12 — Alpha Diversity</h1>
+<p><strong>Script:</strong> <code>scripts/mbx_alpha_diversity_run.sh</code></p>
+<p><strong>Companion files in this folder:</strong>
+- <code>12_alpha_diversity.html</code> — same content with copy buttons.
+- <code>12_alpha_diversity.pptx</code> — slide deck for the talk.</p>
+<hr />
+<h2 id="why-this-step-matters">Why this step matters</h2>
+<p><strong>Alpha diversity</strong> answers the simplest question we ask of a microbiome
+sample: <strong>how diverse is this single community?</strong> Two intuitions go into
+the answer:</p>
+<ul>
+<li><strong>Richness</strong> — how many different things are there?</li>
+<li><strong>Evenness</strong> — are they all roughly equal, or does one species
+  dominate?</li>
+</ul>
+<p>Step 12 computes <strong>five</strong> alpha-diversity metrics, each capturing those
+two intuitions slightly differently — so a reviewer can see if the
+finding is robust to the choice of metric. It then asks the next
+question: <strong>are the alpha-diversity differences between treatment groups
+statistically significant?</strong> — and produces the boxplots + tests that
+answer it.</p>
+<hr />
+<h2 id="what-the-script-does-in-one-sentence">What the script does in one sentence</h2>
+<p>It rarefies the feature table to the depth Step 11 chose, computes the
+five canonical alpha-diversity vectors (Observed Features, Shannon,
+Simpson, Pielou, Faith PD), merges them into one tidy
+<code>alpha_diversity.xlsx</code> with the metadata, then runs Kruskal-Wallis +
+pairwise Dunn + compact letter displays per metric per categorical
+variable and produces the boxplots.</p>
+<hr />
+<h2 id="the-algorithm-step-by-step">The algorithm, step by step</h2>
+<h3>1. Gate on Step 11's verdict</h3>
+<p><strong>First</strong> the script reads <code>11_pre_diversity/mbx_pre_diversity_info.txt</code>
+and refuses to run unless <code>READY_FOR_DIVERSITY=yes</code> (or the user passes
+<code>--force</code>). This is the gate; if Step 11 said the depth choice was
+unreliable, Step 12 honours that.</p>
+<h3>2. Rarefy the feature table</h3>
+<p><strong>Then</strong> it runs <code>qiime feature-table rarefy</code> at the depth Step 11
+recommended, producing a <code>rarefied_table.qza</code>. Every diversity metric
+operates on this rarefied table — the same number of reads per sample —
+so apples-to-apples comparisons are guaranteed.</p>
+<h3>3. Compute five alpha metrics</h3>
+<p><strong>Now</strong> the script runs QIIME2's alpha-diversity plugin five times:</p>
+<ul>
+<li><strong>Observed Features</strong> — just the count of distinct ASVs per sample
+  (pure richness, no evenness contribution).</li>
+<li><strong>Shannon index</strong> — <code>H = − Σ p_i log p_i</code>. Combines richness and
+  evenness; sensitive to rare taxa.</li>
+<li><strong>Simpson diversity</strong> — <code>1 − Σ p_i²</code>. Combines richness and evenness;
+  weights common taxa more than Shannon does.</li>
+<li><strong>Pielou's evenness</strong> — <code>J = H / log(S)</code>, where <code>S</code> is observed
+  richness. Pure evenness — how close to the maximum entropy is the
+  community?</li>
+<li><strong>Faith's phylogenetic diversity</strong> — the total branch length of the
+  sub-tree spanned by the ASVs present in the sample. The
+  phylogenetically-aware richness measure.</li>
+</ul>
+<p>Five values per sample, exported to TSV.</p>
+<h3>4. Build the consolidated XLSX</h3>
+<p><strong>Then</strong> the script joins the five TSV files with the metadata in R and
+writes one tidy table:</p>
+<table>
+<thead>
+<tr>
+<th>sample-id</th>
+<th>Treatment</th>
+<th>ASVs_or_Features</th>
+<th>Shannon_Index</th>
+<th>Simpson_Diversity</th>
+<th>Faith_PD</th>
+<th>Pielou_Evenness</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SampleA</td>
+<td>High</td>
+<td>412</td>
+<td>5.23</td>
+<td>0.91</td>
+<td>28.4</td>
+<td>0.866</td>
+</tr>
+<tr>
+<td>SampleB</td>
+<td>Low</td>
+<td>367</td>
+<td>4.92</td>
+<td>0.88</td>
+<td>25.1</td>
+<td>0.834</td>
+</tr>
+</tbody>
+</table>
+<p>That XLSX is the single source of truth that the rest of Step 12 — and
+the final report — reads.</p>
+<h3>5. Statistics per (metric × variable)</h3>
+<p><strong>For every categorical variable</strong> discovered in the metadata (same auto-
+detection as Step 9/10), the script runs:</p>
+<ul>
+<li><strong>Kruskal-Wallis</strong> (3+ groups) or <strong>Wilcoxon rank-sum</strong> (2 groups) on
+  each metric.</li>
+<li><strong>Benjamini-Hochberg</strong> correction across the five metrics within each
+  variable (the Step 12 statistics report each metric independently, so
+  the correction is per-variable, not pipeline-wide).</li>
+<li><strong>Dunn's pairwise</strong> post-hoc on KW hits.</li>
+<li><strong>Compact letter display</strong> per metric per variable, written to
+  <code>CLD_Summary_&lt;metric&gt;_by_&lt;variable&gt;.xlsx</code>.</li>
+</ul>
+<h3>6. Boxplots</h3>
+<p><strong>Then</strong> it draws one boxplot per (metric × variable) and a multi-panel
+boxplot showing all five metrics next to each other for each variable.
+The compact letter display from step 5 is annotated on top of each box
+so a reviewer can read significance directly off the figure.</p>
+<p>PNG (always) + SVG (always) + PDF (with <code>--publication-figures</code>).</p>
+<h3>7. Write <code>mbx_alpha_diversity_info.txt</code></h3>
+<p><strong>Finally</strong> the cross-step info file records the rarefaction depth used,
+every XLSX produced, the categorical variables actually analysed, and
+<code>STATUS=COMPLETE</code>.</p>
+<hr />
+<h2 id="default-parameters-and-why-they-are-what-they-are">Default parameters and why they are what they are</h2>
+<table>
+<thead>
+<tr>
+<th>Default</th>
+<th>Value</th>
+<th>Why this default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Rarefaction depth</td>
+<td>from Step 11</td>
+<td>Step 11 is the single source of truth — never overridden here.</td>
+</tr>
+<tr>
+<td>Five metrics</td>
+<td>Observed Features, Shannon, Simpson, Pielou, Faith PD</td>
+<td>The five most commonly reported in microbiome papers, each capturing richness/evenness/phylogeny differently.</td>
+</tr>
+<tr>
+<td>Test (2 groups)</td>
+<td><strong>Wilcoxon rank-sum</strong></td>
+<td>Non-parametric — alpha-diversity distributions are rarely normal.</td>
+</tr>
+<tr>
+<td>Test (3+ groups)</td>
+<td><strong>Kruskal-Wallis</strong></td>
+<td>Same reasoning.</td>
+</tr>
+<tr>
+<td>Post-hoc on KW hits</td>
+<td><strong>Dunn's test</strong></td>
+<td>The standard non-parametric post-hoc.</td>
+</tr>
+<tr>
+<td>Multiple-testing correction</td>
+<td><strong>Benjamini-Hochberg</strong> across the 5 metrics within each variable</td>
+<td>Conservative enough; field-standard.</td>
+</tr>
+<tr>
+<td>CLD algorithm</td>
+<td><code>multcompView::multcompLetters</code></td>
+<td>Standard R implementation.</td>
+</tr>
+<tr>
+<td>Plot formats</td>
+<td>PNG + SVG always; PDF on <code>--publication-figures</code></td>
+<td>Publication-ready by default.</td>
+</tr>
+<tr>
+<td>Threads</td>
+<td><code>MBX_THREADS</code></td>
+<td>Single source of truth.</td>
+</tr>
+<tr>
+<td>Seed</td>
+<td><code>MBX_SEED</code></td>
+<td>Single source of truth for reproducibility.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="when-and-why-we-fall-back-to-defaults">When and why we fall back to defaults</h2>
+<table>
+<thead>
+<tr>
+<th>Fallback</th>
+<th>When it triggers</th>
+<th>Why this fallback exists</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Refuse to run</strong></td>
+<td><code>READY_FOR_DIVERSITY=no</code> from Step 11</td>
+<td>Step 11's verdict gates us; the override is <code>--force</code> and is recorded.</td>
+</tr>
+<tr>
+<td><strong>Skip a metric</strong></td>
+<td>A required artifact (e.g. tree) is missing</td>
+<td>Faith PD needs the rooted tree; if the tree wasn't produced, only the four non-phylogenetic metrics are computed.</td>
+</tr>
+<tr>
+<td><strong>Skip a comparison</strong></td>
+<td>A categorical variable has singleton groups after NA filter</td>
+<td>Same logic as Step 10; logged + continued.</td>
+</tr>
+<tr>
+<td><strong>Re-use rarefied table</strong></td>
+<td>Existing <code>rarefied_table.qza</code> at the same depth</td>
+<td>Saves a re-rarefaction on re-runs.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="what-the-output-file-looks-like">What the output file looks like</h2>
+<p><code>alpha_diversity.xlsx</code> (the consolidated table):</p>
+<table>
+<thead>
+<tr>
+<th>sample-id</th>
+<th>Treatment</th>
+<th>ASVs_or_Features</th>
+<th>Shannon_Index</th>
+<th>Simpson_Diversity</th>
+<th>Faith_PD</th>
+<th>Pielou_Evenness</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SampleA</td>
+<td>High</td>
+<td>412</td>
+<td>5.23</td>
+<td>0.91</td>
+<td>28.4</td>
+<td>0.866</td>
+</tr>
+<tr>
+<td>SampleB</td>
+<td>Low</td>
+<td>367</td>
+<td>4.92</td>
+<td>0.88</td>
+<td>25.1</td>
+<td>0.834</td>
+</tr>
+<tr>
+<td>...</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Plus per-variable subfolders containing the KW/Dunn/CLD XLSX files and
+the boxplot PNG/SVG/PDF, plus the <code>mbx_alpha_diversity_info.txt</code>
+contract for the final report.</p>
+<hr />
+<h2 id="takeaway">Takeaway</h2>
+<blockquote>
+<p>Step 12 answers the simplest microbiome question (how diverse is each
+sample?) five different ways so the answer is robust, then applies
+the same Kruskal-Wallis + Dunn + BH + CLD stack as Step 10 to test
+group differences. The boxplots are annotated with the CLD so
+significance is readable directly off the figure.</p>
+</blockquote>
+<hr />
+<h2 id="sources">Sources</h2>
+<ul>
+<li>The script: <code>mbXPro/scripts/mbx_alpha_diversity_run.sh</code></li>
+<li>Shannon index: Shannon (1948), <em>A mathematical theory of
+  communication</em>, BSTJ 27:379–423.</li>
+<li>Simpson diversity: Simpson (1949), <em>Measurement of diversity</em>,
+  Nature 163:688.</li>
+<li>Pielou's evenness: Pielou (1966), <em>The measurement of diversity in
+  different types of biological collections</em>, J Theor Biol 13:131.</li>
+<li>Faith PD: Faith (1992), <em>Conservation evaluation and phylogenetic
+  diversity</em>, Biol Conserv 61:1–10.</li>
+<li>QIIME2 <code>q2-diversity</code> plugin:
+  https://docs.qiime2.org/2025.4/plugins/available/diversity/</li>
+</ul>
+<div class="doc-footer">
+  mbX Pro 1.5.0 · <a href="README.md">Markdown source</a> · <a href="#">Back to top</a>
+</div>
+<script>
+(function () {
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text);
+    }
+    return new Promise(function (resolve, reject) {
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.setAttribute('readonly', '');
+      ta.style.position = 'absolute'; ta.style.left = '-9999px';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy') ? resolve() : reject(new Error('copy failed')); }
+      catch (e) { reject(e); }
+      finally { document.body.removeChild(ta); }
+    });
+  }
+  document.querySelectorAll('pre').forEach(function (pre) {
+    var btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'copy-btn';
+    btn.textContent = 'Copy';
+    btn.setAttribute('aria-label', 'Copy code to clipboard');
+    btn.addEventListener('click', function () {
+      var code = pre.querySelector('code');
+      var text = (code ? code.innerText : pre.innerText) || '';
+      copyText(text).then(function () {
+        btn.textContent = 'Copied'; btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      }).catch(function () {
+        btn.textContent = 'Copy failed';
+        setTimeout(function () { btn.textContent = 'Copy'; }, 1600);
+      });
+    });
+    pre.appendChild(btn);
+  });
+})();
+</script>
+</body>
+</html>

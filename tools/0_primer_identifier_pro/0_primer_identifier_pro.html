@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Step 0 — Primer Identifier (Pro) | mbX Pro</title>
+<style>
+:root {
+  --bg: #fafbfc; --fg: #1f2328; --muted: #57606a; --link: #0969da;
+  --code-bg: #0d1117; --code-fg: #f0f6fc; --inline-bg: #eef1f4;
+  --border: #d0d7de; --accent: #218bff;
+  --btn-bg: #ffffff; --btn-fg: #1f2328; --btn-bg-hover: #f3f5f7;
+  --btn-ok-bg: #1f883d; --btn-ok-fg: #ffffff;
+  --table-stripe: #f6f8fa; --callout-bg: #fff8dc; --callout-border: #e1c468;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1117; --fg: #c9d1d9; --muted: #8b949e; --link: #58a6ff;
+    --code-bg: #161b22; --code-fg: #c9d1d9; --inline-bg: #1c2128;
+    --border: #30363d; --btn-bg: #21262d; --btn-fg: #c9d1d9;
+    --btn-bg-hover: #30363d; --table-stripe: #161b22;
+    --callout-bg: #2d2a14; --callout-border: #6d5c1b;
+  }
+}
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  line-height: 1.65; max-width: 960px; margin: 0 auto;
+  padding: 48px 24px 96px; font-size: 16px;
+}
+h1, h2, h3, h4 { font-weight: 600; line-height: 1.25; margin-top: 2em; margin-bottom: 0.5em; }
+h1 { font-size: 2.1em; margin-top: 0; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h2 { font-size: 1.5em; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h3 { font-size: 1.2em; }
+h4 { font-size: 1.0em; color: var(--muted); }
+p { margin: 0.6em 0 1em; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+ul, ol { padding-left: 1.5em; }
+hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
+pre {
+  position: relative; background: var(--code-bg); color: var(--code-fg);
+  padding: 18px; border-radius: 8px; overflow-x: auto;
+  font-size: 0.92em; line-height: 1.5; margin: 1em 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+pre code { background: transparent; padding: 0; color: inherit; font-size: 1em; }
+code {
+  background: var(--inline-bg); padding: 0.15em 0.4em; border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9em;
+}
+.copy-btn {
+  position: absolute; top: 10px; right: 10px;
+  background: var(--btn-bg); color: var(--btn-fg);
+  border: 1px solid var(--border); border-radius: 6px;
+  padding: 5px 11px; font-size: 12px; font-family: inherit;
+  cursor: pointer; opacity: 0.85;
+  transition: background 120ms, opacity 120ms, color 120ms; z-index: 2;
+}
+.copy-btn:hover { background: var(--btn-bg-hover); opacity: 1; }
+.copy-btn.copied { background: var(--btn-ok-bg); color: var(--btn-ok-fg); border-color: var(--btn-ok-bg); }
+table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: 0.95em; }
+th, td { border: 1px solid var(--border); padding: 8px 12px; vertical-align: top; text-align: left; }
+th { background: var(--inline-bg); font-weight: 600; }
+tbody tr:nth-child(even) td { background: var(--table-stripe); }
+.toc {
+  background: var(--inline-bg); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px 22px; margin: 1em 0 2em; font-size: 0.95em;
+}
+.toc strong { display: block; margin-bottom: 6px; }
+.toc ol { margin: 0; padding-left: 1.4em; }
+.toc li { margin: 2px 0; }
+blockquote {
+  border-left: 4px solid var(--accent); margin: 1.2em 0; padding: 4px 18px;
+  color: var(--muted); background: var(--inline-bg); border-radius: 4px;
+}
+.doc-footer {
+  margin-top: 4em; padding-top: 1.5em; border-top: 1px solid var(--border);
+  color: var(--muted); font-size: 0.9em;
+}
+</style>
+</head>
+<body>
+<div class="toc"><strong>Contents</strong><ol><li><a href="#why-this-step-matters">Why this step matters</a></li><li><a href="#what-the-script-does-in-one-sentence">What the script does in one sentence</a></li><li><a href="#the-algorithm-step-by-step">The algorithm, step by step</a></li><li><a href="#default-parameters-and-why-they-are-what-they-are">Default parameters and why they are what they are</a></li><li><a href="#when-and-why-we-fall-back-to-defaults">When and why we fall back to defaults</a></li><li><a href="#what-the-output-file-looks-like">What the output file looks like</a></li><li><a href="#takeaway">Takeaway</a></li><li><a href="#sources">Sources</a></li></ol></div>
+<h1>Step 0 — Primer Identifier (Pro)</h1>
+<p><strong>Script:</strong> <code>scripts/mbx_primer_identifier_pro.sh</code> (orchestrator + Detectors B/C/D/E)
++ <code>scripts/mbx_primer_identifier.sh</code> (internal helper — Detector A)</p>
+<p><strong>Companion files in this folder:</strong>
+- <code>0_primer_identifier_pro.html</code> — same content as this README, with copy buttons on every code block.
+- <code>0_primer_identifier_pro.pptx</code> — slide deck for the talk.</p>
+<hr />
+<h2 id="why-this-step-matters">Why this step matters</h2>
+<p>In a 16S amplicon library, every read starts with a <strong>primer</strong> — a short
+synthetic DNA anchor (typically 18–22 bases) that PCR-amplifies the target
+region. The primer is <strong>not biological signal</strong>; it's a manufacturing
+artifact. If we leave it in, three things go wrong downstream:</p>
+<ul>
+<li>DADA2 (the denoiser, Step 4) treats the synthetic anchor as biology and
+  inflates error estimates.</li>
+<li>The taxonomy classifier (Step 6) tries to align the primer against real
+  references and confuses the placement.</li>
+<li>The final report can't tell the user what was actually sequenced.</li>
+</ul>
+<p>But we can't just "always trim 20 bases off the front", either:</p>
+<ul>
+<li>Some sequencing facilities <strong>already trim</strong> the primer before delivery. In
+  that case, trimming 20 more bases deletes 20 bases of real biology.</li>
+<li>Custom labs use <strong>non-standard primers</strong> that aren't in any database.</li>
+<li>A poorly-matched primer might be present in only 50 % of the reads —
+  silently trimming half of them is a disaster.</li>
+</ul>
+<p>Step 0 has to answer <strong>three</strong> questions simultaneously: <em>Is a primer there at
+all? If so, exactly which one? And how confident are we?</em></p>
+<hr />
+<h2 id="what-the-script-does-in-one-sentence">What the script does in one sentence</h2>
+<p>It runs <strong>four independent detectors in parallel</strong>, then validates the top
+candidates with <strong>cutadapt</strong> — the industry-standard primer-trimming tool —
+on the same reads, and only writes a primer down if cutadapt actually trims
+it off enough of the data.</p>
+<hr />
+<h2 id="the-algorithm-step-by-step">The algorithm, step by step</h2>
+<h3>1. Open the FASTQ directory and sub-sample reads</h3>
+<p><strong>First</strong>, the script finds every paired-end FASTQ file in the directory
+(typical layout: one <code>*_R1.fastq.gz</code> and one <code>*_R2.fastq.gz</code> per sample). It
+sub-samples <strong>5,000 reads per orientation</strong> (<code>--samples</code>), which is enough to
+estimate any 5′-end primer-match distribution within ~1 %.</p>
+<h3>2. Detector A — the IUPAC database matcher</h3>
+<p><strong>Then</strong> the script runs the <strong>v2 IUPAC sliding-window matcher</strong> (the
+internal <code>mbx_primer_identifier.sh</code>). This is the "look it up in the catalog"
+detector. It carries a curated database of about <strong>35 published 16S primers</strong>
+(515F, 806R, 27F, 1492R, etc.). For each candidate primer:</p>
+<ul>
+<li>It scans the first 25 bases of every sampled read in <strong>three orientations</strong>
+  (DIRECT, REVERSE COMPLEMENT, SWAP).</li>
+<li>It compares the candidate against the read using the <strong>IUPAC nucleotide
+  code</strong> — so <code>Y</code> matches both <code>C</code> and <code>T</code>, <code>N</code> matches anything — and
+  tolerates up to 3 mismatches.</li>
+<li>It scores each primer by how many sampled reads "match" it at the 5′ end.</li>
+<li>The primer with the highest match rate above threshold wins.</li>
+</ul>
+<p>If nothing in the catalog matches, the matcher falls back to <strong>TIER 2</strong>: it
+scans for <strong>conserved 16S V-region anchor motifs</strong> (e.g. V4 starts with
+<code>TACG.AGG</code> immediately after the 515F landing site). A positive anchor hit
+means "primers were already trimmed, but we recognise where on the rRNA we
+are" — <code>DETECTION_STATUS = TRIMMED</code> + <code>INFERRED_REGION = V4</code>.</p>
+<h3>3. Detector B — position-0 k-mer enrichment (de novo)</h3>
+<p><strong>At the same time</strong>, the script runs a <strong>database-free</strong> detector. The
+logic: if a primer is present, the same short sub-sequence appears at
+position 0 of every read in a sample. Random reads almost never do that.</p>
+<ul>
+<li>For each <code>k</code> in <code>{15, 17, 19, 21, 23, 25}</code> (<code>--kmer-min</code> / <code>--kmer-max</code>):
+  count every distinct <code>k</code>-mer that appears at position 0 across the sampled
+  reads. Compare it to the <strong>background frequency</strong> of the same <code>k</code>-mer at
+  <em>other</em> positions in the same reads.</li>
+<li>Any <code>k</code>-mer with <strong>fold-enrichment ≥ 10×</strong> (<code>--kmer-min-fold</code>) is a
+  candidate primer.</li>
+<li>If two or three different <code>k</code>-lengths agree on overlapping anchors, that's
+  a strong de novo discovery.</li>
+</ul>
+<p>This is what catches custom-lab primers that aren't in our database.</p>
+<h3>4. Detector C — inline FastQC-equivalent signals</h3>
+<p><strong>Independently</strong>, the script computes three FastQC-style signals — but
+inline, so we don't need Java/FastQC installed:</p>
+<ul>
+<li><strong>Per-base sequence-content entropy</strong> in positions 1..30. Primers show up
+  as a flat horizontal stripe where the base composition is locked.</li>
+<li><strong>Overrepresented 5′-anchored sequences</strong> — the top-N most-frequent
+  prefixes (these are almost certainly primer + sample-specific
+  Index/adapter combinations).</li>
+<li><strong>Illumina adapter content</strong> (Nextera / TruSeq) for read-through
+  diagnostics. If we see adapter near the 3′ end, the amplicon is shorter
+  than the read length — a useful side channel.</li>
+</ul>
+<h3>5. Detector D — fastp pair-end overlap detection</h3>
+<p><strong>If <code>fastp</code> is on PATH</strong> (it's optional), the script runs <code>fastp</code>'s
+<code>--detect_adapter_for_pe</code> mode. That algorithm independently solves the
+"infer the insert structure from PE-overlap" problem. The primer falls out
+naturally as the part each read has that the other read doesn't.</p>
+<p>If <code>fastp</code> isn't installed, this detector is gracefully skipped — the
+remaining detectors still deliver a verdict.</p>
+<h3>6. Aggregate the candidates</h3>
+<p>After all four detectors finish, the script <strong>collapses</strong> their candidate
+sets, IUPAC-aware (so detections that differ only in degenerate codes are
+treated as the same primer). It keeps the top <strong>3 candidates per
+orientation</strong> (<code>--top-candidates</code>) for validation.</p>
+<h3>7. Detector E — mandatory cutadapt validation</h3>
+<p><strong>Now the truth check.</strong> Every candidate goes through <code>cutadapt -e 0.15</code>
+against a sub-sample of the same reads (<code>--cutadapt-error</code>). Cutadapt is
+<em>the</em> industry-standard primer-trimming tool: it reports the exact percentage
+of reads in which the candidate primer was successfully matched and trimmed
+at the 5′ end. That percentage is the <strong>ground truth</strong>.</p>
+<ul>
+<li>A candidate that scored well in Detectors A/B/C/D but cutadapt only trims
+  off 8 % of reads → false positive, throw it out.</li>
+<li>A candidate cutadapt trims off 85 % → it's real, regardless of which other
+  detector flagged it.</li>
+</ul>
+<h3>8. Apply the consensus confidence rubric</h3>
+<p><strong>Finally</strong>, the script combines all five detector outputs into one
+confidence call:</p>
+<table>
+<thead>
+<tr>
+<th>Confidence</th>
+<th>Rule (any one path qualifies)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>HIGH</strong></td>
+<td>cutadapt ≥ 0.75 AND ≥ 2 detectors agree AND (DB-matched OR k-mer fold ≥ 10×)<br>OR cutadapt ≥ 0.95 AND k-mer fold ≥ 50× (de-novo path)<br>OR cutadapt ≥ 0.90 AND DB-matched (single-DB path)</td>
+</tr>
+<tr>
+<td><strong>MEDIUM</strong></td>
+<td>cutadapt ≥ 0.50 AND ≥ 1 detector agrees</td>
+</tr>
+<tr>
+<td><strong>LOW</strong></td>
+<td>cutadapt ≥ 0.30</td>
+</tr>
+<tr>
+<td><strong>NONE</strong></td>
+<td>cutadapt &lt; 0.30</td>
+</tr>
+</tbody>
+</table>
+<p>The de-novo path (b) is what lets custom-lab primers reach HIGH even if no
+database entry matches — the requirement is that cutadapt <em>and</em> the k-mer
+detector independently corroborate the same anchor.</p>
+<h3>9. Write the output</h3>
+<p>The script writes the canonical <code>mbx_primer_info.txt</code> (read by every
+downstream step), plus <code>primers.tsv</code> (drop-in TSV for shell pipelines),
+<code>primers.json</code> (full per-detector evidence trail for forensic debugging),
+and <code>pro_diagnostics/</code> (per-detector raw outputs).</p>
+<hr />
+<h2 id="default-parameters-and-why-they-are-what-they-are">Default parameters and why they are what they are</h2>
+<table>
+<thead>
+<tr>
+<th>Default</th>
+<th>Value</th>
+<th>Why this default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Reads sampled per orientation (<code>--samples</code>)</td>
+<td><strong>5,000</strong></td>
+<td>Enough to estimate any 5′-end match distribution within ~1 %; small enough to scan in seconds.</td>
+</tr>
+<tr>
+<td>k-mer size range (<code>--kmer-min</code> / <code>--kmer-max</code>)</td>
+<td><strong>15..25</strong></td>
+<td>Covers every published 16S primer length (typically 18–22 bp) plus a defensive cushion above and below.</td>
+</tr>
+<tr>
+<td>Minimum k-mer fold enrichment (<code>--kmer-min-fold</code>)</td>
+<td><strong>10×</strong></td>
+<td>A 10× enrichment at position 0 vs. elsewhere is essentially impossible by chance; a random primer-length k-mer hits any given position once in ~67 million reads.</td>
+</tr>
+<tr>
+<td>Top candidates to validate (<code>--top-candidates</code>)</td>
+<td><strong>3</strong></td>
+<td>Two would miss reverse-direction ties; four wastes cutadapt time on candidates the aggregator already deprioritised. Three is the empirical sweet spot.</td>
+</tr>
+<tr>
+<td>Cutadapt error rate (<code>--cutadapt-error</code>)</td>
+<td><strong>0.15</strong></td>
+<td>Cutadapt's own recommended default for 16S primer trimming. 15 % allows one or two sequencing errors in the primer-landing zone.</td>
+</tr>
+<tr>
+<td>Cutadapt minimum trim rate (<code>--cutadapt-min-rate</code>)</td>
+<td><strong>0.30</strong></td>
+<td>Below 30 % we declare the candidate a false positive even if our internal detectors liked it.</td>
+</tr>
+<tr>
+<td>HIGH-confidence cutadapt floor</td>
+<td><strong>0.75</strong></td>
+<td>Empirical: real 16S primers in well-prepared libraries trim ≥ 75 % of reads. Below that we don't trust the call.</td>
+</tr>
+<tr>
+<td>HIGH-confidence detector-agreement requirement</td>
+<td><strong>≥ 2</strong></td>
+<td>One detector can be wrong; two independent detectors agreeing on the same anchor is what we mean by "consensus".</td>
+</tr>
+<tr>
+<td>Threads for fastp/cutadapt (<code>--threads</code>)</td>
+<td><strong>2</strong></td>
+<td>Step 0 is I/O-bound, not CPU-bound. More threads don't help and may starve the rest of the pipeline.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="when-and-why-we-fall-back-to-defaults">When and why we fall back to defaults</h2>
+<p>The pro script is designed to <strong>always return a verdict</strong>, even on adversarial
+data, and to be loud about every compromise. There are four fall-back paths:</p>
+<table>
+<thead>
+<tr>
+<th>Fallback</th>
+<th>When it triggers</th>
+<th>Why this fallback exists</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Manual primer fast-path</strong> (skip detection entirely)</td>
+<td>User supplied <code>--forward-primer</code> / <code>--reverse-primer</code>.</td>
+<td>Some pipelines have already characterised the primers — re-detecting wastes minutes and risks contradicting known truth. We delegate to the v2 IUPAC matcher's manual path, which writes <code>DETECTION_STATUS = USER_SUPPLIED</code>.</td>
+</tr>
+<tr>
+<td><strong>fastp skipped (Detector D off)</strong></td>
+<td><code>fastp</code> is not on PATH, or <code>--no-fastp</code> was passed.</td>
+<td>fastp is a nice-to-have signal, not a requirement. Three other detectors plus cutadapt still produce a defensible verdict. We log it visibly as <code>Detector D: not available</code>.</td>
+</tr>
+<tr>
+<td><strong>TIER 2: V-region anchor</strong> (<code>DETECTION_STATUS = TRIMMED</code>)</td>
+<td>No primer in the database matched, BUT a known 16S V-region landing motif is present.</td>
+<td>Many sequencing facilities pre-trim primers. We can recognise <em>where on the 16S rRNA</em> the read starts even without seeing the primer, and that's what downstream needs to know (it tells Step 5 to use the <strong>full-length classifier</strong>).</td>
+</tr>
+<tr>
+<td><strong>TIER 3: rich-diagnostic failure</strong> (<code>DETECTION_STATUS = UNKNOWN</code>)</td>
+<td>None of A/B/C/D/E produced an acceptable candidate.</td>
+<td>Cutting nothing risks leaving primer in; cutting 20 bp risks deleting biology. So we write <code>UNKNOWN</code>, include the top-3 sub-threshold candidates and a read-length distribution + per-position composition histogram, and let the user (or downstream's defensive 20-bp default) decide. We never silently guess.</td>
+</tr>
+</tbody>
+</table>
+<p>Every fall-back path leaves a clear marker in <code>mbx_primer_info.txt</code> and a
+human-readable explanation in <code>pro_diagnostics/</code>.</p>
+<hr />
+<h2 id="what-the-output-file-looks-like">What the output file looks like</h2>
+<pre><code>READ_TYPE=paired
+DETECTION_STATUS=DETECTED
+CONFIDENCE_LEVEL=HIGH
+PIPELINE_SAFETY=safe-to-trim
+INFERRED_REGION=V4
+DETECTION_NOTE=Multi-detector consensus, cutadapt trim rate 92.4%
+
+FORWARD_PRIMER_NAME=515F (GTGYCAGCMGCCGCGGTAA)
+FORWARD_PRIMER_SEQUENCE=GTGYCAGCMGCCGCGGTAA
+FORWARD_PRIMER_LENGTH=19
+FORWARD_PRIMER_TARGET_REGION=V4
+FORWARD_PRIMER_MATCH_RATE=0.96
+FORWARD_PRIMER_MATCHED_READS=4801/5000
+
+REVERSE_PRIMER_NAME=806R (GGACTACNVGGGTWTCTAAT)
+REVERSE_PRIMER_SEQUENCE=GGACTACNVGGGTWTCTAAT
+REVERSE_PRIMER_LENGTH=20
+
+STATUS=COMPLETE
+</code></pre>
+<p>Plus a structured <code>primers.json</code> containing the full per-detector evidence
+trail — useful when a reviewer asks "how do you know it's that primer?".</p>
+<hr />
+<h2 id="takeaway">Takeaway</h2>
+<blockquote>
+<p>Step 0 replaces "trust the database" and "trust the user" with <strong>trust no
+single signal</strong>. Four independent detectors propose; cutadapt — the
+industry-standard trimming tool — disposes. A primer reaches HIGH
+confidence only when the database, an information-theoretic enrichment
+test, and an industry-standard trimmer all agree. That's what makes the
+downstream pipeline safe to run unattended.</p>
+</blockquote>
+<hr />
+<h2 id="sources">Sources</h2>
+<ul>
+<li>The orchestrator: <code>mbXPro/scripts/mbx_primer_identifier_pro.sh</code> (v3.1)</li>
+<li>The internal Detector-A helper: <code>mbXPro/scripts/mbx_primer_identifier.sh</code> (v2)</li>
+<li>cutadapt: Martin (2011), <em>Cutadapt removes adapter sequences from
+  high-throughput sequencing reads</em>, EMBnet Journal 17:10–12.</li>
+<li>fastp: Chen et al. (2018), <em>fastp: an ultra-fast all-in-one FASTQ
+  preprocessor</em>, Bioinformatics 34:i884.</li>
+<li>IUPAC nucleotide codes: Cornish-Bowden (1985), <em>Nomenclature for
+  incompletely specified bases in nucleic acid sequences</em>, NAR 13:3021–3030.</li>
+</ul>
+<div class="doc-footer">
+  mbX Pro 1.5.0 · <a href="README.md">Markdown source</a> · <a href="#">Back to top</a>
+</div>
+<script>
+(function () {
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text);
+    }
+    return new Promise(function (resolve, reject) {
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.setAttribute('readonly', '');
+      ta.style.position = 'absolute'; ta.style.left = '-9999px';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy') ? resolve() : reject(new Error('copy failed')); }
+      catch (e) { reject(e); }
+      finally { document.body.removeChild(ta); }
+    });
+  }
+  document.querySelectorAll('pre').forEach(function (pre) {
+    var btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'copy-btn';
+    btn.textContent = 'Copy';
+    btn.setAttribute('aria-label', 'Copy code to clipboard');
+    btn.addEventListener('click', function () {
+      var code = pre.querySelector('code');
+      var text = (code ? code.innerText : pre.innerText) || '';
+      copyText(text).then(function () {
+        btn.textContent = 'Copied'; btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      }).catch(function () {
+        btn.textContent = 'Copy failed';
+        setTimeout(function () { btn.textContent = 'Copy'; }, 1600);
+      });
+    });
+    pre.appendChild(btn);
+  });
+})();
+</script>
+</body>
+</html>

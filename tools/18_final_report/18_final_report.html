@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Step 18 — Final Report | mbX Pro</title>
+<style>
+:root {
+  --bg: #fafbfc; --fg: #1f2328; --muted: #57606a; --link: #0969da;
+  --code-bg: #0d1117; --code-fg: #f0f6fc; --inline-bg: #eef1f4;
+  --border: #d0d7de; --accent: #218bff;
+  --btn-bg: #ffffff; --btn-fg: #1f2328; --btn-bg-hover: #f3f5f7;
+  --btn-ok-bg: #1f883d; --btn-ok-fg: #ffffff;
+  --table-stripe: #f6f8fa; --callout-bg: #fff8dc; --callout-border: #e1c468;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1117; --fg: #c9d1d9; --muted: #8b949e; --link: #58a6ff;
+    --code-bg: #161b22; --code-fg: #c9d1d9; --inline-bg: #1c2128;
+    --border: #30363d; --btn-bg: #21262d; --btn-fg: #c9d1d9;
+    --btn-bg-hover: #30363d; --table-stripe: #161b22;
+    --callout-bg: #2d2a14; --callout-border: #6d5c1b;
+  }
+}
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  line-height: 1.65; max-width: 960px; margin: 0 auto;
+  padding: 48px 24px 96px; font-size: 16px;
+}
+h1, h2, h3, h4 { font-weight: 600; line-height: 1.25; margin-top: 2em; margin-bottom: 0.5em; }
+h1 { font-size: 2.1em; margin-top: 0; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h2 { font-size: 1.5em; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h3 { font-size: 1.2em; }
+h4 { font-size: 1.0em; color: var(--muted); }
+p { margin: 0.6em 0 1em; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+ul, ol { padding-left: 1.5em; }
+hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
+pre {
+  position: relative; background: var(--code-bg); color: var(--code-fg);
+  padding: 18px; border-radius: 8px; overflow-x: auto;
+  font-size: 0.92em; line-height: 1.5; margin: 1em 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+pre code { background: transparent; padding: 0; color: inherit; font-size: 1em; }
+code {
+  background: var(--inline-bg); padding: 0.15em 0.4em; border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9em;
+}
+.copy-btn {
+  position: absolute; top: 10px; right: 10px;
+  background: var(--btn-bg); color: var(--btn-fg);
+  border: 1px solid var(--border); border-radius: 6px;
+  padding: 5px 11px; font-size: 12px; font-family: inherit;
+  cursor: pointer; opacity: 0.85;
+  transition: background 120ms, opacity 120ms, color 120ms; z-index: 2;
+}
+.copy-btn:hover { background: var(--btn-bg-hover); opacity: 1; }
+.copy-btn.copied { background: var(--btn-ok-bg); color: var(--btn-ok-fg); border-color: var(--btn-ok-bg); }
+table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: 0.95em; }
+th, td { border: 1px solid var(--border); padding: 8px 12px; vertical-align: top; text-align: left; }
+th { background: var(--inline-bg); font-weight: 600; }
+tbody tr:nth-child(even) td { background: var(--table-stripe); }
+.toc {
+  background: var(--inline-bg); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px 22px; margin: 1em 0 2em; font-size: 0.95em;
+}
+.toc strong { display: block; margin-bottom: 6px; }
+.toc ol { margin: 0; padding-left: 1.4em; }
+.toc li { margin: 2px 0; }
+blockquote {
+  border-left: 4px solid var(--accent); margin: 1.2em 0; padding: 4px 18px;
+  color: var(--muted); background: var(--inline-bg); border-radius: 4px;
+}
+.doc-footer {
+  margin-top: 4em; padding-top: 1.5em; border-top: 1px solid var(--border);
+  color: var(--muted); font-size: 0.9em;
+}
+</style>
+</head>
+<body>
+<div class="toc"><strong>Contents</strong><ol><li><a href="#why-this-step-matters">Why this step matters</a></li><li><a href="#what-the-script-does-in-one-sentence">What the script does in one sentence</a></li><li><a href="#the-algorithm-step-by-step">The algorithm, step by step</a></li><li><a href="#default-parameters-and-why-they-are-what-they-are">Default parameters and why they are what they are</a></li><li><a href="#when-and-why-we-fall-back-to-defaults">When and why we fall back to defaults</a></li><li><a href="#what-the-output-file-looks-like">What the output file looks like</a></li><li><a href="#takeaway">Takeaway</a></li><li><a href="#sources">Sources</a></li></ol></div>
+<h1>Step 18 — Final Report</h1>
+<p><strong>Script:</strong> <code>scripts/mbx_final_report.sh</code></p>
+<p><strong>Companion files in this folder:</strong>
+- <code>18_final_report.html</code> — same content with copy buttons.
+- <code>18_final_report.pptx</code> — slide deck for the talk.</p>
+<hr />
+<h2 id="why-this-step-matters">Why this step matters</h2>
+<p>Seventeen steps have produced QZA artifacts, XLSX tables, PNG/SVG/PDF
+figures, and per-step <code>*_info.txt</code> provenance files. Each is useful on
+its own. None of them is what a user actually wants to send to a
+collaborator.</p>
+<p>That artefact is a <strong>single document</strong> — HTML for browsing, PDF for
+archiving — that:</p>
+<ul>
+<li><strong>Tells the story</strong> of the run from raw FASTQ to ML classifier in a
+  narrative a non-bioinformatician can follow.</li>
+<li><strong>Embeds every key figure</strong> inline (so the recipient doesn't need
+  access to the user's filesystem).</li>
+<li><strong>Surfaces every fall-back the pipeline took</strong> — <code>local-training-
+  fallback</code> at Step 6, <code>REVIEW_REQUIRED</code> at Step 11, <code>STATUS=PARTIAL</code>
+  anywhere — so reviewers can audit the run.</li>
+<li><strong>Caveats</strong> the analysis with the things any 16S reviewer would ask
+  about (mito/chloro removal rate, NSTI flagging, PERMDISP traps, sample
+  retention at the chosen depth, …).</li>
+<li><strong>Survives missing steps gracefully</strong> — if <code>--steps</code> skipped Step 15
+  or Step 17, the report renders the available sections instead of
+  crashing.</li>
+</ul>
+<p>Step 18 produces that document.</p>
+<hr />
+<h2 id="what-the-script-does-in-one-sentence">What the script does in one sentence</h2>
+<p>It discovers which of the 18 steps actually ran in this <code>mbX_pro_outputs_*/</code>
+directory, parses every <code>*_info.txt</code> to learn what each step decided,
+builds the HTML report section-by-section in R using <code>htmltools</code>, wraps
+each section in <code>safe_section()</code> so a single broken renderer can't kill
+the document, and optionally produces a PDF via <code>chrome</code> headless or
+<code>weasyprint</code>.</p>
+<hr />
+<h2 id="the-algorithm-step-by-step">The algorithm, step by step</h2>
+<h3>1. Discover what's actually present</h3>
+<p><strong>First</strong> the script walks the <code>mbX_pro_outputs_*/</code> directory and
+identifies which of the 18 expected step outputs are present. It
+categorises each into one of three buckets based on its <code>*_info.txt</code>:</p>
+<ul>
+<li><code>DONE</code> — <code>STATUS=COMPLETE</code> line is present (or a legacy info file
+  with no <code>STATUS</code> line at all).</li>
+<li><code>PARTIAL</code> — <code>STATUS=PARTIAL</code> line is present (the step ran but some
+  inner work failed gracefully — e.g. Step 8 with species level empty).</li>
+<li><code>MISSING</code> — no info file or no expected sentinel file present (the
+  step didn't run).</li>
+</ul>
+<p>The result is <code>discovery.json</code> — the source of truth for which sections
+to render.</p>
+<h3>2. Refuse on completely empty runs</h3>
+<p>If <code>STEP_MAX_DONE &lt; 0</code> (nothing ran at all), the script exits cleanly
+with a message. There's nothing to report on. Every other state — even
+"only Step 0 ran" — produces a document.</p>
+<h3>3. Install / verify R packages</h3>
+<p><strong>Then</strong> the script ensures <code>htmltools</code>, <code>base64enc</code>, <code>openxlsx</code>, and
+the other R packages the report needs are installed. The unified
+<code>scripts/lib/install_r_deps.R</code> does this once for the whole pipeline; the
+report just checks.</p>
+<h3>4. Build the cover header</h3>
+<p><strong>Now</strong> R takes over. The first block builds the <strong>cover header</strong> — logo
++ title + subtitle + run timestamp + per-step status banner showing
+which steps ran, which were partial, which were missing.</p>
+<h3>5. Render each section via <code>safe_section()</code></h3>
+<p><strong>For each step that has data, build that step's section</strong>. Sections are
+modular:</p>
+<pre><code class="language-r">section_step0     &lt;- function() { ... }    # primer identification
+section_step12    &lt;- function() { ... }    # manifest + artifact
+section_step34    &lt;- function() { ... }    # DADA2 parameters + denoising
+section_step56    &lt;- function() { ... }    # classifier arrange + run
+section_step7     &lt;- function() { ... }    # taxonomy + mito/chloro
+section_step8     &lt;- function() { ... }    # ezclean
+section_step9     &lt;- function() { ... }    # ezviz
+section_step10    &lt;- function() { ... }    # ezstat
+section_step11    &lt;- function() { ... }    # pre-diversity verdict
+section_step12    &lt;- function() { ... }    # alpha diversity
+section_step13    &lt;- function() { ... }    # beta diversity
+section_step14    &lt;- function() { ... }    # ANCOMBC2
+section_step15    &lt;- function() { ... }    # PICRUSt2
+section_step16    &lt;- function() { ... }    # Random Forest
+section_step17    &lt;- function() { ... }    # Networks
+section_convergence(...)   # what shows up in ANCOMBC2 AND ML AND networks
+section_caveats(...)       # NSTI flagging, PERMDISP traps, mito/chloro %
+section_methods()           # the full methods text, citable
+section_reproducibility()  # versions, seeds, threads, run_manifest.json link
+</code></pre>
+<p>Every section is <strong>wrapped in <code>safe_section()</code></strong> (the wrapper we added
+in mbX Pro 1.4.0). If one section's renderer crashes — e.g. an XLSX
+file is corrupt — <code>safe_section()</code> substitutes an explanatory box and
+the report keeps going. Without that wrapper, a single broken XLSX would
+take the whole report down.</p>
+<h3>6. Embed every figure inline</h3>
+<p><strong>Every PNG referenced</strong> by the report is <strong>base64-encoded into a
+<code>&lt;img src="data:image/png;base64,..."&gt;</code> tag</strong> so the resulting HTML is
+<strong>a single file</strong>. The user can email the file; the recipient sees the
+plots without needing the directory tree.</p>
+<h3>7. The convergence section</h3>
+<p><strong>The most useful synthesis</strong>, after every per-step section, is the
+<code>section_convergence()</code> block. It cross-references the per-step results
+to flag the <strong>taxa that appear significant in multiple ways</strong>:</p>
+<ul>
+<li>Significant in ANCOMBC2 (compositional differential abundance) AND</li>
+<li>Important in Random Forest (predictive) AND</li>
+<li>A hub or module-anchor in the network.</li>
+</ul>
+<p>A taxon that hits all three is the closest thing to "robust biomarker"
+the pipeline can produce. The convergence section lists them with
+inline log-fold-changes, importance scores, and centrality metrics.</p>
+<h3>8. Write the HTML</h3>
+<p><strong>Then</strong> R writes the assembled document to <code>mbXPro_final_report.html</code>.
+Single file, self-contained, ~5–20 MB depending on figure count.</p>
+<h3>9. Optional PDF rendering</h3>
+<p><strong>If the user did not pass <code>--no-pdf</code></strong>, the script tries to render the
+HTML to PDF using one of three engines, in order:</p>
+<ul>
+<li><code>chrome --headless</code> (most reliable for complex CSS, slow start).</li>
+<li><code>weasyprint</code> (lightweight, works offline if installed).</li>
+<li><code>wkhtmltopdf</code> (legacy fallback).</li>
+</ul>
+<p>The PDF is for archiving; the HTML stays canonical (the PDF is
+necessarily a flattened representation).</p>
+<h3>10. Write <code>mbx_final_report_info.txt</code></h3>
+<p><strong>Finally</strong> the cross-step contract records the HTML + PDF paths, every
+step's verdict + sub-status, and <code>STATUS=COMPLETE</code>. The orchestrator
+runs <code>scripts/lib/build_run_manifest.py</code> right after this step to produce
+the per-run <code>run_manifest.json</code> for publication supplementary materials.</p>
+<hr />
+<h2 id="default-parameters-and-why-they-are-what-they-are">Default parameters and why they are what they are</h2>
+<table>
+<thead>
+<tr>
+<th>Default</th>
+<th>Value</th>
+<th>Why this default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HTML format</td>
+<td>self-contained (figures inlined as base64)</td>
+<td>Single-file shareability is the main UX win over per-step artifacts.</td>
+</tr>
+<tr>
+<td>Default PDF engine</td>
+<td><code>chrome --headless</code></td>
+<td>Best CSS support of the three.</td>
+</tr>
+<tr>
+<td>PDF engine fallbacks</td>
+<td><code>weasyprint</code> → <code>wkhtmltopdf</code></td>
+<td>Tried in order; first available wins.</td>
+</tr>
+<tr>
+<td>Section wrapper</td>
+<td><code>safe_section()</code></td>
+<td>Mandatory (mbX Pro 1.4.0+); never let a single broken section kill the report.</td>
+</tr>
+<tr>
+<td>Convergence threshold</td>
+<td>significant in ANCOMBC2 AND in top-20 RF importance AND a network hub</td>
+<td>Conservative — taxa that meet all three are robust.</td>
+</tr>
+<tr>
+<td>Embed figure resolution</td>
+<td>PNG (already 300 DPI from the source steps)</td>
+<td>We use the existing PNGs; no re-rendering.</td>
+</tr>
+<tr>
+<td>Methods text</td>
+<td>citable, every tool with version + citation</td>
+<td>The reviewer can copy the methods straight into a manuscript.</td>
+</tr>
+<tr>
+<td><code>mbXPro_final_report_info.txt</code></td>
+<td>always written</td>
+<td>Final cross-step contract; <code>run_manifest.json</code> depends on it.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="when-and-why-we-fall-back-to-defaults">When and why we fall back to defaults</h2>
+<table>
+<thead>
+<tr>
+<th>Fallback</th>
+<th>When it triggers</th>
+<th>Why this fallback exists</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Skip section</strong></td>
+<td>A step's data isn't present (it didn't run)</td>
+<td>The corresponding section gets a "this step was skipped" box; the rest of the report keeps building.</td>
+</tr>
+<tr>
+<td><strong><code>safe_section()</code> substitution</strong></td>
+<td>A section's renderer throws</td>
+<td>The whole report would otherwise abort. The user sees an explanation; everything else still renders.</td>
+</tr>
+<tr>
+<td><strong><code>--no-pdf</code> mode</strong></td>
+<td>User opts out</td>
+<td>PDF rendering can be slow on large reports; HTML is always produced.</td>
+</tr>
+<tr>
+<td><strong>Engine fallback</strong></td>
+<td>Chrome not installed</td>
+<td>Try <code>weasyprint</code>, then <code>wkhtmltopdf</code>.</td>
+</tr>
+<tr>
+<td><strong><code>local-training-fallback</code> flagged</strong></td>
+<td>Step 6 used the Zenodo-fallback path</td>
+<td>The report banner says so. Reviewers can audit which classifier was actually used.</td>
+</tr>
+<tr>
+<td><strong><code>REVIEW_REQUIRED</code> flagged</strong></td>
+<td>Step 11's depth verdict was weak</td>
+<td>Diversity sections are still rendered but with a warning banner.</td>
+</tr>
+<tr>
+<td><strong><code>STATUS=PARTIAL</code> flagged</strong></td>
+<td>Any step finished some but not all sub-work</td>
+<td>Section header carries the partial badge; the missing sub-results are noted.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="what-the-output-file-looks-like">What the output file looks like</h2>
+<p><code>18_final_report/mbXPro_final_report.html</code> — a single self-contained
+document with this structure:</p>
+<pre><code>COVER
+├── Logo + title + run timestamp
+├── Per-step status banner: 0 ✓ · 1 ✓ · 2 ✓ · … · 14 ✓ · 15 ⚠ · 16 ✓ · 17 ✓
+└── Reproducibility quick-reference (versions, seed, threads)
+
+INTRO
+├── What the pipeline does in two paragraphs
+└── How to read the report
+
+PER-STEP SECTIONS  (one per step that ran)
+├── Step 0  — primer verdict + confidence + plot
+├── Step 1+2 — manifest + artifact
+├── Step 3+4 — DADA2 params + per-sample retention
+├── Step 5+6 — classifier mode + source + provenance
+├── Step 7  — mito/chloro removal rate + barplot embed
+├── Step 8  — ezclean per-level table sizes
+├── Step 9  — embedded stacked-bar plots, one per (level × variable)
+├── Step 10 — KW + CLD per-taxon results
+├── Step 11 — depth verdict + rarefaction curve + 3-criterion table
+├── Step 12 — alpha boxplots + KW results
+├── Step 13 — PCoA + PERMANOVA tables
+├── Step 14 — ANCOMBC2 volcano + heatmap + top hits
+├── Step 15 — PICRUSt2 functional report excerpt + NSTI flagging
+├── Step 16 — RF accuracy/AUC summary + ROC + importance
+└── Step 17 — networks + hub taxa
+
+CONVERGENCE  (taxa significant in ≥ 3 of: ANCOMBC2, RF, network hub)
+CAVEATS    (NSTI flagging, PERMDISP traps, mito/chloro %, retention)
+METHODS    (citable text with every tool + version + reference)
+REPRODUCIBILITY  (versions, seeds, threads, link to run_manifest.json)
+</code></pre>
+<p>Plus the PDF version when <code>--no-pdf</code> wasn't passed.</p>
+<hr />
+<h2 id="takeaway">Takeaway</h2>
+<blockquote>
+<p>Step 18 turns seventeen scattered artifact directories into one
+shareable document. The <code>safe_section()</code> wrapper (added in mbX Pro
+1.4.0) means a single broken renderer can't kill the report.
+Figures are base64-embedded so the HTML is self-contained. The
+convergence section is where the pipeline's claim of "robust
+biomarker" finally gets evidenced — a taxon flagged by ANCOMBC2,
+important to the Random Forest, AND a network hub is hard to dismiss.</p>
+</blockquote>
+<hr />
+<h2 id="sources">Sources</h2>
+<ul>
+<li>The script: <code>mbXPro/scripts/mbx_final_report.sh</code></li>
+<li><code>htmltools</code>: Cheng et al., R package on CRAN.</li>
+<li><code>safe_section()</code> wrapper: mbX Pro 1.4.0, see <code>CHANGELOG.md</code>.</li>
+<li>The <code>run_manifest.json</code> builder (which Step 18 hands off to): <code>scripts/lib/build_run_manifest.py</code>.</li>
+</ul>
+<div class="doc-footer">
+  mbX Pro 1.5.0 · <a href="README.md">Markdown source</a> · <a href="#">Back to top</a>
+</div>
+<script>
+(function () {
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text);
+    }
+    return new Promise(function (resolve, reject) {
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.setAttribute('readonly', '');
+      ta.style.position = 'absolute'; ta.style.left = '-9999px';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy') ? resolve() : reject(new Error('copy failed')); }
+      catch (e) { reject(e); }
+      finally { document.body.removeChild(ta); }
+    });
+  }
+  document.querySelectorAll('pre').forEach(function (pre) {
+    var btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'copy-btn';
+    btn.textContent = 'Copy';
+    btn.setAttribute('aria-label', 'Copy code to clipboard');
+    btn.addEventListener('click', function () {
+      var code = pre.querySelector('code');
+      var text = (code ? code.innerText : pre.innerText) || '';
+      copyText(text).then(function () {
+        btn.textContent = 'Copied'; btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      }).catch(function () {
+        btn.textContent = 'Copy failed';
+        setTimeout(function () { btn.textContent = 'Copy'; }, 1600);
+      });
+    });
+    pre.appendChild(btn);
+  });
+})();
+</script>
+</body>
+</html>

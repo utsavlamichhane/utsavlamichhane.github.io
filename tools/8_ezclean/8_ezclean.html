@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Step 8 — ezclean per level | mbX Pro</title>
+<style>
+:root {
+  --bg: #fafbfc; --fg: #1f2328; --muted: #57606a; --link: #0969da;
+  --code-bg: #0d1117; --code-fg: #f0f6fc; --inline-bg: #eef1f4;
+  --border: #d0d7de; --accent: #218bff;
+  --btn-bg: #ffffff; --btn-fg: #1f2328; --btn-bg-hover: #f3f5f7;
+  --btn-ok-bg: #1f883d; --btn-ok-fg: #ffffff;
+  --table-stripe: #f6f8fa; --callout-bg: #fff8dc; --callout-border: #e1c468;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1117; --fg: #c9d1d9; --muted: #8b949e; --link: #58a6ff;
+    --code-bg: #161b22; --code-fg: #c9d1d9; --inline-bg: #1c2128;
+    --border: #30363d; --btn-bg: #21262d; --btn-fg: #c9d1d9;
+    --btn-bg-hover: #30363d; --table-stripe: #161b22;
+    --callout-bg: #2d2a14; --callout-border: #6d5c1b;
+  }
+}
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  line-height: 1.65; max-width: 960px; margin: 0 auto;
+  padding: 48px 24px 96px; font-size: 16px;
+}
+h1, h2, h3, h4 { font-weight: 600; line-height: 1.25; margin-top: 2em; margin-bottom: 0.5em; }
+h1 { font-size: 2.1em; margin-top: 0; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h2 { font-size: 1.5em; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h3 { font-size: 1.2em; }
+h4 { font-size: 1.0em; color: var(--muted); }
+p { margin: 0.6em 0 1em; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+ul, ol { padding-left: 1.5em; }
+hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
+pre {
+  position: relative; background: var(--code-bg); color: var(--code-fg);
+  padding: 18px; border-radius: 8px; overflow-x: auto;
+  font-size: 0.92em; line-height: 1.5; margin: 1em 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+pre code { background: transparent; padding: 0; color: inherit; font-size: 1em; }
+code {
+  background: var(--inline-bg); padding: 0.15em 0.4em; border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9em;
+}
+.copy-btn {
+  position: absolute; top: 10px; right: 10px;
+  background: var(--btn-bg); color: var(--btn-fg);
+  border: 1px solid var(--border); border-radius: 6px;
+  padding: 5px 11px; font-size: 12px; font-family: inherit;
+  cursor: pointer; opacity: 0.85;
+  transition: background 120ms, opacity 120ms, color 120ms; z-index: 2;
+}
+.copy-btn:hover { background: var(--btn-bg-hover); opacity: 1; }
+.copy-btn.copied { background: var(--btn-ok-bg); color: var(--btn-ok-fg); border-color: var(--btn-ok-bg); }
+table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: 0.95em; }
+th, td { border: 1px solid var(--border); padding: 8px 12px; vertical-align: top; text-align: left; }
+th { background: var(--inline-bg); font-weight: 600; }
+tbody tr:nth-child(even) td { background: var(--table-stripe); }
+.toc {
+  background: var(--inline-bg); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px 22px; margin: 1em 0 2em; font-size: 0.95em;
+}
+.toc strong { display: block; margin-bottom: 6px; }
+.toc ol { margin: 0; padding-left: 1.4em; }
+.toc li { margin: 2px 0; }
+blockquote {
+  border-left: 4px solid var(--accent); margin: 1.2em 0; padding: 4px 18px;
+  color: var(--muted); background: var(--inline-bg); border-radius: 4px;
+}
+.doc-footer {
+  margin-top: 4em; padding-top: 1.5em; border-top: 1px solid var(--border);
+  color: var(--muted); font-size: 0.9em;
+}
+</style>
+</head>
+<body>
+<div class="toc"><strong>Contents</strong><ol><li><a href="#why-this-step-matters">Why this step matters</a></li><li><a href="#what-the-script-does-in-one-sentence">What the script does in one sentence</a></li><li><a href="#the-algorithm-step-by-step">The algorithm, step by step</a></li><li><a href="#default-parameters-and-why-they-are-what-they-are">Default parameters and why they are what they are</a></li><li><a href="#when-and-why-we-fall-back-to-defaults">When and why we fall back to defaults</a></li><li><a href="#what-the-output-file-looks-like">What the output file looks like</a></li><li><a href="#takeaway">Takeaway</a></li><li><a href="#sources">Sources</a></li></ol></div>
+<h1>Step 8 — ezclean (per-level cleaning)</h1>
+<p><strong>Script:</strong> <code>scripts/mbx_ezclean_all_levels.sh</code>
++ the R function <code>mbX::ezclean()</code> from CRAN</p>
+<p><strong>Companion files in this folder:</strong>
+- <code>8_ezclean.html</code> — same content with copy buttons on every code block.
+- <code>8_ezclean.pptx</code> — slide deck for the talk.</p>
+<hr />
+<h2 id="why-this-step-matters">Why this step matters</h2>
+<p>Step 7 gave us seven <code>level-N.csv</code> files with the raw GTDB taxonomy strings.
+Those strings are precise but ugly to look at and worse to consume:</p>
+<pre><code>d__Bacteria;p__Bacillota_A_368345;c__Clostridia_258483;o__Lachnospirales;
+f__Lachnospiraceae;g__Lachnospira;s__Lachnospira multipara
+</code></pre>
+<p>That single feature ID appears at the front of every plot title, every
+column header, every report row. Multiply by hundreds of taxa per sample
+and the result is unreadable. Worse, two distinct ASVs can share the
+<em>same</em> taxonomy string with slightly different GTDB cluster suffixes, and
+without consolidation they show up as two separate "taxa" in the
+analysis.</p>
+<p>This is where the <strong>mbX::ezclean()</strong> R function comes in. ezclean()
+parses every taxonomy string, <strong>consolidates synonymous taxa</strong> (the same
+genus seen as <code>g__Bacteroides</code> and <code>g__Bacteroides_C_123</code> get merged), and
+emits short, human-readable names — <code>Bilophila.wadsworthia</code> instead of
+the full GTDB hierarchy.</p>
+<p>Step 8's job is to run ezclean() for every taxonomic level (domain →
+species) and produce seven cleaned XLSX files that downstream steps
+(ezviz, ezstat, ANCOMBC2's taxon column, the final report) consume.</p>
+<hr />
+<h2 id="what-the-script-does-in-one-sentence">What the script does in one sentence</h2>
+<p>It installs the pinned R + mbX environment, then calls <code>mbX::ezclean()</code>
+seven times — one per taxonomic level — passing <code>level-7.csv</code> (which
+holds the full GTDB string) as input, and produces one human-readable
+XLSX per level.</p>
+<hr />
+<h2 id="the-algorithm-step-by-step">The algorithm, step by step</h2>
+<h3>1. Locate system R and verify the pinned environment</h3>
+<p><strong>First</strong> the script searches for <code>Rscript</code> outside the QIIME2 conda env
+(the conda env's R has different package versions than the host system R;
+mixing them produces "shared object not found" errors that take hours to
+debug):</p>
+<ul>
+<li><code>/opt/homebrew/bin/Rscript</code> (Apple Silicon Homebrew)</li>
+<li><code>/usr/local/bin/Rscript</code> (Intel Mac Homebrew or Linux user-install)</li>
+<li><code>/Library/Frameworks/R.framework/Resources/bin/Rscript</code> (macOS CRAN
+  installer)</li>
+<li><code>/usr/bin/Rscript</code> (Debian/Ubuntu system R)</li>
+<li><code>command -v Rscript</code> (whatever PATH finds)</li>
+</ul>
+<p>It also <strong>strips conda's <code>R_LIBS_USER</code>-style env vars</strong> before invoking R,
+so the system R doesn't try to load packages from the conda env's library
+tree. Then it calls <code>scripts/lib/install_r_deps.R</code> to install (or verify)
+every package in the pinned <code>r_packages.lock</code>.</p>
+<h3>2. Read the Step 7 contract</h3>
+<p><strong>Then</strong> the script reads <code>7_taxonomy_csv/mbx_taxonomy_info.txt</code> and pulls
+out:</p>
+<ul>
+<li><code>LEVEL_7_CSV</code> — the level-7 (species) CSV. The species CSV is special
+  because its column headers contain the <strong>full GTDB hierarchy string</strong>,
+  not just the species. ezclean parses that string to reconstruct any
+  higher level. So we only need one input file for all seven runs.</li>
+<li><code>METADATA_TXT</code> — every step gets the metadata.</li>
+</ul>
+<h3>3. Set the working directory to <code>8_cleaned_files/</code></h3>
+<p><strong>Critical step.</strong> <code>mbX::ezclean()</code> writes about a dozen intermediate XLSX
+files relative to the R working directory, then cleans them up at the end.
+If we let R use the user's launching directory, those files would litter
+the user's home folder. The script changes R's working directory to
+<code>8_cleaned_files/</code> so all that ephemeral state is contained.</p>
+<h3>4. Run ezclean once per level</h3>
+<p><strong>Now the main work.</strong> The script loops over seven level letters:
+<code>d, p, c, o, f, g, s</code> (domain through species). For each:</p>
+<pre><code>Rscript --vanilla &lt;&lt;RSCRIPT
+library(mbX)
+setwd(&quot;8_cleaned_files&quot;)
+out &lt;- ezclean(
+  microbiome_data = &quot;level-7.csv&quot;,
+  metadata        = &quot;metadata.txt&quot;,
+  level           = &quot;&lt;letter&gt;&quot;
+)
+RSCRIPT
+</code></pre>
+<p>Inside <code>ezclean()</code>, for each row:</p>
+<ol>
+<li><strong>Parse</strong> the level-7 taxonomy string into seven components.</li>
+<li><strong>Pick</strong> the component at the requested level (e.g. <code>g__Bilophila</code> for
+   genus level).</li>
+<li><strong>Consolidate</strong> entries that differ only in GTDB cluster suffixes
+   (<code>g__Bacteroides_C_123</code> and <code>g__Bacteroides_C_456</code> both collapse to
+   <code>Bacteroides</code>, but <code>g__Bacteroides_A</code> stays separate because the letter
+   denotes a real GTDB split).</li>
+<li><strong>Handle missing levels</strong> with the unidentified-from-parent convention:
+   <code>unidentified_genus_5_from_Lachnospiraceae_family</code>. The counter is
+   per-level and per-distinct-parent, so two rows missing the same level
+   with the same parent share the same counter.</li>
+<li><strong>Strip GTDB prefixes</strong> (<code>g__</code>, <code>s__</code>) and replace spaces with dots
+   (so <code>s__Bilophila wadsworthia</code> becomes <code>Bilophila.wadsworthia</code> —
+   safe for use as an R column name).</li>
+</ol>
+<p>Each call writes one XLSX into a level-specific subfolder.</p>
+<h3>5. Validate the seven outputs</h3>
+<p><strong>Then</strong> the script verifies all seven XLSX files exist and are non-empty.
+A common failure is the species level — when classification depth is low
+(e.g. short reads, environmental samples), most ASVs don't reach species
+and the species-level table can come out empty. The script logs that as
+a warning and lets the rest of the pipeline run with the genus level as
+its lowest valid resolution.</p>
+<h3>6. Write <code>mbx_ezclean_info.txt</code></h3>
+<p><strong>Finally</strong> the cross-step info file records:</p>
+<ul>
+<li>One <code>LEVEL_&lt;X&gt;_XLSX=&lt;path&gt;</code> line per level.</li>
+<li><code>MBX_PACKAGE_VERSION</code> — which mbX version produced these files.</li>
+<li><code>STATUS=COMPLETE</code> (or <code>STATUS=PARTIAL</code> if some levels failed).</li>
+</ul>
+<hr />
+<h2 id="default-parameters-and-why-they-are-what-they-are">Default parameters and why they are what they are</h2>
+<table>
+<thead>
+<tr>
+<th>Default</th>
+<th>Value</th>
+<th>Why this default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>R location</td>
+<td>system R, NOT conda</td>
+<td>Conda's R has different package versions; mixing causes opaque library errors.</td>
+</tr>
+<tr>
+<td><code>R_LIBS_USER</code> stripping</td>
+<td>always</td>
+<td>Prevents conda from poisoning system R's library lookup.</td>
+</tr>
+<tr>
+<td>mbX package version</td>
+<td><strong>CRAN 0.2.0</strong></td>
+<td>The pinned version in <code>r_packages.lock</code>. Updates land via the lockfile, not by spontaneous CRAN bumps.</td>
+</tr>
+<tr>
+<td>Levels run</td>
+<td><strong>d, p, c, o, f, g, s</strong></td>
+<td>All seven, every time. Skipping any of them just defers the failure to a downstream step.</td>
+</tr>
+<tr>
+<td>Input file</td>
+<td><code>level-7.csv</code></td>
+<td>The level-7 column headers contain the full GTDB hierarchy; ezclean reconstructs any level from it.</td>
+</tr>
+<tr>
+<td>R working directory</td>
+<td><code>8_cleaned_files/</code></td>
+<td>Contains the ~12 intermediate XLSX files ezclean writes while it works.</td>
+</tr>
+<tr>
+<td>Unidentified naming</td>
+<td><code>unidentified_&lt;level&gt;_&lt;N&gt;_from_&lt;parent&gt;_&lt;parent_level&gt;</code></td>
+<td>Stable, human-readable, deduplicated by parent so two rows share the same counter.</td>
+</tr>
+<tr>
+<td>Species-name format</td>
+<td><code>Genus.species</code> (dot-joined)</td>
+<td>R-column-name-safe. The space in <code>Genus species</code> would otherwise be illegal in many downstream contexts.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="when-and-why-we-fall-back-to-defaults">When and why we fall back to defaults</h2>
+<table>
+<thead>
+<tr>
+<th>Fallback</th>
+<th>When it triggers</th>
+<th>Why this fallback exists</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Continue with N&lt;7 levels</strong></td>
+<td>One level's <code>ezclean()</code> call returned empty (usually species, for low-classification data)</td>
+<td>Species-level failures are common and not fatal; downstream uses genus or below. The script logs which levels failed.</td>
+</tr>
+<tr>
+<td><strong>Per-level retry on transient errors</strong></td>
+<td>A package failed to load on the first try (slow disk, BiocManager just resolved a dependency)</td>
+<td>Common in CI environments; the second attempt almost always succeeds.</td>
+</tr>
+<tr>
+<td><strong>Bypass install check</strong></td>
+<td>User passed <code>--skip-install</code> after a previous successful run</td>
+<td>Speeds up reruns when the user knows the env is fine.</td>
+</tr>
+<tr>
+<td><strong><code>STATUS=PARTIAL</code></strong> instead of <code>COMPLETE</code></td>
+<td>At least one level failed</td>
+<td>Tells <code>mbXPro --resume</code> that this step isn't fully done; rerunning will fill the gap.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="what-the-output-file-looks-like">What the output file looks like</h2>
+<p><code>8_cleaned_files/mbX_cleaned_genera_level-7/mbX_cleaned_genera_level-7.xlsx</code>:</p>
+<table>
+<thead>
+<tr>
+<th>sample-id</th>
+<th>Treatment</th>
+<th>Bacteroides</th>
+<th>Lactobacillus</th>
+<th>Bilophila</th>
+<th>unidentified_genus_1_from_Lachnospiraceae_family</th>
+<th>...</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SampleA</td>
+<td>High</td>
+<td>0.0214</td>
+<td>0.0089</td>
+<td>0.0034</td>
+<td>0.0011</td>
+<td>...</td>
+</tr>
+<tr>
+<td>SampleB</td>
+<td>Low</td>
+<td>0.0142</td>
+<td>0.0312</td>
+<td>0.0007</td>
+<td>0.0089</td>
+<td>...</td>
+</tr>
+</tbody>
+</table>
+<p>The metadata columns are joined in for convenience (downstream steps don't
+have to re-merge), and every taxon column is a clean, short, R-safe name.</p>
+<hr />
+<h2 id="takeaway">Takeaway</h2>
+<blockquote>
+<p>Step 8 turns the precise-but-unreadable GTDB strings into short,
+human-readable names that downstream R steps, the ANCOMBC2 step we
+already simplified, and the final report can all use. It does it
+by delegating to the mbX CRAN package's <code>ezclean()</code> function — the
+same function that gives the project its name. From here on, every
+XLSX, every plot, every table reads cleanly.</p>
+</blockquote>
+<hr />
+<h2 id="sources">Sources</h2>
+<ul>
+<li>The wrapper script: <code>mbXPro/scripts/mbx_ezclean_all_levels.sh</code></li>
+<li>The R function: <code>mbX::ezclean()</code> on CRAN, version pinned in
+  <code>scripts/lib/r_packages.lock</code>.</li>
+<li>mbX package: https://cran.r-project.org/package=mbX</li>
+<li>Greengenes2 nomenclature: McDonald et al. (2024), Nature Biotechnology
+  42:715–718.</li>
+</ul>
+<div class="doc-footer">
+  mbX Pro 1.5.0 · <a href="README.md">Markdown source</a> · <a href="#">Back to top</a>
+</div>
+<script>
+(function () {
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text);
+    }
+    return new Promise(function (resolve, reject) {
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.setAttribute('readonly', '');
+      ta.style.position = 'absolute'; ta.style.left = '-9999px';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy') ? resolve() : reject(new Error('copy failed')); }
+      catch (e) { reject(e); }
+      finally { document.body.removeChild(ta); }
+    });
+  }
+  document.querySelectorAll('pre').forEach(function (pre) {
+    var btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'copy-btn';
+    btn.textContent = 'Copy';
+    btn.setAttribute('aria-label', 'Copy code to clipboard');
+    btn.addEventListener('click', function () {
+      var code = pre.querySelector('code');
+      var text = (code ? code.innerText : pre.innerText) || '';
+      copyText(text).then(function () {
+        btn.textContent = 'Copied'; btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      }).catch(function () {
+        btn.textContent = 'Copy failed';
+        setTimeout(function () { btn.textContent = 'Copy'; }, 1600);
+      });
+    });
+    pre.appendChild(btn);
+  });
+})();
+</script>
+</body>
+</html>

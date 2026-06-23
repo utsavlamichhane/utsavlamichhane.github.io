@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Step 2 — Artifact Creator | mbX Pro</title>
+<style>
+:root {
+  --bg: #fafbfc; --fg: #1f2328; --muted: #57606a; --link: #0969da;
+  --code-bg: #0d1117; --code-fg: #f0f6fc; --inline-bg: #eef1f4;
+  --border: #d0d7de; --accent: #218bff;
+  --btn-bg: #ffffff; --btn-fg: #1f2328; --btn-bg-hover: #f3f5f7;
+  --btn-ok-bg: #1f883d; --btn-ok-fg: #ffffff;
+  --table-stripe: #f6f8fa; --callout-bg: #fff8dc; --callout-border: #e1c468;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1117; --fg: #c9d1d9; --muted: #8b949e; --link: #58a6ff;
+    --code-bg: #161b22; --code-fg: #c9d1d9; --inline-bg: #1c2128;
+    --border: #30363d; --btn-bg: #21262d; --btn-fg: #c9d1d9;
+    --btn-bg-hover: #30363d; --table-stripe: #161b22;
+    --callout-bg: #2d2a14; --callout-border: #6d5c1b;
+  }
+}
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  line-height: 1.65; max-width: 960px; margin: 0 auto;
+  padding: 48px 24px 96px; font-size: 16px;
+}
+h1, h2, h3, h4 { font-weight: 600; line-height: 1.25; margin-top: 2em; margin-bottom: 0.5em; }
+h1 { font-size: 2.1em; margin-top: 0; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h2 { font-size: 1.5em; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h3 { font-size: 1.2em; }
+h4 { font-size: 1.0em; color: var(--muted); }
+p { margin: 0.6em 0 1em; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+ul, ol { padding-left: 1.5em; }
+hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
+pre {
+  position: relative; background: var(--code-bg); color: var(--code-fg);
+  padding: 18px; border-radius: 8px; overflow-x: auto;
+  font-size: 0.92em; line-height: 1.5; margin: 1em 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+pre code { background: transparent; padding: 0; color: inherit; font-size: 1em; }
+code {
+  background: var(--inline-bg); padding: 0.15em 0.4em; border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9em;
+}
+.copy-btn {
+  position: absolute; top: 10px; right: 10px;
+  background: var(--btn-bg); color: var(--btn-fg);
+  border: 1px solid var(--border); border-radius: 6px;
+  padding: 5px 11px; font-size: 12px; font-family: inherit;
+  cursor: pointer; opacity: 0.85;
+  transition: background 120ms, opacity 120ms, color 120ms; z-index: 2;
+}
+.copy-btn:hover { background: var(--btn-bg-hover); opacity: 1; }
+.copy-btn.copied { background: var(--btn-ok-bg); color: var(--btn-ok-fg); border-color: var(--btn-ok-bg); }
+table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: 0.95em; }
+th, td { border: 1px solid var(--border); padding: 8px 12px; vertical-align: top; text-align: left; }
+th { background: var(--inline-bg); font-weight: 600; }
+tbody tr:nth-child(even) td { background: var(--table-stripe); }
+.toc {
+  background: var(--inline-bg); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px 22px; margin: 1em 0 2em; font-size: 0.95em;
+}
+.toc strong { display: block; margin-bottom: 6px; }
+.toc ol { margin: 0; padding-left: 1.4em; }
+.toc li { margin: 2px 0; }
+blockquote {
+  border-left: 4px solid var(--accent); margin: 1.2em 0; padding: 4px 18px;
+  color: var(--muted); background: var(--inline-bg); border-radius: 4px;
+}
+.doc-footer {
+  margin-top: 4em; padding-top: 1.5em; border-top: 1px solid var(--border);
+  color: var(--muted); font-size: 0.9em;
+}
+</style>
+</head>
+<body>
+<div class="toc"><strong>Contents</strong><ol><li><a href="#why-this-step-matters">Why this step matters</a></li><li><a href="#what-the-script-does-in-one-sentence">What the script does in one sentence</a></li><li><a href="#the-algorithm-step-by-step">The algorithm, step by step</a></li><li><a href="#default-parameters-and-why-they-are-what-they-are">Default parameters and why they are what they are</a></li><li><a href="#when-and-why-we-fall-back-to-defaults">When and why we fall back to defaults</a></li><li><a href="#what-the-output-file-looks-like">What the output file looks like</a></li><li><a href="#takeaway">Takeaway</a></li><li><a href="#sources">Sources</a></li></ol></div>
+<h1>Step 2 — Artifact Creator</h1>
+<p><strong>Script:</strong> <code>scripts/artifact_creator.sh</code></p>
+<p><strong>Companion files in this folder:</strong>
+- <code>2_artifact_creator.html</code> — same content with copy buttons on every code block.
+- <code>2_artifact_creator.pptx</code> — slide deck for the talk.</p>
+<hr />
+<h2 id="why-this-step-matters">Why this step matters</h2>
+<p>QIIME2 organises every dataset, every intermediate, and every result inside
+<strong>artifacts</strong> — zip-archive <code>.qza</code> files with strict provenance,
+type-checking, and metadata. The reason the rest of the pipeline (steps 3
+through 18) can re-use, re-run, and audit everything is that every blob of
+data flows through QIIME2 as a typed artifact.</p>
+<p>To get there from raw FASTQ files, exactly one command has to run correctly:
+<code>qiime tools import</code>. That command needs:</p>
+<ul>
+<li>A type string (<code>SampleData[PairedEndSequencesWithQuality]</code> for paired-end,
+  <code>SampleData[SequencesWithQuality]</code> for single-end).</li>
+<li>A view type (<code>PairedEndFastqManifestPhred33V2</code> etc.).</li>
+<li>The manifest path from Step 1.</li>
+<li>An output <code>.qza</code> filename.</li>
+</ul>
+<p>Getting any one of those wrong produces a confusing error from QIIME2 about
+the manifest format. The artifact creator's job is to <strong>detect the right
+flavour automatically and never run the wrong import</strong>.</p>
+<hr />
+<h2 id="what-the-script-does-in-one-sentence">What the script does in one sentence</h2>
+<p>It reads the header of the Step-1 manifest, detects paired-end vs single-end
+from the column count, then runs <code>qiime tools import</code> with the matching
+type + view, and writes the resulting <code>.qza</code> next to the manifest.</p>
+<hr />
+<h2 id="the-algorithm-step-by-step">The algorithm, step by step</h2>
+<h3>1. Verify the manifest</h3>
+<p><strong>First</strong>, the script confirms the manifest file exists, is non-empty, and
+its first line is a valid header. It refuses to run on an empty file (the
+QIIME2 error would be cryptic) or on a file that obviously isn't a manifest
+(e.g. the user pointed at a FASTQ by mistake).</p>
+<h3>2. Detect paired-end vs single-end from the header</h3>
+<p><strong>Then</strong> it reads only the header line and counts tab-separated columns:</p>
+<ul>
+<li><strong>Three columns</strong> (<code>sample-id</code>, <code>forward-absolute-filepath</code>,
+  <code>reverse-absolute-filepath</code>) → paired-end.</li>
+<li><strong>Two columns</strong> (<code>sample-id</code>, <code>absolute-filepath</code>) → single-end.</li>
+<li><strong>Anything else</strong> is an error.</li>
+</ul>
+<p>The script never reads further than the header for the detection — it
+trusts Step 1 to have written it correctly, and Step 1 either wrote both
+forward and reverse columns or only one.</p>
+<h3>3. Locate the QIIME2 conda environment</h3>
+<p><strong>Next</strong> it confirms that <code>qiime</code> is on <code>PATH</code>. If not, it prints the exact
+<code>conda activate qiime2-amplicon-2025.4</code> command the user needs to run, then
+exits cleanly — much friendlier than a missing-binary error trace.</p>
+<h3>4. Build the matching import command</h3>
+<p><strong>Now</strong> it constructs one of two QIIME2 imports:</p>
+<ul>
+<li>
+<p><strong>Paired-end:</strong>
+  <code>qiime tools import \
+    --type 'SampleData[PairedEndSequencesWithQuality]' \
+    --input-path  &lt;manifest&gt; \
+    --input-format PairedEndFastqManifestPhred33V2 \
+    --output-path Paired_End_artifact.qza</code></p>
+</li>
+<li>
+<p><strong>Single-end:</strong>
+  <code>qiime tools import \
+    --type 'SampleData[SequencesWithQuality]' \
+    --input-path  &lt;manifest&gt; \
+    --input-format SingleEndFastqManifestPhred33V2 \
+    --output-path Single_End_artifact.qza</code></p>
+</li>
+</ul>
+<p>The <code>Phred33V2</code> view tells QIIME2: "the FASTQ quality letters are the
+standard Phred+33 encoding" (the only encoding any current sequencer
+produces) "and the manifest format is version 2" (the manifest format
+Step 1 actually wrote).</p>
+<h3>5. Run it (or print it, in --dry-run mode)</h3>
+<p><strong>Finally</strong> the script executes <code>qiime tools import</code>. In <code>--dry-run</code> mode it
+just prints the command — useful for showing exactly what QIIME2 will do in
+talks like this one.</p>
+<h3>6. Write the output where the next step expects it</h3>
+<p>The artifact lands in <code>2_first_artifact_file/Paired_End_artifact.qza</code>
+(or <code>Single_End_artifact.qza</code>). Step 3 (the DADA2 parameter finder) reads
+from exactly that path with no further configuration.</p>
+<hr />
+<h2 id="default-parameters-and-why-they-are-what-they-are">Default parameters and why they are what they are</h2>
+<table>
+<thead>
+<tr>
+<th>Default</th>
+<th>Value</th>
+<th>Why this default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Import type (paired)</td>
+<td><code>SampleData[PairedEndSequencesWithQuality]</code></td>
+<td>The QIIME2-mandated type string for paired-end FASTQ. We don't try to use anything else.</td>
+</tr>
+<tr>
+<td>Import type (single)</td>
+<td><code>SampleData[SequencesWithQuality]</code></td>
+<td>Same, for single-end.</td>
+</tr>
+<tr>
+<td>Manifest view (paired)</td>
+<td><code>PairedEndFastqManifestPhred33V2</code></td>
+<td>V2 is the format Step 1 writes. Phred+33 is the only encoding any current sequencer produces (we don't support Phred+64; that's a 2009 problem).</td>
+</tr>
+<tr>
+<td>Manifest view (single)</td>
+<td><code>SingleEndFastqManifestPhred33V2</code></td>
+<td>Same idea, single-end.</td>
+</tr>
+<tr>
+<td>Output filename</td>
+<td><code>Paired_End_artifact.qza</code> or <code>Single_End_artifact.qza</code></td>
+<td>Step 3 looks for these exact names. We never rename.</td>
+</tr>
+<tr>
+<td>Working directory</td>
+<td><code>2_first_artifact_file/</code> next to the manifest</td>
+<td>Keeps the artifact in the same <code>mbX_pro_outputs_&lt;TS&gt;/</code> tree as everything else.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="when-and-why-we-fall-back-to-defaults">When and why we fall back to defaults</h2>
+<table>
+<thead>
+<tr>
+<th>Fallback</th>
+<th>When it triggers</th>
+<th>Why this fallback exists</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Detect single-end from header</strong></td>
+<td>Manifest has two columns instead of three.</td>
+<td>Step 1 already validated the data is consistently single-end — we just need to use the matching QIIME2 type.</td>
+</tr>
+<tr>
+<td><strong><code>--dry-run</code> mode</strong></td>
+<td>User passed <code>--dry-run</code>.</td>
+<td>Shows the exact <code>qiime tools import</code> command without consuming a minute of actual import time — useful for demos and CI gates.</td>
+</tr>
+<tr>
+<td><strong>Detect <code>qiime</code> not on PATH</strong></td>
+<td>The user is running outside their QIIME2 conda env.</td>
+<td>Prints the exact <code>conda activate qiime2-amplicon-2025.4</code> command and exits 1 — far friendlier than QIIME2's own error.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="what-the-output-file-looks-like">What the output file looks like</h2>
+<p>Step 2 writes a <code>.qza</code> — a zip archive containing the FASTQ files, the
+manifest, a UUID, and a <code>metadata.yaml</code> describing the type. You can rename
+it <code>.zip</code> and explore it in Finder:</p>
+<pre><code>Paired_End_artifact.qza
+├── data/                         &lt;- copies of the FASTQ files
+│   ├── SampleA_R1.fastq.gz
+│   ├── SampleA_R2.fastq.gz
+│   ├── ...
+│   └── MANIFEST                  &lt;- a copy of Step 1's manifest
+├── metadata.yaml                 &lt;- type, format, UUID
+└── provenance/                   &lt;- which command produced this artifact
+</code></pre>
+<p>The provenance directory is what makes QIIME2 results scientifically
+defensible — every downstream artifact carries a chain back to this one.</p>
+<hr />
+<h2 id="takeaway">Takeaway</h2>
+<blockquote>
+<p>Step 2 is a 350-line wrapper around exactly one QIIME2 command. The reason
+it's not a one-liner is that the <em>correct</em> one-liner is two different
+one-liners depending on paired vs single-end — and using the wrong one
+produces a cryptic, hours-of-debugging error. The whole script exists to
+detect "which one-liner" automatically, every time, from the manifest
+header.</p>
+</blockquote>
+<hr />
+<h2 id="sources">Sources</h2>
+<ul>
+<li>The script: <code>mbXPro/scripts/artifact_creator.sh</code></li>
+<li>QIIME2 import documentation:
+  https://docs.qiime2.org/2025.4/tutorials/importing/</li>
+<li>QIIME2 artifact format: Bolyen et al. (2019), <em>Reproducible, interactive,
+  scalable and extensible microbiome data science using QIIME 2</em>,
+  Nature Biotechnology 37:852–857.</li>
+</ul>
+<div class="doc-footer">
+  mbX Pro 1.5.0 · <a href="README.md">Markdown source</a> · <a href="#">Back to top</a>
+</div>
+<script>
+(function () {
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text);
+    }
+    return new Promise(function (resolve, reject) {
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.setAttribute('readonly', '');
+      ta.style.position = 'absolute'; ta.style.left = '-9999px';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy') ? resolve() : reject(new Error('copy failed')); }
+      catch (e) { reject(e); }
+      finally { document.body.removeChild(ta); }
+    });
+  }
+  document.querySelectorAll('pre').forEach(function (pre) {
+    var btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'copy-btn';
+    btn.textContent = 'Copy';
+    btn.setAttribute('aria-label', 'Copy code to clipboard');
+    btn.addEventListener('click', function () {
+      var code = pre.querySelector('code');
+      var text = (code ? code.innerText : pre.innerText) || '';
+      copyText(text).then(function () {
+        btn.textContent = 'Copied'; btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      }).catch(function () {
+        btn.textContent = 'Copy failed';
+        setTimeout(function () { btn.textContent = 'Copy'; }, 1600);
+      });
+    });
+    pre.appendChild(btn);
+  });
+})();
+</script>
+</body>
+</html>
